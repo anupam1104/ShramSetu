@@ -135,3 +135,35 @@ button, input, select, textarea, .font-body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(226, 232, 240, 0.8);
 }
+
+/* ═══ MOBILE-FIRST COMPACT CARDS ═══
+   Tightens card/padding/spacing on small screens so that
+   cards and boxes look clean and proportional in mobile view
+   instead of clunky and oversized. Only applies below sm (640px). */
+@media (max-width: 640px) {
+  /* Card & box padding — smaller so cards take less vertical space */
+  .p-4 { padding: 0.9rem !important; }
+  .p-5 { padding: 1rem !important; }
+  .p-6 { padding: 1.1rem !important; }
+  .p-8 { padding: 1.25rem !important; }
+  .p-10 { padding: 1.5rem !important; }
+
+  /* Page/container vertical breathing room — reduce empty bulk */
+  .py-8 { padding-top: 1.15rem !important; padding-bottom: 1.15rem !important; }
+  .py-10 { padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+  .py-12 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+
+  /* Internal stacking space — closer, less cluttered */
+  .space-y-5 > * + * { margin-top: 1rem !important; }
+  .space-y-6 > * + * { margin-top: 1.1rem !important; }
+  .space-y-8 > * + * { margin-top: 1.25rem !important; }
+  .space-y-10 > * + * { margin-top: 1.5rem !important; }
+
+  /* Grid gaps between cards — tighter */
+  .gap-4 { gap: 0.9rem !important; }
+  .gap-6 { gap: 1rem !important; }
+  .gap-8 { gap: 1.25rem !important; }
+
+  /* Softer, lighter corner radius reads cleaner on small screens */
+  .rounded-3xl { border-radius: 1.25rem !important; }
+}

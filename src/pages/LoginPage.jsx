@@ -515,8 +515,8 @@ export const LoginPage = () => {
 
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden grid grid-cols-1 md:grid-cols-5">
 
-        {/* ── LEFT PANEL ── */}
-        <div className="md:col-span-2 bg-gradient-to-br from-emerald-800 via-emerald-700 to-slate-900 text-white p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
+        {/* ── LEFT PANEL (desktop only — hidden on mobile for a clean single-column form) ── */}
+        <div className="md:col-span-2 bg-gradient-to-br from-emerald-800 via-emerald-700 to-slate-900 text-white p-8 sm:p-10 hidden md:flex flex-col justify-between relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#86efac_1px,transparent_1px)] [background-size:16px_16px]" />
           <div className="relative z-10 space-y-5">
             <div className="flex items-center space-x-3">
@@ -556,7 +556,40 @@ export const LoginPage = () => {
         </div>
 
         {/* ── RIGHT PANEL ── */}
-        <div className="md:col-span-3 p-8 sm:p-10 flex flex-col justify-start max-h-screen overflow-y-auto">
+        <div className="md:col-span-3 p-6 sm:p-10 flex flex-col justify-start max-h-screen overflow-y-auto">
+
+          {/* Compact brand header (mobile only) */}
+          <div className="md:hidden space-y-4 mb-5 pb-4 border-b border-slate-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-green-500 flex items-center justify-center text-white shadow-sm">
+                  <Shield className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <div>
+                  <span className="text-base font-bold font-heading text-slate-900 tracking-tight leading-tight">
+                    SHRAM SETU
+                  </span>
+                  <p className="text-[11px] text-slate-500 font-body leading-tight">Trusted Skilled Services</p>
+                </div>
+              </div>
+              {activeRoleTab !== 'customer' && (
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                  {activeRoleTab} Portal
+                </span>
+              )}
+            </div>
+
+            {/* Role switcher (mobile) */}
+            <div className="flex gap-1.5">
+              {[{label:'Customer',value:'customer',icon:User},{label:'Shramik',value:'shramik',icon:Briefcase},{label:'Admin',value:'admin',icon:Shield}].map(({label,value,icon:Icon})=>(
+                <button key={value} onClick={()=>setActiveRoleTab(value)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl text-xs font-semibold border transition-all ${activeRoleTab===value?'bg-emerald-600 text-white border-emerald-600 shadow-sm':'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                >
+                  <Icon className="w-4 h-4"/>{label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* ══════════ CUSTOMER ══════════ */}
           {activeRoleTab==='customer' && (

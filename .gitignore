@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Packaging output
+release
+
+# Dead code (kept locally, not part of the app)
+src/data/indiaAddresses.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

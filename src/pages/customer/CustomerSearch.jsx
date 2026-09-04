@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const CustomerSearch = () => {
-  const { shramiks, setSelectedWorkerId, setCurrentScreen, switchRole, searchCategory, setSearchCategory, isLoggedIn } = useApp();
+  const { shramiks, setSelectedWorkerId, setCurrentScreen, searchCategory, setSearchCategory } = useApp();
   
   const [searchQuery, setSearchQuery] = useState('');
   const selectedCategory = searchCategory || 'All';
@@ -43,26 +43,6 @@ export const CustomerSearch = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-6 pb-20">
-      
-      {/* Portal Breadcrumb & Count */}
-      <div className="flex items-center justify-between">
-        {!isLoggedIn ? (
-          <button
-            onClick={() => { switchRole('landing'); setCurrentScreen('landing'); }}
-            className="text-slate-600 hover:text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            <span>← Back to Home</span>
-          </button>
-        ) : (
-          <div className="inline-flex items-center gap-2 text-xs text-emerald-800 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/90">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Customer Portal • Live Directory</span>
-          </div>
-        )}
-        <span className="text-xs text-slate-500 font-medium font-mono">
-          Showing {filteredWorkers.length} verified professional{filteredWorkers.length !== 1 ? 's' : ''}
-        </span>
-      </div>
 
       {/* Search Header */}
       <div className="space-y-4">
@@ -101,69 +81,69 @@ export const CustomerSearch = () => {
       </div>
 
       {/* Worker Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+      <div className="grid grid-cols-2 gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-3 pt-2">
         {filteredWorkers.map((worker) => (
           <div
             key={worker.id}
-            className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all p-6 space-y-4 flex flex-col justify-between group"
+            className="bg-white rounded-2xl md:rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all p-3 md:p-6 space-y-3 md:space-y-4 flex flex-col justify-between group"
           >
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               
               {/* Header: Photo + Name + Verified Badge */}
-              <div className="flex items-start space-x-4">
+              <div className="flex items-start space-x-2.5 md:space-x-4">
                 <div className="relative">
                   <img
                     src={worker.photo}
                     alt={worker.name}
-                    className="w-16 h-16 rounded-2xl object-cover border-2 border-slate-200 group-hover:border-emerald-500 transition-colors"
+                    className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl object-cover border-2 border-slate-200 group-hover:border-emerald-500 transition-colors"
                   />
                   {worker.verified && (
                     <span className="absolute -bottom-1 -right-1 bg-emerald-600 text-white p-1 rounded-full border-2 border-white">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <CheckCircle2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
                     </span>
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-slate-900 text-lg truncate group-hover:text-emerald-700 transition-colors">
+                    <h3 className="font-bold text-slate-900 text-sm md:text-lg truncate group-hover:text-emerald-700 transition-colors">
                       {worker.name}
                     </h3>
                   </div>
 
                   {worker.verified ? (
-                    <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified
+                    <span className="inline-flex items-center gap-0.5 md:gap-1 bg-emerald-100 text-emerald-800 text-[10px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded-full border border-emerald-300">
+                      <CheckCircle2 className="w-2.5 md:w-3 h-2.5 md:h-3 text-emerald-600" /> Verified
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[11px] font-bold px-2 py-0.5 rounded-full border border-amber-300">
-                      ● Pending Review
+                    <span className="inline-flex items-center gap-0.5 md:gap-1 bg-amber-100 text-amber-800 text-[10px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded-full border border-amber-300">
+                      ● Pending
                     </span>
                   )}
 
-                  <p className="text-xs font-semibold text-slate-500 mt-1">{worker.skill}</p>
+                  <p className="text-[11px] md:text-xs font-semibold text-slate-500 mt-0.5 md:mt-1 truncate">{worker.skill}</p>
                 </div>
               </div>
 
               {/* Stats: Rating, Jobs, Distance */}
-              <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div className="flex items-center justify-between text-[11px] md:text-xs text-slate-600 bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-xl border border-slate-100">
                 <div className="flex items-center text-amber-600 font-bold">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400 mr-1" />
+                  <Star className="w-3.5 md:w-4 h-3.5 md:h-4 fill-amber-400 text-amber-400 mr-0.5 md:mr-1" />
                   {worker.rating > 0 ? worker.rating : 'New'}
-                  <span className="text-slate-400 font-normal ml-1">({worker.jobsCount} jobs)</span>
+                  <span className="hidden md:inline text-slate-400 font-normal ml-1">({worker.jobsCount} jobs)</span>
                 </div>
 
                 <div className="flex items-center text-slate-500 font-medium">
-                  <MapPin className="w-3.5 h-3.5 mr-1 text-slate-400" />
+                  <MapPin className="w-3 md:w-3.5 h-3 md:h-3.5 mr-0.5 text-slate-400" />
                   {worker.distance}
                 </div>
               </div>
 
               {/* Rate */}
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500 font-medium">Hourly Rate:</span>
-                <span className="text-lg font-bold font-mono text-slate-900">
-                  ₹{worker.hourlyRate}<span className="text-xs font-normal text-slate-500">/hr</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium text-[11px] md:text-sm">Rate</span>
+                <span className="text-sm md:text-lg font-bold font-mono text-slate-900">
+                  ₹{worker.hourlyRate}<span className="text-[10px] md:text-xs font-normal text-slate-500">/hr</span>
                 </span>
               </div>
             </div>
@@ -171,10 +151,11 @@ export const CustomerSearch = () => {
             {/* CTA */}
             <button
               onClick={() => handleViewProfile(worker.id)}
-              className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-xs transition-all text-xs flex items-center justify-center space-x-1.5 group-hover:shadow-emerald-600/20"
+              className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-2 md:py-3 rounded-lg md:rounded-xl shadow-xs transition-all text-[11px] md:text-xs flex items-center justify-center space-x-1 group-hover:shadow-emerald-600/20"
             >
-              <span>View Profile</span>
-              <ChevronRight className="w-4 h-4" />
+              <span className="md:hidden">View</span>
+              <span className="hidden md:inline">View Profile</span>
+              <ChevronRight className="w-3.5 md:w-4 h-3.5 md:h-4" />
             </button>
 
           </div>

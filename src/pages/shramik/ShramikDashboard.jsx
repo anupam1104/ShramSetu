@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
   Calendar, 
-  IndianRupee, 
-  CheckCircle2, 
   Clock, 
   MapPin, 
   User, 
@@ -13,11 +11,34 @@ import {
   Phone
 } from 'lucide-react';
 
+const getGreeting = () => {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+};
+
 export const ShramikDashboard = () => {
-  const { shramiks, activeShramikId, bookings, setCurrentScreen, setActiveBookingId } = useApp();
+  const { shramiks, activeShramikId, bookings, setCurrentScreen, setActiveBookingId, currentUser } = useApp();
   
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  // Live update the greeting as the time of day changes
+  useEffect(() => {
+    const now = new Date();
+    const msToNextMinute = (60 - now.getSeconds()) * 1000;
+    const timer = setTimeout(() => setGreeting(getGreeting()), msToNextMinute);
+    return () => clearTimeout(timer);
+  }, [greeting]);
+
   const currentShramik = shramiks.find(s => s.id === activeShramikId) || shramiks[0];
   const activeBooking = bookings.find(b => (b.shramikId === currentShramik.id || b.id === 'BK-8891') && !['Cancelled','Completed','Paid'].includes(b.status)) || null;
+
+  // Prefer the actual logged-in Shramik identity for display
+  const displayName = currentUser?.name || currentShramik.name;
+  const displaySkill = currentUser?.skill || currentShramik.skill;
+  const displayId = currentUser?.shramikId || currentShramik.shramikId || 'SS-10101';
+  const displayCity = currentUser?.city || currentShramik.city;
 
   const handleOpenJob = (bookingId) => {
     setActiveBookingId(bookingId);
@@ -33,7 +54,7 @@ export const ShramikDashboard = () => {
           <div className="flex items-center space-x-2">
             <span className="bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              {currentShramik.shramikId || 'SS-10101'}
+              {displayId}
             </span>
             <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
               ✓ Verified
@@ -41,45 +62,11 @@ export const ShramikDashboard = () => {
           </div>
           
           <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
-            Good morning, {currentShramik.name.split(' ')[0]} 👋
+            {greeting}, {displayName.split(' ')[0]} 👋
           </h1>
           <p className="text-sm text-emerald-100/80">
-            Primary Skill: <strong>{currentShramik.skill}</strong> • {currentShramik.city}
+            Primary Skill: <strong>{displaySkill}</strong> • {displayCity}
           </p>
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 text-right relative z-10 self-stretch sm:self-auto flex sm:block justify-between items-center">
-          <p className="text-xs text-emerald-200 font-semibold uppercase">Daily Earnings</p>
-          <p className="text-2xl font-bold font-mono text-white flex items-center justify-end">
-            <IndianRupee className="w-5 h-5 mr-0.5" /> 1,250
-          </p>
-        </div>
-      </div>
-
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs text-center">
-          <div className="w-10 h-10 mx-auto rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2 font-bold">
-            <IndianRupee className="w-5 h-5" />
-          </div>
-          <p className="text-2xl font-bold text-slate-900 font-mono">₹1,250</p>
-          <p className="text-xs text-slate-500 font-medium">Today's Earnings</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs text-center">
-          <div className="w-10 h-10 mx-auto rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-2 font-bold">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-          <p className="text-2xl font-bold text-slate-900 font-mono">{currentShramik.jobsCount || 12}</p>
-          <p className="text-xs text-slate-500 font-medium">Completed Jobs</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs text-center">
-          <div className="w-10 h-10 mx-auto rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-2 font-bold">
-            <Clock className="w-5 h-5" />
-          </div>
-          <p className="text-2xl font-bold text-slate-900 font-mono">3</p>
-          <p className="text-xs text-slate-500 font-medium">Upcoming Jobs</p>
         </div>
       </div>
 
