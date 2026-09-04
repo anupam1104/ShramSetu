@@ -11,23 +11,57 @@ import {
   CreditCard, 
   Sparkles,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Briefcase,
+  XCircle
 } from 'lucide-react';
 
 export const TrackBooking = () => {
-  const { bookings, activeBookingId, confirmWorkDone, setCurrentScreen } = useApp();
+  const { bookings, activeBookingId, confirmWorkDone, cancelBooking, setCurrentScreen, switchRole, setActiveShramikId } = useApp();
   const booking = bookings.find(b => b.id === activeBookingId) || bookings[0];
 
   const handleProceedToPayment = () => {
     setCurrentScreen('payment');
   };
 
+  if (!booking) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto space-y-6">
+        {/* Top Header */}
+        <div className="text-center space-y-1">
+          <span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 uppercase tracking-wider">
+            Service Tracking
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 pt-1">
+            Track Your Booking
+          </h1>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-200 p-10 text-center shadow-sm">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+            <Calendar className="w-7 h-7" />
+          </div>
+          <h3 className="font-bold text-slate-800 text-lg">No bookings done yet</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            You haven't placed any service bookings yet. Book a skilled worker to see live tracking here.
+          </p>
+          <button
+            onClick={() => setCurrentScreen('search')}
+            className="mt-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all text-xs"
+          >
+            Book a Service
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto space-y-6 pb-20">
       
       {/* Top Header */}
       <div className="text-center space-y-1">
-        <span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 uppercase tracking-wider">
+        <span className={`${booking.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-200' : 'text-emerald-700 bg-emerald-100 border-emerald-200'} text-xs font-bold px-3 py-1 rounded-full border uppercase tracking-wider`}>
           Service Tracking • {booking.id}
         </span>
         <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 pt-1">
@@ -35,7 +69,27 @@ export const TrackBooking = () => {
         </h1>
       </div>
 
+      {/* Cancelled notice */}
+      {booking.status === 'Cancelled' && (
+        <div className="bg-red-50 border-2 border-red-200 rounded-3xl p-6 text-center space-y-3">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-red-100 text-red-600 flex items-center justify-center">
+            <XCircle className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-bold font-heading text-red-800">Booking Cancelled</h3>
+          <p className="text-xs text-red-700 max-w-sm mx-auto">
+            This booking has been cancelled. No charges were applied.
+          </p>
+          <button
+            onClick={() => setCurrentScreen('search')}
+            className="mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all text-xs"
+          >
+            Book Another Service
+          </button>
+        </div>
+      )}
+
       {/* Visual Status Stepper Bar */}
+      {booking.status !== 'Cancelled' && (
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
         <div className="flex justify-between items-center relative">
           
@@ -82,6 +136,7 @@ export const TrackBooking = () => {
 
         </div>
       </div>
+      )}
 
       {/* PROMINENT START-CODE CARD (Key SIH UX Requirement) */}
       {booking.status === 'Confirmed' && (
@@ -137,6 +192,24 @@ export const TrackBooking = () => {
             <span className="font-medium text-slate-800">{booking.customerAddress}</span>
           </div>
         </div>
+
+        {/* Cancel Booking option (below service address) */}
+        {['Confirmed', 'In Progress'].includes(booking.status) && (
+          <div className="pt-2 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to cancel this booking?')) {
+                  cancelBooking(booking.id);
+                }
+              }}
+              className="w-full flex items-center justify-center space-x-2 bg-red-50 hover:bg-red-100 border-2 border-red-200 text-red-700 font-bold py-3 rounded-xl transition-all text-sm"
+            >
+              <XCircle className="w-5 h-5" />
+              <span>Cancel My Booking</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Customer Work Completion Box */}
@@ -193,6 +266,14 @@ export const TrackBooking = () => {
           <p className="text-xs text-slate-600">
             Thank you! Service is complete and paid.
           </p>
+          <div className="pt-2">
+            <button
+              onClick={() => setCurrentScreen('search')}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all text-xs"
+            >
+              Book Another Service
+            </button>
+          </div>
         </div>
       )}
 

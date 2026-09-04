@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const AdminPendingApprovals = () => {
-  const { shramiks, approveShramik, rejectShramik } = useApp();
+  const { shramiks, approveShramik, rejectShramik, switchRole, setSelectedWorkerId, setCurrentScreen } = useApp();
   const [selectedModalWorker, setSelectedModalWorker] = useState(null);
 
   const pendingList = shramiks.filter(s => !s.verified);
@@ -49,7 +49,7 @@ export const AdminPendingApprovals = () => {
             <h3 className="font-bold text-slate-900 text-sm font-heading uppercase tracking-wider">
               Pending Registrations
             </h3>
-            <span className="text-xs text-slate-500">SIH Demo Live Management</span>
+            <span className="text-xs text-slate-500">Live Management</span>
           </div>
 
           <div className="overflow-x-auto">
@@ -164,17 +164,20 @@ export const AdminPendingApprovals = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {verifiedList.map((worker) => (
-              <div key={worker.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
+              <div 
+                key={worker.id} 
+                className="p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:border-emerald-300 transition-all space-y-2 group"
+              >
                 <div className="flex items-center space-x-3">
                   <img src={worker.photo} alt={worker.name} className="w-10 h-10 rounded-xl object-cover" />
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm">{worker.name}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-slate-900 text-sm truncate group-hover:text-emerald-700 transition-colors">{worker.name}</p>
                     <p className="text-xs text-emerald-700 font-semibold font-mono">{worker.shramikId || 'SS-10101'}</p>
                   </div>
                 </div>
                 <div className="flex justify-between text-xs text-slate-600 pt-1 border-t border-slate-200">
                   <span>Skill: <strong>{worker.skill}</strong></span>
-                  <span>Rate: <strong>₹{worker.hourlyRate}/hr</strong></span>
+                  <span className="text-emerald-700 font-semibold font-mono text-[11px]">Verified Active</span>
                 </div>
               </div>
             ))}

@@ -17,7 +17,7 @@ export const ShramikDashboard = () => {
   const { shramiks, activeShramikId, bookings, setCurrentScreen, setActiveBookingId } = useApp();
   
   const currentShramik = shramiks.find(s => s.id === activeShramikId) || shramiks[0];
-  const activeBooking = bookings.find(b => b.shramikId === currentShramik.id || b.id === 'BK-8891') || bookings[0];
+  const activeBooking = bookings.find(b => (b.shramikId === currentShramik.id || b.id === 'BK-8891') && !['Cancelled','Completed','Paid'].includes(b.status)) || null;
 
   const handleOpenJob = (bookingId) => {
     setActiveBookingId(bookingId);
@@ -96,7 +96,7 @@ export const ShramikDashboard = () => {
         </div>
 
         {/* Active Job Card */}
-        {activeBooking && (
+        {activeBooking ? (
           <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-md hover:shadow-lg transition-all space-y-4">
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
@@ -153,6 +153,20 @@ export const ShramikDashboard = () => {
               </button>
             </div>
 
+          </div>
+        ) : (
+          <div className="bg-white rounded-3xl border border-slate-200 p-10 text-center shadow-sm">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+              <Calendar className="w-7 h-7" />
+            </div>
+            <h3 className="font-bold text-slate-800 text-lg">No bookings done yet</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+              Once a customer books your service, the job details will appear here.
+            </p>
+            <span className="inline-flex items-center gap-1.5 mt-4 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-emerald-200">
+              <Clock className="w-3.5 h-3.5" />
+              Waiting for incoming bookings
+            </span>
           </div>
         )}
 

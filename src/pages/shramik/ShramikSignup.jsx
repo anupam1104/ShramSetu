@@ -1,6 +1,122 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { User, Phone, Lock, Wrench, MapPin, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react';
+import { User, Phone, Lock, Wrench, MapPin, CheckCircle2, ChevronRight, ArrowLeft, ChevronDown } from 'lucide-react';
+import { INDIA_LOCATIONS, INDIAN_STATES } from '../../data/indiaLocations';
+
+const LC = 'block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1';
+
+const LocationDropdown = ({ value, onChange, showLabel = true }) => {
+  const [selectedState, setSelectedState] = useState(() => {
+    if (!value) return '';
+    const parts = value.split(' | ');
+    return parts.length > 1 ? parts[1] : '';
+  });
+  const [selectedCity, setSelectedCity] = useState(() => {
+    if (!value) return '';
+    const parts = value.split(' | ');
+    return parts.length > 1 ? parts[0] : value;
+  });
+  const [citySearch, setCitySearch] = useState('');
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
+  const [filteredCities, setFilteredCities] = useState([]);
+  const cityRef = React.useRef(null);
+
+  const cities = selectedState ? (INDIA_LOCATIONS[selectedState] || []) : [];
+
+  React.useEffect(() => {
+    if (!selectedState) { setFilteredCities([]); return; }
+    if (citySearch.length >= 1) {
+      const q = citySearch.toLowerCase();
+      setFilteredCities(cities.filter(c => c.toLowerCase().includes(q)).slice(0, 10));
+      setCityDropdownOpen(true);
+    } else {
+      setFilteredCities(cities.slice(0, 15));
+      setCityDropdownOpen(true);
+    }
+  }, [citySearch, selectedState]);
+
+  React.useEffect(() => {
+    const handler = (e) => { if (cityRef.current && !cityRef.current.contains(e.target)) setCityDropdownOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const selectCity = (city) => {
+    setSelectedCity(city); setCitySearch(''); setCityDropdownOpen(false);
+    onChange(`${city} | ${selectedState}`);
+  };
+
+  const handleStateChange = (state) => {
+    setSelectedState(state); setSelectedCity(''); setCitySearch(''); setFilteredCities([]); setCityDropdownOpen(false);
+    onChange('');
+  };
+
+  const clearLocation = () => {
+    setSelectedState(''); setSelectedCity(''); setCitySearch(''); setFilteredCities([]); setCityDropdownOpen(false);
+    onChange('');
+  };
+
+  const stateIcon = <MapPin className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />;
+  const selectBase = "w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all appearance-none font-sans text-slate-700";
+
+  return (
+    <div className="space-y-2.5">
+      {showLabel && <label className={LC}>State</label>}
+      <div className="relative">
+        {stateIcon}
+        <select value={selectedState} onChange={(e) => handleStateChange(e.target.value)} className={selectBase}>
+          <option value="">Select State / UT...</option>
+          {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      </div>
+      {selectedState && (
+        <div>
+          {showLabel && <label className={LC}>City / District / Village</label>}
+          <div className="relative" ref={cityRef}>
+            <MapPin className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
+            <input
+              type="text"
+              placeholder={selectedCity ? selectedCity : `Search in ${selectedState}...`}
+              value={selectedCity ? selectedCity : citySearch}
+              onChange={(e) => { setSelectedCity(''); setCitySearch(e.target.value); onChange(''); }}
+              onFocus={() => { setCityDropdownOpen(true); if (!citySearch) setFilteredCities(cities.slice(0, 15)); }}
+              className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all font-sans placeholder:text-slate-400"
+              autoComplete="off"
+            />
+            {selectedCity && (
+              <button type="button" onClick={() => { setSelectedCity(''); setCitySearch(''); onChange(''); }}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <span className="sr-only">Clear</span>&times;
+              </button>
+            )}
+            {cityDropdownOpen && filteredCities.length > 0 && (
+              <ul className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden max-h-52 overflow-y-auto">
+                {filteredCities.map((city) => (
+                  <li key={city} onMouseDown={() => selectCity(city)}
+                    className="px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 cursor-pointer flex items-center gap-2 transition-colors">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    {city}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {cityDropdownOpen && filteredCities.length === 0 && citySearch.length >= 1 && (
+              <div className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl px-4 py-3 text-sm text-slate-500">
+                No city found in {selectedState}.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {selectedState && (
+        <button type="button" onClick={clearLocation} className="text-[11px] text-slate-400 hover:text-red-500 transition-colors ml-1">
+          Clear selection
+        </button>
+      )}
+    </div>
+  );
+};
 
 export const ShramikSignup = () => {
   const { registerShramik } = useApp();
@@ -250,19 +366,7 @@ export const ShramikSignup = () => {
           {step === 3 && (
             <div className="space-y-5 animate-fade-in">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Your City
-                </label>
-                <div className="relative">
-                  <MapPin className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    required
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none"
-                  />
-                </div>
+                <LocationDropdown value={city} onChange={setCity} showLabel={true} />
               </div>
 
               <div>

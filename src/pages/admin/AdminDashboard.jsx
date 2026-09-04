@@ -78,9 +78,11 @@ export const AdminDashboard = () => {
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Bookings</p>
               <p className="text-3xl font-extrabold font-mono text-slate-900 mt-1">
-                86
+                {bookings.length}
               </p>
-              <p className="text-[11px] text-blue-700 font-semibold mt-0.5">Completed & Active</p>
+              <p className="text-[11px] text-blue-700 font-semibold mt-0.5">
+                {bookings.length === 0 ? 'No bookings yet' : 'Completed & Active'}
+              </p>
             </div>
           </div>
 

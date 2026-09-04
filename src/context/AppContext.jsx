@@ -78,28 +78,7 @@ const INITIAL_SHRAMIKS = [
   }
 ];
 
-const INITIAL_BOOKINGS = [
-  {
-    id: 'BK-8891',
-    shramikId: 'shr-1',
-    shramikName: 'Ramesh Kumar',
-    shramikPhone: '+91 98765 43210',
-    skill: 'Electrician',
-    serviceName: 'Electrical Repair',
-    date: '11 September 2026',
-    time: '03:00 PM',
-    customerName: 'Amit Sharma',
-    customerPhone: '+91 99887 76655',
-    customerAddress: 'Flat 4B, Green View Apartments, Salt Lake Sector V, Kolkata',
-    distance: '2.1 km',
-    serviceFee: 500,
-    platformFee: 50,
-    totalAmount: 550,
-    startCode: '1472',
-    status: 'Confirmed', // Confirmed -> In Progress -> Completed -> Paid
-    createdAt: new Date().toISOString()
-  }
-];
+const INITIAL_BOOKINGS = [];
 
 export const AppProvider = ({ children }) => {
   // Navigation & Role State
@@ -110,18 +89,25 @@ export const AppProvider = ({ children }) => {
   const [shramiks, setShramiks] = useState(INITIAL_SHRAMIKS);
   const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
   const [selectedWorkerId, setSelectedWorkerId] = useState('shr-1');
-  const [activeBookingId, setActiveBookingId] = useState('BK-8891');
+  const [activeBookingId, setActiveBookingId] = useState('');
   const [activeShramikId, setActiveShramikId] = useState('shr-1'); // Default active Shramik (Ramesh Kumar) or new registered
   
   // Transient Booking Selection state
   const [bookingDraft, setBookingDraft] = useState({
-    date: '11 September 2026',
-    time: '03:00 PM',
-    service: 'Electrical Repair'
+    date: '',
+    time: '',
+    service: ''
   });
+
+  // Selected Category filter for CustomerSearch
+  const [searchCategory, setSearchCategory] = useState('All');
 
   // Notification Toast state
   const [toast, setToast] = useState(null);
+
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Which login tab should be pre-selected (customer | shramik), set by landing CTAs
   const [intendedLoginRole, setIntendedLoginRole] = useState('customer');
@@ -131,21 +117,56 @@ export const AppProvider = ({ children }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
+  const login = (userData) => {
+    setCurrentUser(userData);
+    setIsLoggedIn(true);
+    setRole(userData.role);
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+    setRole('landing');
+    setCurrentScreen('landing');
+    showToast('Logged out successfully.', 'info');
+  };
+
   // Synchronize screen when role changes
   const switchRole = (newRole) => {
+    // Strict Portal Isolation: when logged in, do not allow changing to another portal
+    if (isLoggedIn && currentUser?.role && newRole !== currentUser.role && newRole !== 'landing') {
+      return;
+    }
     setRole(newRole);
     if (newRole === 'landing') setCurrentScreen('landing');
-    else if (newRole === 'customer') setCurrentScreen('search');
-    else if (newRole === 'shramik') {
-      // Check if current Shramik is verified or pending
-      const activeShramik = shramiks.find(s => s.id === activeShramikId);
-      if (activeShramik && !activeShramik.verified) {
-        setCurrentScreen('shramik_pending');
+    else if (newRole === 'customer') {
+      if (!isLoggedIn) {
+        setIntendedLoginRole('customer');
+        setCurrentScreen('login');
       } else {
-        setCurrentScreen('shramik_dashboard');
+        setCurrentScreen('search');
+      }
+    }
+    else if (newRole === 'shramik') {
+      if (!isLoggedIn) {
+        setIntendedLoginRole('shramik');
+        setCurrentScreen('login');
+      } else {
+        // Check if current Shramik is verified or pending
+        const activeShramik = shramiks.find(s => s.id === activeShramikId);
+        if (activeShramik && !activeShramik.verified) {
+          setCurrentScreen('shramik_pending');
+        } else {
+          setCurrentScreen('shramik_dashboard');
+        }
       }
     } else if (newRole === 'admin') {
-      setCurrentScreen('admin_dashboard');
+      if (!isLoggedIn) {
+        setIntendedLoginRole('admin');
+        setCurrentScreen('login');
+      } else {
+        setCurrentScreen('admin_dashboard');
+      }
     }
   };
 
@@ -210,6 +231,10 @@ export const AppProvider = ({ children }) => {
     const newBookingId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
     const randomStartCode = Math.floor(1000 + Math.random() * 9000).toString();
 
+    const customerName = currentUser?.name || 'Customer';
+    const customerPhone = currentUser?.phone ? (currentUser.phone.startsWith('+91') ? currentUser.phone : `+91 ${currentUser.phone}`) : '+91 00000 00000';
+    const customerAddress = currentUser?.address || currentUser?.city || '';
+
     const newBooking = {
       id: newBookingId,
       shramikId: worker.id,
@@ -219,9 +244,9 @@ export const AppProvider = ({ children }) => {
       serviceName: bookingDraft.service || `${worker.skill} Service`,
       date: bookingDraft.date,
       time: bookingDraft.time,
-      customerName: 'Amit Sharma',
-      customerPhone: '+91 99887 76655',
-      customerAddress: 'Flat 4B, Green View Apts, Salt Lake, Kolkata',
+      customerName,
+      customerPhone,
+      customerAddress,
       distance: worker.distance,
       serviceFee: worker.hourlyRate * 2,
       platformFee: 50,
@@ -235,6 +260,12 @@ export const AppProvider = ({ children }) => {
     setActiveBookingId(newBookingId);
     setCurrentScreen('track_booking');
     showToast(`Booking Confirmed! Your Start Code is ${randomStartCode}`, 'success');
+  };
+
+  // Customer Cancels Booking
+  const cancelBooking = (bookingId) => {
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Cancelled' } : b));
+    showToast('Booking cancelled successfully.', 'info');
   };
 
   // 4-Digit Code Verification by Shramik
@@ -343,11 +374,18 @@ export const AppProvider = ({ children }) => {
       verifyStartCode,
       confirmWorkDone,
       processPayment,
+      cancelBooking,
       jumpToDemoStep,
       toast,
       showToast,
       intendedLoginRole,
       setIntendedLoginRole,
+      searchCategory,
+      setSearchCategory,
+      currentUser,
+      isLoggedIn,
+      login,
+      logout,
     }}>
       {children}
     </AppContext.Provider>

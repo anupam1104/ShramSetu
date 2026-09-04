@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export const AdminLayout = ({ children }) => {
-  const { currentScreen, setCurrentScreen, shramiks, switchRole } = useApp();
+  const { currentScreen, setCurrentScreen, shramiks, logout } = useApp();
   const pendingCount = shramiks.filter(s => !s.verified).length;
 
   const menuItems = [
@@ -78,11 +78,11 @@ export const AdminLayout = ({ children }) => {
           </div>
 
           <button
-            onClick={() => switchRole('landing')}
-            className="w-full flex items-center space-x-2 text-xs text-slate-400 hover:text-red-400 transition-colors py-1"
+            onClick={logout}
+            className="w-full flex items-center space-x-2 text-xs text-slate-400 hover:text-red-400 transition-colors py-1.5 px-2 rounded-lg hover:bg-slate-800"
           >
             <LogOut className="w-4 h-4" />
-            <span>Exit Admin View</span>
+            <span>Logout from Admin</span>
           </button>
         </div>
       </aside>

@@ -10,11 +10,12 @@ import {
   ArrowLeft, 
   ShieldCheck,
   Phone,
-  Sparkles
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 
 export const ShramikJobScreen = () => {
-  const { bookings, activeBookingId, verifyStartCode, setCurrentScreen } = useApp();
+  const { bookings, activeBookingId, verifyStartCode, setCurrentScreen, switchRole } = useApp();
   const currentBooking = bookings.find(b => b.id === activeBookingId) || bookings[0];
 
   const [pinDigits, setPinDigits] = useState(['', '', '', '']);
@@ -159,24 +160,44 @@ export const ShramikJobScreen = () => {
             </div>
           </form>
         ) : (
-          /* WORK IN PROGRESS / COMPLETED STATE */
-          <div className="bg-emerald-100/70 border border-emerald-300 p-6 rounded-3xl text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <CheckCircle2 className="w-10 h-10 stroke-[2.2]" />
+          /* WORK IN PROGRESS / COMPLETED / PAID STATE */
+          <div className="space-y-4">
+            <div className="bg-emerald-100/70 border border-emerald-300 p-6 rounded-3xl text-center space-y-4 shadow-sm animate-scale-up">
+              <div className="w-16 h-16 mx-auto rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <CheckCircle2 className="w-10 h-10 stroke-[2.2]" />
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-emerald-950 font-heading">
+                  {currentBooking.status === 'In Progress' && '✓ Code Verified! Job In Progress'}
+                  {currentBooking.status === 'Completed' && '✓ Work Done Confirmed by Customer'}
+                  {currentBooking.status === 'Paid' && '✓ Job Completed & Paid'}
+                </h3>
+                <p className="text-xs text-emerald-800">
+                  Service: <strong>{currentBooking.serviceName}</strong> for {currentBooking.customerName}
+                </p>
+              </div>
+
+              {currentBooking.status === 'In Progress' && (
+                <p className="text-xs text-slate-600 bg-white/80 p-3 rounded-xl border border-emerald-200">
+                  Once you finish the task, ask the customer to click <strong>"Confirm Work Done"</strong> on their screen to proceed to payment.
+                </p>
+              )}
+
+              {currentBooking.status === 'Paid' && (
+                <p className="text-xs text-emerald-900 bg-emerald-200/60 p-3 rounded-xl border border-emerald-300 font-bold">
+                  ₹{currentBooking.serviceFee} credited to your daily earnings.
+                </p>
+              )}
             </div>
 
-            <div className="space-y-1">
-              <h3 className="text-xl font-bold text-emerald-950 font-heading">
-                ✓ Code Verified! Job In Progress
-              </h3>
-              <p className="text-xs text-emerald-800">
-                You are currently performing <strong>{currentBooking.serviceName}</strong>.
-              </p>
-            </div>
-
-            <p className="text-xs text-slate-600 bg-white/80 p-3 rounded-xl border border-emerald-200">
-              Once you finish the task, ask the customer to click <strong>"Confirm Work Done"</strong> on their phone to unlock payment.
-            </p>
+            <button
+              type="button"
+              onClick={() => setCurrentScreen('shramik_dashboard')}
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-xs"
+            >
+              Back to Shramik Dashboard
+            </button>
           </div>
         )}
 

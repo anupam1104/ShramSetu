@@ -16,10 +16,11 @@ import {
 } from 'lucide-react';
 
 export const CustomerSearch = () => {
-  const { shramiks, setSelectedWorkerId, setCurrentScreen } = useApp();
+  const { shramiks, setSelectedWorkerId, setCurrentScreen, switchRole, searchCategory, setSearchCategory, isLoggedIn } = useApp();
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const selectedCategory = searchCategory || 'All';
+  const setSelectedCategory = setSearchCategory;
 
   const categories = ['All', 'Electrician', 'Plumber', 'Carpenter', 'Painter'];
 
@@ -43,6 +44,26 @@ export const CustomerSearch = () => {
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-6 pb-20">
       
+      {/* Portal Breadcrumb & Count */}
+      <div className="flex items-center justify-between">
+        {!isLoggedIn ? (
+          <button
+            onClick={() => { switchRole('landing'); setCurrentScreen('landing'); }}
+            className="text-slate-600 hover:text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          >
+            <span>← Back to Home</span>
+          </button>
+        ) : (
+          <div className="inline-flex items-center gap-2 text-xs text-emerald-800 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/90">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Customer Portal • Live Directory</span>
+          </div>
+        )}
+        <span className="text-xs text-slate-500 font-medium font-mono">
+          Showing {filteredWorkers.length} verified professional{filteredWorkers.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
       {/* Search Header */}
       <div className="space-y-4">
         <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">

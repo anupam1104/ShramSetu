@@ -79,18 +79,14 @@ export const ShramikPending = () => {
               We'll notify you automatically when your profile is approved.
             </p>
 
-            {/* SIH Presentation Demo Quick Action Button */}
             <div className="pt-2 border-t border-slate-100 space-y-2">
               <button
                 onClick={() => approveShramik(currentShramik.id)}
                 className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all flex items-center justify-center space-x-2"
               >
                 <Sparkles className="w-4 h-4 text-emerald-200" />
-                <span>Simulate Admin Approval Now</span>
+                <span>Simulate Verification Approval</span>
               </button>
-              <p className="text-[10px] text-slate-400">
-                (Click to test the instant transition to Verified state)
-              </p>
             </div>
           </div>
         ) : (

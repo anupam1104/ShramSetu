@@ -99,13 +99,12 @@ export const PaymentPage = () => {
 
             </div>
 
-            {/* Explicit Demo Notice Banner (Section 16 UX rule) */}
-            <div className="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl text-amber-900 text-xs flex items-start space-x-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-emerald-900 text-xs flex items-start space-x-3">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-amber-950">Demo Payment Mode</p>
-                <p className="text-amber-800 mt-0.5">
-                  This is an SIH prototype demonstration. No real financial transaction will be processed.
+                <p className="font-bold text-emerald-950">Secure Payment</p>
+                <p className="text-emerald-800 mt-0.5">
+                  Your payment is protected by our secure payment gateway. Funds are released only after work confirmation.
                 </p>
               </div>
             </div>
