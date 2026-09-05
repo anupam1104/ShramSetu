@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { LanguageSelectDropdown } from './LanguageSelectDropdown';
 import { 
   Shield, 
   Search, 
@@ -11,7 +12,8 @@ import {
   ArrowRight,
   LogOut,
   Menu,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -25,7 +27,9 @@ export const Navbar = () => {
     setIntendedLoginRole,
     isLoggedIn,
     currentUser,
-    logout
+    logout,
+    openSettings,
+    t
   } = useApp();
   const activeShramik = shramiks.find(s => s.id === activeShramikId);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -60,10 +64,16 @@ export const Navbar = () => {
       onClick: () => { switchRole('landing'); navigate('landing'); }
     });
     mobileItems.push({
-      label: 'Sign In',
+      label: t('signIn', 'Sign In'),
       icon: User,
       active: currentScreen === 'login',
       onClick: () => { setIntendedLoginRole('customer'); navigate('login'); }
+    });
+    mobileItems.push({
+      label: t('settings', 'Settings'),
+      icon: Settings,
+      active: false,
+      onClick: () => { closeMenu(); openSettings(); }
     });
   } else if (role === 'customer') {
     mobileItems.push({
@@ -128,7 +138,7 @@ export const Navbar = () => {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs relative">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 shadow-xs relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12 md:h-16">
           
@@ -141,14 +151,14 @@ export const Navbar = () => {
               <Shield className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
             </div>
             <div>
-              <span className="text-base md:text-xl font-bold font-heading text-slate-900 tracking-tight block leading-tight">
-                SHRAM SETU
+              <span className="text-base md:text-xl font-bold font-heading text-slate-900 dark:text-white tracking-tight block leading-tight">
+                {t('brandName', 'SHRAM SETU')}
               </span>
-              <p className="text-[10px] md:text-[11px] text-slate-500 hidden sm:block font-body">
-                {!isLoggedIn && 'Trusted Skilled Services'}
-                {isLoggedIn && role === 'customer' && 'Customer Portal'}
-                {isLoggedIn && role === 'shramik' && 'Shramik Partner Portal'}
-                {isLoggedIn && role === 'admin' && 'Admin Operations Console'}
+              <p className="text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block font-body">
+                {!isLoggedIn && t('brandTagline', 'Trusted Skilled Services')}
+                {isLoggedIn && role === 'customer' && t('customerPortal', 'Customer Portal')}
+                {isLoggedIn && role === 'shramik' && t('shramikPortal', 'Shramik Partner Portal')}
+                {isLoggedIn && role === 'admin' && t('adminPortal', 'Admin Operations Console')}
               </p>
             </div>
           </div>
@@ -234,15 +244,23 @@ export const Navbar = () => {
                   onClick={() => { setIntendedLoginRole('customer'); setCurrentScreen('login'); }}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-xs font-semibold shadow-xs transition-all duration-200 flex items-center space-x-1"
                 >
-                  <span className="hidden sm:inline">Book a Service</span>
+                  <span className="hidden sm:inline">{t('bookService', 'Book a Service')}</span>
                   <span className="sm:hidden">Book</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => { setIntendedLoginRole('customer'); setCurrentScreen('login'); }}
-                  className="hidden sm:inline-flex text-emerald-700 border border-emerald-300 hover:bg-emerald-50 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
                 >
-                  Sign In
+                  <span>{t('signIn', 'Sign In')}</span>
+                </button>
+                <button
+                  onClick={openSettings}
+                  className="p-2 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200 flex items-center justify-center"
+                  title={t('settingsTitle', 'Settings')}
+                  aria-label="Settings"
+                >
+                  <Settings className="w-4 h-4 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400" />
                 </button>
               </>
             ) : (

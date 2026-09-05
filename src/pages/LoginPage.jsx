@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
+import { LanguageSelectDropdown } from '../components/LanguageSelectDropdown';
 import {
   Shield, Phone, Lock, User, MapPin, Calendar,
   ArrowRight, Eye, EyeOff, CheckCircle2, UserPlus,
@@ -10,26 +11,26 @@ import { INDIA_LOCATIONS, INDIAN_STATES } from '../data/indiaLocations';
 
 /* ─── Major Indian cities (urban) used to decide if town/village details are needed ─── */
 const MAJOR_CITIES = new Set([
-  'Mumbai','Delhi','Bengaluru','Hyderabad','Ahmedabad','Chennai','Kolkata','Surat','Pune',
-  'Jaipur','Lucknow','Kanpur','Nagpur','Indore','Thane','Bhopal','Visakhapatnam','Pimpri-Chinchwad',
-  'Patna','Vadodara','Ghaziabad','Ludhiana','Coimbatore','Agra','Madurai','Nashik','Vijayawada',
-  'Meerut','Faridabad','Rajkot','Varanasi','Srinagar','Aurangabad','Dhanbad','Amritsar','Navi Mumbai',
-  'Prayagraj','Ranchi','Howrah','Jabalpur','Gwalior','Vijayawada','Jodhpur','Raipur','Kota',
-  'Guwahati','Chandigarh','Solapur','Hubli','Mysuru','Tiruchirappalli','Bareilly','Aligarh','Tirunelveli',
-  'Jamshedpur','Salem','Guntur','Bhubaneswar','Warangal','Cuttack','Kozhikode','Noida','Agra',
-  'Thiruvananthapuram','Kochi','Mangaluru','Kolhapur','Kurnool','Nellore','Ajmer','Amravati',
-  'Dehradun','Haridwar','Rishikesh','Siliguri','Durgapur','Asansol','Gaya','Muzaffarpur','Bhagalpur',
-  'Kharagpur','Udaipur','Nainital','Darjeeling','Kullu','Manali','Shimla','Jammu','Prayagraj','Patiala',
-  'Bathinda','Jalandhar','Amritsar','Panipat','Karnal','Hisar','Rohtak','Ambala','Gurugram','Faridabad',
-  'Kolkata','Howrah','Belagavi','Gulbarga','Dharwad','Tirupati','Kakinada','Kadapa','Anantapur'
+  'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune',
+  'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad',
+  'Patna', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Coimbatore', 'Agra', 'Madurai', 'Nashik', 'Vijayawada',
+  'Meerut', 'Faridabad', 'Rajkot', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai',
+  'Prayagraj', 'Ranchi', 'Howrah', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Raipur', 'Kota',
+  'Guwahati', 'Chandigarh', 'Solapur', 'Hubli', 'Mysuru', 'Tiruchirappalli', 'Bareilly', 'Aligarh', 'Tirunelveli',
+  'Jamshedpur', 'Salem', 'Guntur', 'Bhubaneswar', 'Warangal', 'Cuttack', 'Kozhikode', 'Noida', 'Agra',
+  'Thiruvananthapuram', 'Kochi', 'Mangaluru', 'Kolhapur', 'Kurnool', 'Nellore', 'Ajmer', 'Amravati',
+  'Dehradun', 'Haridwar', 'Rishikesh', 'Siliguri', 'Durgapur', 'Asansol', 'Gaya', 'Muzaffarpur', 'Bhagalpur',
+  'Kharagpur', 'Udaipur', 'Nainital', 'Darjeeling', 'Kullu', 'Manali', 'Shimla', 'Jammu', 'Prayagraj', 'Patiala',
+  'Bathinda', 'Jalandhar', 'Amritsar', 'Panipat', 'Karnal', 'Hisar', 'Rohtak', 'Ambala', 'Gurugram', 'Faridabad',
+  'Kolkata', 'Howrah', 'Belagavi', 'Gulbarga', 'Dharwad', 'Tirupati', 'Kakinada', 'Kadapa', 'Anantapur'
 ]);
 
 const isUrbanCity = (name) => MAJOR_CITIES.has(name);
 
 /* ─── Shared in-memory stores ─── */
 const registeredCustomers = [];
-const registeredShramiks  = [];
-const registeredAdmins    = [];
+const registeredShramiks = [];
+const registeredAdmins = [];
 
 /* ─────────────────────────────────────────
    State + City/District/Village Dropdown
@@ -243,12 +244,12 @@ const AddressDetails = ({
         <div>
           <label className={LC}>House Number <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
           <input type="text" placeholder="e.g. 42" value={houseValue}
-            onChange={e=>onHouse(e.target.value)} className={FT}/>
+            onChange={e => onHouse(e.target.value)} className={FT} />
         </div>
         <div>
           <label className={LC}>Flat / Apartment No. <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
           <input type="text" placeholder="e.g. 3B / Block C" value={flatValue}
-            onChange={e=>onFlat(e.target.value)} className={FT}/>
+            onChange={e => onFlat(e.target.value)} className={FT} />
         </div>
       </div>
 
@@ -256,7 +257,7 @@ const AddressDetails = ({
       <div>
         <label className={LC}>Street Name / Landmark <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
         <input type="text" placeholder="e.g. Park Street, near City Mall" value={streetValue}
-          onChange={e=>onStreet(e.target.value)} className={FT}/>
+          onChange={e => onStreet(e.target.value)} className={FT} />
       </div>
 
       {/* For interior locations (district / village) ask for village + town */}
@@ -265,12 +266,12 @@ const AddressDetails = ({
           <div>
             <label className={LC}>Village Name <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
             <input type="text" placeholder="e.g. Kuppam" value={villageValue}
-              onChange={e=>onVillage(e.target.value)} className={FT}/>
+              onChange={e => onVillage(e.target.value)} className={FT} />
           </div>
           <div>
             <label className={LC}>Town Name <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
             <input type="text" placeholder="e.g. Kuppam Town" value={townValue}
-              onChange={e=>onTown(e.target.value)} className={FT}/>
+              onChange={e => onTown(e.target.value)} className={FT} />
           </div>
         </div>
       )}
@@ -295,8 +296,8 @@ const onlyDigits = (val) => /^\d*$/.test(val);
 /* ── Password strength helper ── */
 const useStrength = (pw) => {
   const s = pw.length >= 8 ? 3 : pw.length >= 6 ? 2 : pw.length >= 4 ? 1 : 0;
-  const colors = ['bg-slate-200','bg-red-400','bg-amber-400','bg-emerald-500'];
-  const labels = ['','Weak','Fair','Strong'];
+  const colors = ['bg-slate-200', 'bg-red-400', 'bg-amber-400', 'bg-emerald-500'];
+  const labels = ['', 'Weak', 'Fair', 'Strong'];
   return { strength: s, color: colors[s], label: labels[s] };
 };
 
@@ -328,15 +329,15 @@ const PasswordField = ({ label, value, onChange, placeholder, show, onToggle, nu
       {showStrength && value.length > 0 && (
         <div className="flex items-center gap-2 mt-2">
           <div className="flex gap-1 flex-1">
-            {[1,2,3].map(lvl => (
+            {[1, 2, 3].map(lvl => (
               <div key={lvl} className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${strength >= lvl ? color : 'bg-slate-200'}`} />
             ))}
           </div>
-          <span className={`text-xs font-semibold ${strength===3?'text-emerald-600':strength===2?'text-amber-500':'text-red-500'}`}>{sLabel}</span>
+          <span className={`text-xs font-semibold ${strength === 3 ? 'text-emerald-600' : strength === 2 ? 'text-amber-500' : 'text-red-500'}`}>{sLabel}</span>
         </div>
       )}
       {matchBad && <p className="text-xs text-red-500 mt-1 ml-1">Passwords do not match</p>}
-      {matchOk  && <p className="text-xs text-emerald-600 mt-1 ml-1 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5"/>Passwords match</p>}
+      {matchOk && <p className="text-xs text-emerald-600 mt-1 ml-1 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" />Passwords match</p>}
     </div>
   );
 };
@@ -345,62 +346,62 @@ const PasswordField = ({ label, value, onChange, placeholder, show, onToggle, nu
    MAIN LoginPage
 ══════════════════════════════════════════════════════════════ */
 export const LoginPage = () => {
-  const { switchRole, setCurrentScreen, showToast, setActiveShramikId, intendedLoginRole, login, shramiks, activeShramikId } = useApp();
+  const { switchRole, setCurrentScreen, showToast, setActiveShramikId, intendedLoginRole, login, shramiks, activeShramikId, openSettings, t } = useApp();
 
   const [activeRoleTab, setActiveRoleTab] = useState(intendedLoginRole || 'customer');
-  const [authMode, setAuthMode]           = useState('signin'); // 'signin' | 'signup'
+  const [authMode, setAuthMode] = useState('signin'); // 'signin' | 'signup'
 
   useEffect(() => { setAuthMode('signin'); }, [activeRoleTab]);
 
   /* ─── Customer Sign-In ─── */
-  const [csiPhone, setCsiPhone]   = useState('');
-  const [csiPw,    setCsiPw]      = useState('');
+  const [csiPhone, setCsiPhone] = useState('');
+  const [csiPw, setCsiPw] = useState('');
   const [showCsiPw, setShowCsiPw] = useState(false);
 
   /* ─── Customer Sign-Up ─── */
-  const [csuName,    setCsuName]    = useState('');
-  const [csuAge,     setCsuAge]     = useState('');
-  const [csuCity,    setCsuCity]    = useState('');
-  const [csuHouse,   setCsuHouse]   = useState('');
-  const [csuFlat,    setCsuFlat]    = useState('');
-  const [csuStreet,  setCsuStreet]  = useState('');
+  const [csuName, setCsuName] = useState('');
+  const [csuAge, setCsuAge] = useState('');
+  const [csuCity, setCsuCity] = useState('');
+  const [csuHouse, setCsuHouse] = useState('');
+  const [csuFlat, setCsuFlat] = useState('');
+  const [csuStreet, setCsuStreet] = useState('');
   const [csuVillage, setCsuVillage] = useState('');
-  const [csuTown,    setCsuTown]    = useState('');
-  const [csuPhone,   setCsuPhone]   = useState('');
-  const [csuPw,      setCsuPw]      = useState('');
-  const [csuCpw,     setCsuCpw]     = useState('');
-  const [showCsuPw,  setShowCsuPw]  = useState(false);
+  const [csuTown, setCsuTown] = useState('');
+  const [csuPhone, setCsuPhone] = useState('');
+  const [csuPw, setCsuPw] = useState('');
+  const [csuCpw, setCsuCpw] = useState('');
+  const [showCsuPw, setShowCsuPw] = useState(false);
   const [showCsuCpw, setShowCsuCpw] = useState(false);
 
   /* ─── Shramik Sign-In ─── */
-  const [ssiPhone,  setSsiPhone]  = useState('');
-  const [ssiPw,     setSsiPw]     = useState('');
+  const [ssiPhone, setSsiPhone] = useState('');
+  const [ssiPw, setSsiPw] = useState('');
   const [showSsiPw, setShowSsiPw] = useState(false);
 
   /* ─── Shramik Sign-Up ─── */
-  const [ssuName,    setSsuName]    = useState('');
-  const [ssuAge,     setSsuAge]     = useState('');
-  const [ssuCity,    setSsuCity]    = useState('');
-  const [ssuPhone,   setSsuPhone]   = useState('');
-  const [ssuSkill,   setSsuSkill]   = useState('');
-  const [ssuPw,      setSsuPw]      = useState('');
-  const [ssuCpw,     setSsuCpw]     = useState('');
-  const [showSsuPw,  setShowSsuPw]  = useState(false);
+  const [ssuName, setSsuName] = useState('');
+  const [ssuAge, setSsuAge] = useState('');
+  const [ssuCity, setSsuCity] = useState('');
+  const [ssuPhone, setSsuPhone] = useState('');
+  const [ssuSkill, setSsuSkill] = useState('');
+  const [ssuPw, setSsuPw] = useState('');
+  const [ssuCpw, setSsuCpw] = useState('');
+  const [showSsuPw, setShowSsuPw] = useState(false);
   const [showSsuCpw, setShowSsuCpw] = useState(false);
 
   /* ─── Admin Sign-In ─── */
-  const [asiPhone,  setAsiPhone]  = useState('');
-  const [asiPw,     setAsiPw]     = useState('');
+  const [asiPhone, setAsiPhone] = useState('');
+  const [asiPw, setAsiPw] = useState('');
   const [showAsiPw, setShowAsiPw] = useState(false);
 
   /* ─── Admin Sign-Up ─── */
-  const [asuName,    setAsuName]    = useState('');
-  const [asuCity,    setAsuCity]    = useState('');
-  const [asuPhone,   setAsuPhone]   = useState('');
-  const [asuEmpId,   setAsuEmpId]   = useState('');
-  const [asuPw,      setAsuPw]      = useState('');
-  const [asuCpw,     setAsuCpw]     = useState('');
-  const [showAsuPw,  setShowAsuPw]  = useState(false);
+  const [asuName, setAsuName] = useState('');
+  const [asuCity, setAsuCity] = useState('');
+  const [asuPhone, setAsuPhone] = useState('');
+  const [asuEmpId, setAsuEmpId] = useState('');
+  const [asuPw, setAsuPw] = useState('');
+  const [asuCpw, setAsuCpw] = useState('');
+  const [showAsuPw, setShowAsuPw] = useState(false);
   const [showAsuCpw, setShowAsuCpw] = useState(false);
 
   /* ══════════ HANDLERS ══════════ */
@@ -409,7 +410,7 @@ export const LoginPage = () => {
   const handleCSignIn = (e) => {
     e.preventDefault();
     if (!csiPhone || csiPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!csiPw)                              return showToast('Please enter your password.', 'error');
+    if (!csiPw) return showToast('Please enter your password.', 'error');
     const found = registeredCustomers.find(c => c.phone === csiPhone && c.password === csiPw);
     if (!found) return showToast('No account found. Please sign up first, or check your credentials.', 'error');
     login(found);
@@ -420,17 +421,17 @@ export const LoginPage = () => {
   /* Customer Sign Up */
   const handleCSignUp = (e) => {
     e.preventDefault();
-    if (!csuName.trim())                                  return showToast('Please enter your full name.', 'error');
-    if (!csuAge || parseInt(csuAge)<18 || parseInt(csuAge)>100) return showToast('Enter a valid age (18–100).', 'error');
-    if (!csuCity)                                         return showToast('Please select your city.', 'error');
-    if (!csuPhone || csuPhone.length!==10)                return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!csuPw || csuPw.length<4 || !onlyDigits(csuPw))  return showToast('Password must be at least 4 digits (numbers only).', 'error');
-    if (csuPw !== csuCpw)                                 return showToast('Passwords do not match.', 'error');
-    if (registeredCustomers.find(c=>c.phone===csuPhone))  return showToast('Phone already registered. Please sign in.', 'error');
+    if (!csuName.trim()) return showToast('Please enter your full name.', 'error');
+    if (!csuAge || parseInt(csuAge) < 18 || parseInt(csuAge) > 100) return showToast('Enter a valid age (18–100).', 'error');
+    if (!csuCity) return showToast('Please select your city.', 'error');
+    if (!csuPhone || csuPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
+    if (!csuPw || csuPw.length < 4 || !onlyDigits(csuPw)) return showToast('Password must be at least 4 digits (numbers only).', 'error');
+    if (csuPw !== csuCpw) return showToast('Passwords do not match.', 'error');
+    if (registeredCustomers.find(c => c.phone === csuPhone)) return showToast('Phone already registered. Please sign in.', 'error');
     const fullAddress = [csuFlat, csuHouse, csuStreet, csuVillage, csuTown, csuCity].filter(Boolean).join(', ');
     const user = {
-      name:csuName.trim(), age:csuAge, city:csuCity, phone:csuPhone,
-      password:csuPw, role:'customer',
+      name: csuName.trim(), age: csuAge, city: csuCity, phone: csuPhone,
+      password: csuPw, role: 'customer',
       address: fullAddress,
       addressDetails: { house: csuHouse, flat: csuFlat, street: csuStreet, village: csuVillage, town: csuTown }
     };
@@ -443,9 +444,9 @@ export const LoginPage = () => {
   /* Shramik Sign In */
   const handleSSignIn = (e) => {
     e.preventDefault();
-    if (!ssiPhone || ssiPhone.length!==10) return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!ssiPw)                            return showToast('Please enter your password.', 'error');
-    const found = registeredShramiks.find(s=>s.phone===ssiPhone && s.password===ssiPw);
+    if (!ssiPhone || ssiPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
+    if (!ssiPw) return showToast('Please enter your password.', 'error');
+    const found = registeredShramiks.find(s => s.phone === ssiPhone && s.password === ssiPw);
     if (!found) return showToast('No Shramik account found. Please sign up first.', 'error');
     login(found);
     showToast(`Welcome back, ${found.name}!`, 'success');
@@ -455,15 +456,15 @@ export const LoginPage = () => {
   /* Shramik Sign Up */
   const handleSSignUp = (e) => {
     e.preventDefault();
-    if (!ssuName.trim())                                  return showToast('Please enter your full name.', 'error');
-    if (!ssuAge || parseInt(ssuAge)<18 || parseInt(ssuAge)>70) return showToast('Enter a valid age (18–70).', 'error');
-    if (!ssuCity)                                         return showToast('Please select your city.', 'error');
-    if (!ssuPhone || ssuPhone.length!==10)                return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!ssuSkill)                                        return showToast('Please select your primary skill.', 'error');
-    if (!ssuPw || ssuPw.length<4 || !onlyDigits(ssuPw))  return showToast('Password must be at least 4 digits (numbers only).', 'error');
-    if (ssuPw !== ssuCpw)                                 return showToast('Passwords do not match.', 'error');
-    if (registeredShramiks.find(s=>s.phone===ssuPhone))   return showToast('Phone already registered. Please sign in.', 'error');
-    const shramikUser = { name:ssuName.trim(), age:ssuAge, city:ssuCity, phone:ssuPhone, skill:ssuSkill, password:ssuPw, role:'shramik', verified:false, shramikId:null };
+    if (!ssuName.trim()) return showToast('Please enter your full name.', 'error');
+    if (!ssuAge || parseInt(ssuAge) < 18 || parseInt(ssuAge) > 70) return showToast('Enter a valid age (18–70).', 'error');
+    if (!ssuCity) return showToast('Please select your city.', 'error');
+    if (!ssuPhone || ssuPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
+    if (!ssuSkill) return showToast('Please select your primary skill.', 'error');
+    if (!ssuPw || ssuPw.length < 4 || !onlyDigits(ssuPw)) return showToast('Password must be at least 4 digits (numbers only).', 'error');
+    if (ssuPw !== ssuCpw) return showToast('Passwords do not match.', 'error');
+    if (registeredShramiks.find(s => s.phone === ssuPhone)) return showToast('Phone already registered. Please sign in.', 'error');
+    const shramikUser = { name: ssuName.trim(), age: ssuAge, city: ssuCity, phone: ssuPhone, skill: ssuSkill, password: ssuPw, role: 'shramik', verified: false, shramikId: null };
     registeredShramiks.push(shramikUser);
     login(shramikUser);
     showToast(`Welcome, ${shramikUser.name}! Your registration is under review.`, 'info');
@@ -474,8 +475,8 @@ export const LoginPage = () => {
   const handleASignIn = (e) => {
     e.preventDefault();
     if (!asiPhone) return showToast('Please enter your phone/ID.', 'error');
-    if (!asiPw)    return showToast('Please enter your password.', 'error');
-    const found = registeredAdmins.find(a=>a.phone===asiPhone && a.password===asiPw);
+    if (!asiPw) return showToast('Please enter your password.', 'error');
+    const found = registeredAdmins.find(a => a.phone === asiPhone && a.password === asiPw);
     if (!found) return showToast('No admin account found. Please register first.', 'error');
     login(found);
     showToast(`Welcome back, ${found.name}!`, 'success');
@@ -485,21 +486,21 @@ export const LoginPage = () => {
   /* Admin Sign Up */
   const handleASignUp = (e) => {
     e.preventDefault();
-    if (!asuName.trim())                                  return showToast('Please enter your full name.', 'error');
-    if (!asuCity)                                         return showToast('Please select your city.', 'error');
-    if (!asuPhone || asuPhone.length!==10)                return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!asuEmpId.trim())                                 return showToast('Please enter your Employee/Admin ID.', 'error');
-    if (!asuPw || asuPw.length<4 || !onlyDigits(asuPw))  return showToast('Password must be at least 4 digits (numbers only).', 'error');
-    if (asuPw !== asuCpw)                                 return showToast('Passwords do not match.', 'error');
-    if (registeredAdmins.find(a=>a.phone===asuPhone))     return showToast('Phone already registered. Please sign in.', 'error');
-    const adminUser = { name:asuName.trim(), city:asuCity, phone:asuPhone, empId:asuEmpId.trim(), password:asuPw, role:'admin' };
+    if (!asuName.trim()) return showToast('Please enter your full name.', 'error');
+    if (!asuCity) return showToast('Please select your city.', 'error');
+    if (!asuPhone || asuPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
+    if (!asuEmpId.trim()) return showToast('Please enter your Employee/Admin ID.', 'error');
+    if (!asuPw || asuPw.length < 4 || !onlyDigits(asuPw)) return showToast('Password must be at least 4 digits (numbers only).', 'error');
+    if (asuPw !== asuCpw) return showToast('Passwords do not match.', 'error');
+    if (registeredAdmins.find(a => a.phone === asuPhone)) return showToast('Phone already registered. Please sign in.', 'error');
+    const adminUser = { name: asuName.trim(), city: asuCity, phone: asuPhone, empId: asuEmpId.trim(), password: asuPw, role: 'admin' };
     registeredAdmins.push(adminUser);
     login(adminUser);
     showToast(`Admin account created! Welcome, ${adminUser.name}.`, 'success');
     setCurrentScreen('admin_dashboard');
   };
 
-  const SKILLS = ['Electrician','Plumber','Carpenter','Painter','Mason','AC Repair','Welder','Mechanic','Tailor','Cook'];
+  const SKILLS = ['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Mason', 'AC Repair', 'Welder', 'Mechanic', 'Tailor', 'Cook'];
 
   const csuCityName = csuCity.includes(' | ') ? csuCity.split(' | ')[0].trim() : '';
   const csuState = csuCity.includes(' | ') ? csuCity.split(' | ')[1] : '';
@@ -508,7 +509,7 @@ export const LoginPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-emerald-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
       {/* Back */}
       <div className="w-full max-w-5xl mb-4 flex justify-start">
-        <button onClick={()=>{ switchRole('landing'); setCurrentScreen('landing'); }} className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1.5 transition-colors">
+        <button onClick={() => { switchRole('landing'); setCurrentScreen('landing'); }} className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1.5 transition-colors">
           ← Back to Home
         </button>
       </div>
@@ -532,9 +533,9 @@ export const LoginPage = () => {
               A trusted platform for verified skilled workers and customers.
             </p>
             <ul className="space-y-3 pt-2">
-              {['Verified local skilled workers','Transparent pricing and booking','Secure 4-digit job start code','Pay only after work is done'].map(f=>(
+              {['Verified local skilled workers', 'Transparent pricing and booking', 'Secure 4-digit job start code', 'Pay only after work is done'].map(f => (
                 <li key={f} className="flex items-center gap-2 text-xs text-emerald-100/90">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0"/>{f}
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />{f}
                 </li>
               ))}
             </ul>
@@ -544,11 +545,11 @@ export const LoginPage = () => {
           <div className="relative z-10 pt-6 border-t border-white/10 mt-6">
             <p className="text-xs text-emerald-300/70 mb-2 uppercase tracking-wider font-semibold">Login as</p>
             <div className="flex flex-wrap gap-2">
-              {[{label:'Customer',value:'customer',icon:User},{label:'Shramik',value:'shramik',icon:Briefcase},{label:'Admin',value:'admin',icon:Shield}].map(({label,value,icon:Icon})=>(
-                <button key={value} onClick={()=>setActiveRoleTab(value)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${activeRoleTab===value?'bg-white text-emerald-800 border-white shadow-md':'bg-white/10 text-white/80 border-white/20 hover:bg-white/20'}`}
+              {[{ label: 'Customer', value: 'customer', icon: User }, { label: 'Shramik', value: 'shramik', icon: Briefcase }, { label: 'Admin', value: 'admin', icon: Shield }].map(({ label, value, icon: Icon }) => (
+                <button key={value} onClick={() => setActiveRoleTab(value)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${activeRoleTab === value ? 'bg-white text-emerald-800 border-white shadow-md' : 'bg-white/10 text-white/80 border-white/20 hover:bg-white/20'}`}
                 >
-                  <Icon className="w-3.5 h-3.5"/>{label}
+                  <Icon className="w-3.5 h-3.5" />{label}
                 </button>
               ))}
             </div>
@@ -557,6 +558,17 @@ export const LoginPage = () => {
 
         {/* ── RIGHT PANEL ── */}
         <div className="md:col-span-3 p-6 sm:p-10 flex flex-col justify-start max-h-screen overflow-y-auto">
+
+          {/* Top Bar with Back Button */}
+          <div className="mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setCurrentScreen('landing')}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white flex items-center gap-1 transition-colors"
+            >
+              ← Back to Home
+            </button>
+          </div>
 
           {/* Compact brand header (mobile only) */}
           <div className="md:hidden space-y-4 mb-5 pb-4 border-b border-slate-100">
@@ -581,66 +593,66 @@ export const LoginPage = () => {
 
             {/* Role switcher (mobile) */}
             <div className="flex gap-1.5">
-              {[{label:'Customer',value:'customer',icon:User},{label:'Shramik',value:'shramik',icon:Briefcase},{label:'Admin',value:'admin',icon:Shield}].map(({label,value,icon:Icon})=>(
-                <button key={value} onClick={()=>setActiveRoleTab(value)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl text-xs font-semibold border transition-all ${activeRoleTab===value?'bg-emerald-600 text-white border-emerald-600 shadow-sm':'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+              {[{ label: 'Customer', value: 'customer', icon: User }, { label: 'Shramik', value: 'shramik', icon: Briefcase }, { label: 'Admin', value: 'admin', icon: Shield }].map(({ label, value, icon: Icon }) => (
+                <button key={value} onClick={() => setActiveRoleTab(value)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl text-xs font-semibold border transition-all ${activeRoleTab === value ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
                 >
-                  <Icon className="w-4 h-4"/>{label}
+                  <Icon className="w-4 h-4" />{label}
                 </button>
               ))}
             </div>
           </div>
 
           {/* ══════════ CUSTOMER ══════════ */}
-          {activeRoleTab==='customer' && (
+          {activeRoleTab === 'customer' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-2xl font-bold font-heading text-slate-900">{authMode==='signin'?'Welcome back 👋':'Create Account 🚀'}</h3>
-                <p className="text-sm text-slate-500 mt-1">{authMode==='signin'?'Sign in with your registered credentials.':'Fill in the details below to create your account.'}</p>
+                <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white">{authMode === 'signin' ? 'Welcome back 👋' : 'Create Account 🚀'}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{authMode === 'signin' ? 'Sign in with your registered credentials.' : 'Fill in the details below to create your account.'}</p>
               </div>
 
               {/* Toggle */}
               <div className="bg-slate-100 p-1 rounded-xl flex text-sm font-semibold">
-                {[{mode:'signin',icon:LogIn,label:'Sign In'},{mode:'signup',icon:UserPlus,label:'Sign Up'}].map(({mode,icon:Icon,label})=>(
-                  <button key={mode} onClick={()=>setAuthMode(mode)}
-                    className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode===mode?'bg-white text-emerald-700 shadow-sm border border-slate-200':'text-slate-500 hover:text-slate-700'}`}>
-                    <Icon className="w-4 h-4"/>{label}
+                {[{ mode: 'signin', icon: LogIn, label: 'Sign In' }, { mode: 'signup', icon: UserPlus, label: 'Sign Up' }].map(({ mode, icon: Icon, label }) => (
+                  <button key={mode} onClick={() => setAuthMode(mode)}
+                    className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode === mode ? 'bg-white text-emerald-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}>
+                    <Icon className="w-4 h-4" />{label}
                   </button>
                 ))}
               </div>
 
               {/* Customer Sign In */}
-              {authMode==='signin' && (
+              {authMode === 'signin' && (
                 <form onSubmit={handleCSignIn} className="space-y-4">
                   <div>
                     <label className={LC}>Phone Number</label>
                     <div className="relative">
-                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={csiPhone}
-                        onChange={e=>onlyDigits(e.target.value)&&setCsiPhone(e.target.value)} className={IC}/>
+                        onChange={e => onlyDigits(e.target.value) && setCsiPhone(e.target.value)} className={IC} />
                     </div>
                   </div>
                   <PasswordField label="Numeric Password" value={csiPw} onChange={setCsiPw}
-                    placeholder="Enter your numeric password" show={showCsiPw} onToggle={()=>setShowCsiPw(v=>!v)} numeric />
+                    placeholder="Enter your numeric password" show={showCsiPw} onToggle={() => setShowCsiPw(v => !v)} numeric />
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    Sign In <ArrowRight className="w-4 h-4"/>
+                    Sign In <ArrowRight className="w-4 h-4" />
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    New here?{' '}<button type="button" onClick={()=>setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">Create an account</button>
+                    New here?{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">Create an account</button>
                   </p>
                 </form>
               )}
 
               {/* Customer Sign Up */}
-              {authMode==='signup' && (
+              {authMode === 'signup' && (
                 <form onSubmit={handleCSignUp} className="space-y-4">
                   {/* Full Name */}
                   <div>
                     <label className={LC}>Full Name</label>
                     <div className="relative">
-                      <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
-                      <input type="text" placeholder="e.g. Amit Sharma" value={csuName} onChange={e=>setCsuName(e.target.value)}
-                        className={IC+' font-sans'}/>
+                      <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input type="text" placeholder="e.g. Amit Sharma" value={csuName} onChange={e => setCsuName(e.target.value)}
+                        className={IC + ' font-sans'} />
                     </div>
                   </div>
                   {/* Age + City */}
@@ -648,24 +660,24 @@ export const LoginPage = () => {
                     <div>
                       <label className={LC}>Age</label>
                       <div className="relative">
-                        <Calendar className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                        <Calendar className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input type="text" inputMode="numeric" maxLength={3} placeholder="e.g. 28" value={csuAge}
-                          onChange={e=>onlyDigits(e.target.value)&&setCsuAge(e.target.value)} className={IC}/>
+                          onChange={e => onlyDigits(e.target.value) && setCsuAge(e.target.value)} className={IC} />
                       </div>
                     </div>
                     <div>
-                      <LocationDropdown value={csuCity} onChange={setCsuCity} showLabel={false}/>
+                      <LocationDropdown value={csuCity} onChange={setCsuCity} showLabel={false} />
                     </div>
                   </div>
                   {/* Phone */}
                   <div>
                     <label className={LC}>Phone Number</label>
                     <div className="relative">
-                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={csuPhone}
-                        onChange={e=>onlyDigits(e.target.value)&&setCsuPhone(e.target.value)} className={IC}/>
+                        onChange={e => onlyDigits(e.target.value) && setCsuPhone(e.target.value)} className={IC} />
                     </div>
-                    {csuPhone.length>0&&csuPhone.length<10&&<p className="text-xs text-amber-600 mt-1 ml-1">{10-csuPhone.length} more digit{10-csuPhone.length!==1?'s':''} needed</p>}
+                    {csuPhone.length > 0 && csuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - csuPhone.length} more digit{10 - csuPhone.length !== 1 ? 's' : ''} needed</p>}
                   </div>
 
                   {/* Exact Address Details (customer only) */}
@@ -673,24 +685,24 @@ export const LoginPage = () => {
                     <AddressDetails
                       locationType={isUrbanCity(csuCityName) ? 'city' : 'interior'}
                       houseValue={csuHouse} onHouse={setCsuHouse}
-                      flatValue={csuFlat}   onFlat={setCsuFlat}
+                      flatValue={csuFlat} onFlat={setCsuFlat}
                       streetValue={csuStreet} onStreet={setCsuStreet}
                       villageValue={csuVillage} onVillage={setCsuVillage}
-                      townValue={csuTown}   onTown={setCsuTown}
+                      townValue={csuTown} onTown={setCsuTown}
                     />
                   )}
                   {/* Create Password */}
                   <PasswordField label="Create Numeric Password" value={csuPw} onChange={setCsuPw}
-                    placeholder="Numbers only (min. 4 digits)" show={showCsuPw} onToggle={()=>setShowCsuPw(v=>!v)} numeric showStrength/>
+                    placeholder="Numbers only (min. 4 digits)" show={showCsuPw} onToggle={() => setShowCsuPw(v => !v)} numeric showStrength />
                   {/* Confirm Password */}
                   <PasswordField label="Confirm Password" value={csuCpw} onChange={setCsuCpw}
-                    placeholder="Re-enter your password" show={showCsuCpw} onToggle={()=>setShowCsuCpw(v=>!v)} numeric confirmValue={csuPw}/>
+                    placeholder="Re-enter your password" show={showCsuCpw} onToggle={() => setShowCsuCpw(v => !v)} numeric confirmValue={csuPw} />
 
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <UserPlus className="w-4 h-4"/> Create Account & Continue
+                    <UserPlus className="w-4 h-4" /> Create Account & Continue
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    Already have an account?{' '}<button type="button" onClick={()=>setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">Sign In</button>
+                    Already have an account?{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">Sign In</button>
                   </p>
                 </form>
               )}
@@ -698,54 +710,54 @@ export const LoginPage = () => {
           )}
 
           {/* ══════════ SHRAMIK ══════════ */}
-          {activeRoleTab==='shramik' && (
+          {activeRoleTab === 'shramik' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-2xl font-bold font-heading text-slate-900">{authMode==='signin'?'Shramik Login 🛠️':'Shramik Registration 🛠️'}</h3>
-                <p className="text-sm text-slate-500 mt-1">{authMode==='signin'?'Sign in to manage your jobs.':'Register to start accepting jobs near you.'}</p>
+                <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white">{authMode === 'signin' ? 'Shramik Sign In 🔨' : 'Partner Registration 📝'}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{authMode === 'signin' ? 'Sign in to manage your jobs.' : 'Register to start accepting jobs near you.'}</p>
               </div>
 
               {/* Toggle */}
               <div className="bg-slate-100 p-1 rounded-xl flex text-sm font-semibold">
-                {[{mode:'signin',icon:LogIn,label:'Sign In'},{mode:'signup',icon:UserPlus,label:'Register'}].map(({mode,icon:Icon,label})=>(
-                  <button key={mode} onClick={()=>setAuthMode(mode)}
-                    className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode===mode?'bg-white text-emerald-700 shadow-sm border border-slate-200':'text-slate-500 hover:text-slate-700'}`}>
-                    <Icon className="w-4 h-4"/>{label}
+                {[{ mode: 'signin', icon: LogIn, label: 'Sign In' }, { mode: 'signup', icon: UserPlus, label: 'Register' }].map(({ mode, icon: Icon, label }) => (
+                  <button key={mode} onClick={() => setAuthMode(mode)}
+                    className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode === mode ? 'bg-white text-emerald-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}>
+                    <Icon className="w-4 h-4" />{label}
                   </button>
                 ))}
               </div>
 
               {/* Shramik Sign In */}
-              {authMode==='signin' && (
+              {authMode === 'signin' && (
                 <form onSubmit={handleSSignIn} className="space-y-4">
                   <div>
                     <label className={LC}>Registered Phone Number</label>
                     <div className="relative">
-                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={ssiPhone}
-                        onChange={e=>onlyDigits(e.target.value)&&setSsiPhone(e.target.value)} className={IC}/>
+                        onChange={e => onlyDigits(e.target.value) && setSsiPhone(e.target.value)} className={IC} />
                     </div>
                   </div>
                   <PasswordField label="Numeric Password" value={ssiPw} onChange={setSsiPw}
-                    placeholder="Enter your numeric password" show={showSsiPw} onToggle={()=>setShowSsiPw(v=>!v)} numeric/>
+                    placeholder="Enter your numeric password" show={showSsiPw} onToggle={() => setShowSsiPw(v => !v)} numeric />
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    Sign In as Shramik <ArrowRight className="w-4 h-4"/>
+                    Sign In as Shramik <ArrowRight className="w-4 h-4" />
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    New Shramik?{' '}<button type="button" onClick={()=>setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">Register Here</button>
+                    New Shramik?{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">Register Here</button>
                   </p>
                 </form>
               )}
 
               {/* Shramik Sign Up */}
-              {authMode==='signup' && (
+              {authMode === 'signup' && (
                 <form onSubmit={handleSSignUp} className="space-y-4">
                   {/* Full Name */}
                   <div>
                     <label className={LC}>Full Name</label>
                     <div className="relative">
-                      <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
-                      <input type="text" placeholder="e.g. Ramesh Kumar" value={ssuName} onChange={e=>setSsuName(e.target.value)} className={IC+' font-sans'}/>
+                      <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input type="text" placeholder="e.g. Ramesh Kumar" value={ssuName} onChange={e => setSsuName(e.target.value)} className={IC + ' font-sans'} />
                     </div>
                   </div>
                   {/* Age + City */}
@@ -753,49 +765,49 @@ export const LoginPage = () => {
                     <div>
                       <label className={LC}>Age</label>
                       <div className="relative">
-                        <Calendar className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                        <Calendar className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input type="text" inputMode="numeric" maxLength={2} placeholder="e.g. 30" value={ssuAge}
-                          onChange={e=>onlyDigits(e.target.value)&&setSsuAge(e.target.value)} className={IC}/>
+                          onChange={e => onlyDigits(e.target.value) && setSsuAge(e.target.value)} className={IC} />
                       </div>
                     </div>
                     <div>
-                      <LocationDropdown value={ssuCity} onChange={setSsuCity} showLabel={false}/>
+                      <LocationDropdown value={ssuCity} onChange={setSsuCity} showLabel={false} />
                     </div>
                   </div>
                   {/* Phone */}
                   <div>
                     <label className={LC}>Phone Number</label>
                     <div className="relative">
-                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={ssuPhone}
-                        onChange={e=>onlyDigits(e.target.value)&&setSsuPhone(e.target.value)} className={IC}/>
+                        onChange={e => onlyDigits(e.target.value) && setSsuPhone(e.target.value)} className={IC} />
                     </div>
-                    {ssuPhone.length>0&&ssuPhone.length<10&&<p className="text-xs text-amber-600 mt-1 ml-1">{10-ssuPhone.length} more digit{10-ssuPhone.length!==1?'s':''} needed</p>}
+                    {ssuPhone.length > 0 && ssuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - ssuPhone.length} more digit{10 - ssuPhone.length !== 1 ? 's' : ''} needed</p>}
                   </div>
                   {/* Primary Skill */}
                   <div>
                     <label className={LC}>Primary Skill</label>
                     <div className="relative">
-                      <Briefcase className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none"/>
-                      <select value={ssuSkill} onChange={e=>setSsuSkill(e.target.value)}
+                      <Briefcase className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
+                      <select value={ssuSkill} onChange={e => setSsuSkill(e.target.value)}
                         className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all appearance-none font-sans text-slate-700">
                         <option value="">Select your skill…</option>
-                        {SKILLS.map(s=><option key={s} value={s}>{s}</option>)}
+                        {SKILLS.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
-                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"/>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
                   {/* Passwords */}
                   <PasswordField label="Create Numeric Password" value={ssuPw} onChange={setSsuPw}
-                    placeholder="Numbers only (min. 4 digits)" show={showSsuPw} onToggle={()=>setShowSsuPw(v=>!v)} numeric showStrength/>
+                    placeholder="Numbers only (min. 4 digits)" show={showSsuPw} onToggle={() => setShowSsuPw(v => !v)} numeric showStrength />
                   <PasswordField label="Confirm Password" value={ssuCpw} onChange={setSsuCpw}
-                    placeholder="Re-enter your password" show={showSsuCpw} onToggle={()=>setShowSsuCpw(v=>!v)} numeric confirmValue={ssuPw}/>
+                    placeholder="Re-enter your password" show={showSsuCpw} onToggle={() => setShowSsuCpw(v => !v)} numeric confirmValue={ssuPw} />
 
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <UserPlus className="w-4 h-4"/> Register as Shramik
+                    <UserPlus className="w-4 h-4" /> Register as Shramik
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    Already registered?{' '}<button type="button" onClick={()=>setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">Sign In</button>
+                    Already registered?{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">Sign In</button>
                   </p>
                 </form>
               )}
@@ -803,89 +815,89 @@ export const LoginPage = () => {
           )}
 
           {/* ══════════ ADMIN ══════════ */}
-          {activeRoleTab==='admin' && (
+          {activeRoleTab === 'admin' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-2xl font-bold font-heading text-slate-900">{authMode==='signin'?'Admin Login 🛡️':'Admin Registration 🛡️'}</h3>
-                <p className="text-sm text-slate-500 mt-1">{authMode==='signin'?'Sign in to manage the platform.':'Register your official admin account.'}</p>
+                <h3 className="text-2xl font-bold font-heading text-slate-900">{authMode === 'signin' ? 'Admin Login 🛡️' : 'Admin Registration 🛡️'}</h3>
+                <p className="text-sm text-slate-500 mt-1">{authMode === 'signin' ? 'Sign in to manage the platform.' : 'Register your official admin account.'}</p>
               </div>
 
               {/* Toggle */}
               <div className="bg-slate-100 p-1 rounded-xl flex text-sm font-semibold">
-                {[{mode:'signin',icon:LogIn,label:'Sign In'},{mode:'signup',icon:UserPlus,label:'Register'}].map(({mode,icon:Icon,label})=>(
-                  <button key={mode} onClick={()=>setAuthMode(mode)}
-                    className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode===mode?'bg-white text-slate-800 shadow-sm border border-slate-200':'text-slate-500 hover:text-slate-700'}`}>
-                    <Icon className="w-4 h-4"/>{label}
+                {[{ mode: 'signin', icon: LogIn, label: 'Sign In' }, { mode: 'signup', icon: UserPlus, label: 'Register' }].map(({ mode, icon: Icon, label }) => (
+                  <button key={mode} onClick={() => setAuthMode(mode)}
+                    className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode === mode ? 'bg-white text-slate-800 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}>
+                    <Icon className="w-4 h-4" />{label}
                   </button>
                 ))}
               </div>
 
               {/* Admin Sign In */}
-              {authMode==='signin' && (
+              {authMode === 'signin' && (
                 <form onSubmit={handleASignIn} className="space-y-4">
                   <div>
                     <label className={LC}>Admin Phone / ID</label>
                     <div className="relative">
-                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="tel" placeholder="Registered phone number" value={asiPhone}
-                        onChange={e=>setAsiPhone(e.target.value)} className={IC}/>
+                        onChange={e => setAsiPhone(e.target.value)} className={IC} />
                     </div>
                   </div>
                   <PasswordField label="Numeric Password" value={asiPw} onChange={setAsiPw}
-                    placeholder="Enter your numeric password" show={showAsiPw} onToggle={()=>setShowAsiPw(v=>!v)} numeric/>
+                    placeholder="Enter your numeric password" show={showAsiPw} onToggle={() => setShowAsiPw(v => !v)} numeric />
                   <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <Shield className="w-4 h-4"/> Sign In as Administrator
+                    <Shield className="w-4 h-4" /> Sign In as Administrator
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    New admin?{' '}<button type="button" onClick={()=>setAuthMode('signup')} className="text-slate-700 font-bold hover:underline">Register Here</button>
+                    New admin?{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-slate-700 font-bold hover:underline">Register Here</button>
                   </p>
                 </form>
               )}
 
               {/* Admin Sign Up */}
-              {authMode==='signup' && (
+              {authMode === 'signup' && (
                 <form onSubmit={handleASignUp} className="space-y-4">
                   {/* Full Name */}
                   <div>
                     <label className={LC}>Full Name</label>
                     <div className="relative">
-                      <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
-                      <input type="text" placeholder="e.g. Priya Mehta" value={asuName} onChange={e=>setAsuName(e.target.value)} className={IC+' font-sans'}/>
+                      <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input type="text" placeholder="e.g. Priya Mehta" value={asuName} onChange={e => setAsuName(e.target.value)} className={IC + ' font-sans'} />
                     </div>
                   </div>
                   {/* City */}
                   <div>
-                    <LocationDropdown value={asuCity} onChange={setAsuCity} showLabel={false}/>
+                    <LocationDropdown value={asuCity} onChange={setAsuCity} showLabel={false} />
                   </div>
                   {/* Phone */}
                   <div>
                     <label className={LC}>Phone Number</label>
                     <div className="relative">
-                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
+                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={asuPhone}
-                        onChange={e=>onlyDigits(e.target.value)&&setAsuPhone(e.target.value)} className={IC}/>
+                        onChange={e => onlyDigits(e.target.value) && setAsuPhone(e.target.value)} className={IC} />
                     </div>
-                    {asuPhone.length>0&&asuPhone.length<10&&<p className="text-xs text-amber-600 mt-1 ml-1">{10-asuPhone.length} more digit{10-asuPhone.length!==1?'s':''} needed</p>}
+                    {asuPhone.length > 0 && asuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - asuPhone.length} more digit{10 - asuPhone.length !== 1 ? 's' : ''} needed</p>}
                   </div>
                   {/* Employee ID */}
                   <div>
                     <label className={LC}>Employee / Admin ID</label>
                     <div className="relative">
-                      <Shield className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"/>
-                      <input type="text" placeholder="e.g. GOV-ADM-2024" value={asuEmpId} onChange={e=>setAsuEmpId(e.target.value)} className={IC+' font-sans'}/>
+                      <Shield className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input type="text" placeholder="e.g. GOV-ADM-2024" value={asuEmpId} onChange={e => setAsuEmpId(e.target.value)} className={IC + ' font-sans'} />
                     </div>
                   </div>
                   {/* Passwords */}
                   <PasswordField label="Create Numeric Password" value={asuPw} onChange={setAsuPw}
-                    placeholder="Numbers only (min. 4 digits)" show={showAsuPw} onToggle={()=>setShowAsuPw(v=>!v)} numeric showStrength/>
+                    placeholder="Numbers only (min. 4 digits)" show={showAsuPw} onToggle={() => setShowAsuPw(v => !v)} numeric showStrength />
                   <PasswordField label="Confirm Password" value={asuCpw} onChange={setAsuCpw}
-                    placeholder="Re-enter your password" show={showAsuCpw} onToggle={()=>setShowAsuCpw(v=>!v)} numeric confirmValue={asuPw}/>
+                    placeholder="Re-enter your password" show={showAsuCpw} onToggle={() => setShowAsuCpw(v => !v)} numeric confirmValue={asuPw} />
 
                   <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <UserPlus className="w-4 h-4"/> Register Admin Account
+                    <UserPlus className="w-4 h-4" /> Register Admin Account
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    Already registered?{' '}<button type="button" onClick={()=>setAuthMode('signin')} className="text-slate-700 font-bold hover:underline">Sign In</button>
+                    Already registered?{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-slate-700 font-bold hover:underline">Sign In</button>
                   </p>
                 </form>
               )}

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { TRANSLATIONS, LANGUAGES } from '../data/translations';
 
 const AppContext = createContext();
 
@@ -101,6 +102,49 @@ export const AppProvider = ({ children }) => {
 
   // Selected Category filter for CustomerSearch
   const [searchCategory, setSearchCategory] = useState('All');
+
+  // Theme & Language & Settings Modal State
+  const [theme, setThemeState] = useState(() => {
+    return localStorage.getItem('shram_theme') || 'light';
+  });
+  const [language, setLanguageState] = useState(() => {
+    return localStorage.getItem('shram_lang') || 'en';
+  });
+  const [selectedLocation, setSelectedLocationState] = useState(() => {
+    return localStorage.getItem('shram_location') || 'West Bengal';
+  });
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('shram_theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('shram_lang', language);
+  }, [language]);
+
+  const setTheme = (newTheme) => setThemeState(newTheme);
+  const toggleTheme = () => setThemeState(prev => (prev === 'dark' ? 'light' : 'dark'));
+  const setLanguage = (newLang) => setLanguageState(newLang);
+  const setSelectedLocation = (loc) => {
+    setSelectedLocationState(loc);
+    localStorage.setItem('shram_location', loc);
+  };
+  const openSettings = () => setIsSettingsOpen(true);
+  const closeSettings = () => setIsSettingsOpen(false);
+  const toggleSettings = () => setIsSettingsOpen(prev => !prev);
+
+  const t = (key, fallback = '') => {
+    const dict = TRANSLATIONS[language] || TRANSLATIONS.en;
+    return dict[key] || TRANSLATIONS.en[key] || fallback || key;
+  };
 
   // Notification Toast state
   const [toast, setToast] = useState(null);
@@ -386,6 +430,20 @@ export const AppProvider = ({ children }) => {
       isLoggedIn,
       login,
       logout,
+      theme,
+      setTheme,
+      toggleTheme,
+      language,
+      setLanguage,
+      selectedLocation,
+      setSelectedLocation,
+      isSettingsOpen,
+      setIsSettingsOpen,
+      openSettings,
+      closeSettings,
+      toggleSettings,
+      t,
+      LANGUAGES
     }}>
       {children}
     </AppContext.Provider>

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navbar';
 import { Toast } from './components/Toast';
+import { SettingsModal } from './components/SettingsModal';
 
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
@@ -74,7 +75,7 @@ const MainContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       {/* Main Navbar (Sticky at top, hidden for admin which has dedicated sidebar console) */}
       {role !== 'admin' && <Navbar />}
 
@@ -82,6 +83,9 @@ const MainContent = () => {
       <div key={`${role}-${currentScreen}`} className="flex-1 animate-page-enter">
         {renderScreen()}
       </div>
+
+      {/* Settings Preferences Modal */}
+      <SettingsModal />
 
       {/* Floating Notifications */}
       <Toast />
