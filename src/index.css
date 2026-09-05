@@ -17,7 +17,11 @@
 body {
   margin: 0;
   padding: 0;
+<<<<<<< HEAD
   background-color: #f8fafc;
+=======
+  background-color: #e2e8f0;
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   color: #0f172a;
   min-height: 100vh;
   font-family: 'JetBrains Mono', monospace;
@@ -25,6 +29,30 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+<<<<<<< HEAD
+=======
+/* ═══ FIXED FULL-VIEWPORT BACKDROP ═══
+   A dedicated fixed layer fills the visible screen on every device.
+   (background-attachment: fixed is unreliable on mobile browsers, so we use a
+   position:fixed element that always covers the exact viewport.) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(248, 250, 252, 0.82), rgba(241, 245, 249, 0.88)),
+    url('./assets/backdrop1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 /* Sharp Satoshi Bold for headings */
 h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: 'Satoshi', system-ui, -apple-system, sans-serif !important;
@@ -136,6 +164,22 @@ button, input, select, textarea, .font-body {
   border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
+<<<<<<< HEAD
+=======
+/* ═══ FROSTED BOX CARDS ═══
+   Main white cards get a translucent frosted surface + soft elevation so
+   they float cleanly and stay readable over the app backdrop image. */
+.rounded-3xl.bg-white {
+  background-color: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-color: rgba(226, 232, 240, 0.95);
+  box-shadow:
+    0 12px 32px -16px rgba(15, 23, 55, 0.35),
+    0 4px 12px -6px rgba(15, 23, 55, 0.12);
+}
+
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 /* ═══ MOBILE-FIRST COMPACT CARDS ═══
    Tightens card/padding/spacing on small screens so that
    cards and boxes look clean and proportional in mobile view

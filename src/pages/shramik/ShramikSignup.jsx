@@ -5,7 +5,11 @@ import { INDIA_LOCATIONS, INDIAN_STATES } from '../../data/indiaLocations';
 
 const LC = 'block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1';
 
+<<<<<<< HEAD
 const LocationDropdown = ({ value, onChange, showLabel = true }) => {
+=======
+const LocationDropdown = ({ value, onChange, showLabel = true, t }) => {
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const [selectedState, setSelectedState] = useState(() => {
     if (!value) return '';
     const parts = value.split(' | ');
@@ -61,23 +65,39 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
 
   return (
     <div className="space-y-2.5">
+<<<<<<< HEAD
       {showLabel && <label className={LC}>State</label>}
       <div className="relative">
         {stateIcon}
         <select value={selectedState} onChange={(e) => handleStateChange(e.target.value)} className={selectBase}>
           <option value="">Select State / UT...</option>
+=======
+      {showLabel && <label className={LC}>{t ? t('auth.state', 'State') : 'State'}</label>}
+      <div className="relative">
+        {stateIcon}
+        <select value={selectedState} onChange={(e) => handleStateChange(e.target.value)} className={selectBase}>
+          <option value="">{t ? t('auth.selectState', 'Select State / UT...') : 'Select State / UT...'}</option>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
       </div>
       {selectedState && (
         <div>
+<<<<<<< HEAD
           {showLabel && <label className={LC}>City / District / Village</label>}
+=======
+          {showLabel && <label className={LC}>{t ? t('auth.cityDistrict', 'City / District / Village') : 'City / District / Village'}</label>}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           <div className="relative" ref={cityRef}>
             <MapPin className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
             <input
               type="text"
+<<<<<<< HEAD
               placeholder={selectedCity ? selectedCity : `Search in ${selectedState}...`}
+=======
+              placeholder={selectedCity ? selectedCity : (t ? t('auth.searchInState', 'Search in {state}...', { state: selectedState }) : `Search in ${selectedState}...`)}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               value={selectedCity ? selectedCity : citySearch}
               onChange={(e) => { setSelectedCity(''); setCitySearch(e.target.value); onChange(''); }}
               onFocus={() => { setCityDropdownOpen(true); if (!citySearch) setFilteredCities(cities.slice(0, 15)); }}
@@ -103,7 +123,11 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
             )}
             {cityDropdownOpen && filteredCities.length === 0 && citySearch.length >= 1 && (
               <div className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl px-4 py-3 text-sm text-slate-500">
+<<<<<<< HEAD
                 No city found in {selectedState}.
+=======
+                {t ? t('auth.noCityFound', 'No city found in {state}.', { state: selectedState }) : `No city found in ${selectedState}.`}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </div>
             )}
           </div>
@@ -111,7 +135,11 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
       )}
       {selectedState && (
         <button type="button" onClick={clearLocation} className="text-[11px] text-slate-400 hover:text-red-500 transition-colors ml-1">
+<<<<<<< HEAD
           Clear selection
+=======
+          {t ? t('common.clear', 'Clear selection') : 'Clear selection'}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
         </button>
       )}
     </div>
@@ -119,7 +147,11 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
 };
 
 export const ShramikSignup = () => {
+<<<<<<< HEAD
   const { registerShramik } = useApp();
+=======
+  const { registerShramik, t, tSkill } = useApp();
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const [step, setStep] = useState(1);
 
   // Form State
@@ -162,12 +194,17 @@ export const ShramikSignup = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 flex justify-center">
+=======
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center">
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200 p-6 sm:p-10 space-y-8">
         
         {/* Header */}
         <div className="text-center space-y-2">
           <span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 uppercase tracking-wider">
+<<<<<<< HEAD
             Shramik Registration
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold font-heading text-slate-900">
@@ -175,6 +212,15 @@ export const ShramikSignup = () => {
           </h2>
           <p className="text-slate-500 text-sm">
             Get verified, connect with local customers, and earn fairly with zero middleman fees.
+=======
+            {t('shramik.registrationBadge', 'Shramik Registration')}
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-bold font-heading text-slate-900">
+            {t('shramik.joinTitle', 'Join Shram Setu as a Skilled Professional')}
+          </h2>
+          <p className="text-slate-500 text-sm">
+            {t('shramik.joinSubtitle', 'Get verified, connect with local customers, and earn fairly with zero middleman fees.')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </p>
         </div>
 
@@ -187,9 +233,15 @@ export const ShramikSignup = () => {
           ></div>
 
           {[
+<<<<<<< HEAD
             { num: 1, label: 'Personal Info' },
             { num: 2, label: 'Professional Skills' },
             { num: 3, label: 'Service Location' }
+=======
+            { num: 1, label: t('shramik.personalInfo', 'Personal Info') },
+            { num: 2, label: t('shramik.profSkills', 'Professional Skills') },
+            { num: 3, label: t('shramik.serviceLocation', 'Service Location') }
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           ].map((s) => (
             <div key={s.num} className="flex flex-col items-center relative z-10 bg-white px-2">
               <div className={`w-10 h-10 rounded-full font-bold flex items-center justify-center text-sm transition-all ${
@@ -214,7 +266,11 @@ export const ShramikSignup = () => {
             <div className="space-y-4 animate-fade-in">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+<<<<<<< HEAD
                   Full Name
+=======
+                  {t('auth.fullName', 'Full Name')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </label>
                 <div className="relative">
                   <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -231,7 +287,11 @@ export const ShramikSignup = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+<<<<<<< HEAD
                   Phone Number
+=======
+                  {t('auth.phone', 'Phone Number')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </label>
                 <div className="relative">
                   <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -248,14 +308,22 @@ export const ShramikSignup = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+<<<<<<< HEAD
                   Password
+=======
+                  {t('auth.password', 'Password')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </label>
                 <div className="relative">
                   <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
+<<<<<<< HEAD
                     placeholder="Choose a password"
+=======
+                    placeholder={t('auth.choosePassword', 'Choose a password')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none"
@@ -268,7 +336,11 @@ export const ShramikSignup = () => {
                 onClick={() => setStep(2)}
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm mt-6"
               >
+<<<<<<< HEAD
                 <span>Continue to Professional Info</span>
+=======
+                <span>{t('shramik.continueToSkills', 'Continue to Professional Info')}</span>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -279,7 +351,11 @@ export const ShramikSignup = () => {
             <div className="space-y-5 animate-fade-in">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+<<<<<<< HEAD
                   Primary Skill
+=======
+                  {t('shramik.primarySkill', 'Primary Skill')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </label>
                 <div className="relative">
                   <Wrench className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -291,17 +367,28 @@ export const ShramikSignup = () => {
                     }}
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none appearance-none font-semibold text-slate-800"
                   >
+<<<<<<< HEAD
                     <option value="Electrician">Electrician</option>
                     <option value="Plumber">Plumber</option>
                     <option value="Carpenter">Carpenter</option>
                     <option value="Painter">Painter</option>
+=======
+                    <option value="Electrician">{tSkill('Electrician')}</option>
+                    <option value="Plumber">{tSkill('Plumber')}</option>
+                    <option value="Carpenter">{tSkill('Carpenter')}</option>
+                    <option value="Painter">{tSkill('Painter')}</option>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+<<<<<<< HEAD
                   Years of Experience
+=======
+                  {t('shramik.yearsExp', 'Years of Experience')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </label>
                 <select
                   value={experience}
@@ -317,7 +404,11 @@ export const ShramikSignup = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+<<<<<<< HEAD
                   Select Specific Services Provided
+=======
+                  {t('shramik.specificServices', 'Select Specific Services Provided')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {(serviceOptionsMap[primarySkill] || ['General Work']).map((service) => (
@@ -335,7 +426,11 @@ export const ShramikSignup = () => {
                         onChange={() => handleServiceToggle(service)}
                         className="w-4 h-4 text-emerald-600 rounded-md focus:ring-emerald-500 accent-emerald-600"
                       />
+<<<<<<< HEAD
                       <span>{service}</span>
+=======
+                      <span>{tSkill(service)}</span>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                     </label>
                   ))}
                 </div>
@@ -348,14 +443,22 @@ export const ShramikSignup = () => {
                   className="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center space-x-1 text-sm"
                 >
                   <ArrowLeft className="w-4 h-4" />
+<<<<<<< HEAD
                   <span>Back</span>
+=======
+                  <span>{t('common.back', 'Back')}</span>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(3)}
                   className="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
                 >
+<<<<<<< HEAD
                   <span>Continue to Location</span>
+=======
+                  <span>{t('shramik.continueToLocation', 'Continue to Location')}</span>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -366,12 +469,20 @@ export const ShramikSignup = () => {
           {step === 3 && (
             <div className="space-y-5 animate-fade-in">
               <div>
+<<<<<<< HEAD
                 <LocationDropdown value={city} onChange={setCity} showLabel={true} />
+=======
+                <LocationDropdown value={city} onChange={setCity} showLabel={true} t={t} />
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+<<<<<<< HEAD
                   Service Area / Locality
+=======
+                  {t('shramik.serviceArea', 'Service Area / Locality')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </label>
                 <input
                   type="text"
@@ -386,10 +497,17 @@ export const ShramikSignup = () => {
               <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-xs text-emerald-900 space-y-1">
                 <p className="font-bold flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+<<<<<<< HEAD
                   Verification Guarantee
                 </p>
                 <p>
                   Upon registration, your details will be queued for Admin Review. Once verified, you will receive an official Shramik ID (`SS-XXXXXX`) and access to local customer jobs.
+=======
+                  {t('shramik.verificationGuarantee', 'Verification Guarantee')}
+                </p>
+                <p>
+                  {t('shramik.guaranteeDesc', 'Upon registration, your details will be queued for Admin Review. Once verified, you will receive an official Shramik ID (SS-XXXXXX) and access to local customer jobs.')}
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </p>
               </div>
 
@@ -400,13 +518,21 @@ export const ShramikSignup = () => {
                   className="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center space-x-1 text-sm"
                 >
                   <ArrowLeft className="w-4 h-4" />
+<<<<<<< HEAD
                   <span>Back</span>
+=======
+                  <span>{t('common.back', 'Back')}</span>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </button>
                 <button
                   type="submit"
                   className="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center space-x-2 text-sm"
                 >
+<<<<<<< HEAD
                   <span>Create Shramik Account</span>
+=======
+                  <span>{t('shramik.createAccount', 'Create Shramik Account')}</span>
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                   <CheckCircle2 className="w-4 h-4" />
                 </button>
               </div>

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { approveShramik as approveShramikApi, createBooking as createBookingApi, createShramik, getShramiks, isSupabaseConfigured } from '../lib/supabase';
+=======
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { TRANSLATIONS, LANGUAGES } from '../data/translations';
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 
 const AppContext = createContext();
 
@@ -76,10 +81,196 @@ const INITIAL_SHRAMIKS = [
     services: ['Wall Painting', 'Texture Design', 'Waterproofing', 'Primer Coat'],
     photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80',
     bio: 'Professional wall painting artist with expertise in weather-proof coatings and modern interior finishes.'
+<<<<<<< HEAD
   }
 ];
 
 const INITIAL_BOOKINGS = [];
+=======
+  },
+  {
+    id: 'shr-5',
+    name: 'Mohammad Arif',
+    skill: 'Mason',
+    verified: true,
+    shramikId: 'SS-10105',
+    rating: 4.9,
+    jobsCount: 96,
+    distance: '2.8 km away',
+    hourlyRate: 350,
+    phone: '+91 98301 22334',
+    city: 'Kolkata',
+    area: 'Topsia',
+    experience: '10 years',
+    services: ['Wall Construction', 'Tile Laying', 'Plastering', 'Concrete Works'],
+    photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=250&auto=format&fit=crop&q=80',
+    bio: 'Master mason with 10 years experience in bricklaying, structural plastering and floor tiling.'
+  }
+];
+
+const INITIAL_BOOKINGS = [
+  {
+    id: 'BK-10086',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'House Wiring',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '12 Sep 2025',
+    bookingTime: '10:30 AM',
+    scheduleDate: '15 Sep 2025',
+    scheduleTime: '09:00 AM',
+    status: 'Confirmed',
+    amount: 1200,
+    customerName: 'Ananya Mukherjee',
+    customerPhone: '+91 98311 02938',
+    customerAddress: 'Block CF-21, Sector 1, Salt Lake, Kolkata',
+    startCode: '4819'
+  },
+  {
+    id: 'BK-10085',
+    shramikId: 'shr-2',
+    shramikName: 'Deepak Singh',
+    shramikSkill: 'Plumber',
+    shramikArea: 'Park Street',
+    shramikPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Pipe Installation',
+    jobLocation: 'Park Street, Kolkata',
+    bookingDate: '11 Sep 2025',
+    bookingTime: '04:15 PM',
+    scheduleDate: '13 Sep 2025',
+    scheduleTime: '11:00 AM',
+    status: 'Pending',
+    amount: 900,
+    customerName: 'Rohit Sen',
+    customerPhone: '+91 98322 19283',
+    customerAddress: 'Flat 4B, 18 Park Street, Kolkata',
+    startCode: '6274'
+  },
+  {
+    id: 'BK-10084',
+    shramikId: 'shr-4',
+    shramikName: 'Sunita Devi',
+    shramikSkill: 'Painter',
+    shramikArea: 'Bhowanipore',
+    shramikPhoto: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'House Painting',
+    jobLocation: 'Bhowanipore, Kolkata',
+    bookingDate: '10 Sep 2025',
+    bookingTime: '02:45 PM',
+    scheduleDate: '12 Sep 2025',
+    scheduleTime: '10:00 AM',
+    status: 'Confirmed',
+    amount: 1500,
+    customerName: 'Pooja Bannerjee',
+    customerPhone: '+91 98305 44123',
+    customerAddress: '24B Harish Mukherjee Road, Bhowanipore',
+    startCode: '8912'
+  },
+  {
+    id: 'BK-10083',
+    shramikId: 'shr-3',
+    shramikName: 'Vikash Yadav',
+    shramikSkill: 'Carpenter',
+    shramikArea: 'New Town',
+    shramikPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Wooden Door Fitting',
+    jobLocation: 'New Town, Kolkata',
+    bookingDate: '09 Sep 2025',
+    bookingTime: '01:20 PM',
+    scheduleDate: '11 Sep 2025',
+    scheduleTime: '02:00 PM',
+    status: 'Completed',
+    amount: 1100,
+    customerName: 'Subhasish Roy',
+    customerPhone: '+91 98301 77219',
+    customerAddress: 'Action Area II, New Town, Kolkata',
+    startCode: '3108'
+  },
+  {
+    id: 'BK-10082',
+    shramikId: 'shr-5',
+    shramikName: 'Mohammad Arif',
+    shramikSkill: 'Mason',
+    shramikArea: 'Topsia',
+    shramikPhoto: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Wall Construction',
+    jobLocation: 'Topsia, Kolkata',
+    bookingDate: '08 Sep 2025',
+    bookingTime: '11:00 AM',
+    scheduleDate: '10 Sep 2025',
+    scheduleTime: '09:00 AM',
+    status: 'Cancelled',
+    amount: 2000,
+    customerName: 'Tanveer Alam',
+    customerPhone: '+91 98319 88120',
+    customerAddress: '14/1 Topsia Road South, Kolkata',
+    startCode: '9045'
+  },
+  {
+    id: 'BK-10079',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Fan & Light Repair',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '01 Sep 2025',
+    bookingTime: '11:20 AM',
+    scheduleDate: '02 Sep 2025',
+    scheduleTime: '03:00 PM',
+    status: 'Paid',
+    amount: 800,
+    customerName: 'Sneha Chatterjee',
+    customerPhone: '+91 98344 56712',
+    customerAddress: 'Flat 5C, CF-12, Sector 1, Salt Lake, Kolkata',
+    startCode: '5521'
+  },
+  {
+    id: 'BK-10078',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Power Point Installation',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '28 Aug 2025',
+    bookingTime: '10:05 AM',
+    scheduleDate: '29 Aug 2025',
+    scheduleTime: '12:00 PM',
+    status: 'Completed',
+    amount: 950,
+    customerName: 'Deblina Ray',
+    customerPhone: '+91 98765 22110',
+    customerAddress: '37/6 Canal Street, Salt Lake, Kolkata',
+    startCode: '7709'
+  },
+  {
+    id: 'BK-10077',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Inverter & Wiring Setup',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '20 Aug 2025',
+    bookingTime: '05:40 PM',
+    scheduleDate: '21 Aug 2025',
+    scheduleTime: '10:30 AM',
+    status: 'Paid',
+    amount: 700,
+    customerName: 'Kunal Sarkar',
+    customerPhone: '+91 98100 33456',
+    customerAddress: 'B-9, Lake Town, Kolkata',
+    startCode: '3318'
+  }
+];
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 
 export const AppProvider = ({ children }) => {
   // Navigation & Role State
@@ -88,7 +279,10 @@ export const AppProvider = ({ children }) => {
   
   // Data States
   const [shramiks, setShramiks] = useState(INITIAL_SHRAMIKS);
+<<<<<<< HEAD
   const [isDataLoading, setIsDataLoading] = useState(true);
+=======
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
   const [selectedWorkerId, setSelectedWorkerId] = useState('shr-1');
   const [activeBookingId, setActiveBookingId] = useState('');
@@ -104,6 +298,137 @@ export const AppProvider = ({ children }) => {
   // Selected Category filter for CustomerSearch
   const [searchCategory, setSearchCategory] = useState('All');
 
+<<<<<<< HEAD
+=======
+  // Language & Settings Modal State
+  const [language, setLanguageState] = useState(() => {
+    return localStorage.getItem('shram_lang') || 'en';
+  });
+  const [selectedLocation, setSelectedLocationState] = useState(() => {
+    return localStorage.getItem('shram_location') || 'West Bengal';
+  });
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('shram_lang', language);
+  }, [language]);
+
+  const setLanguage = (newLang) => setLanguageState(newLang);
+  const setSelectedLocation = (loc) => {
+    setSelectedLocationState(loc);
+    localStorage.setItem('shram_location', loc);
+  };
+  const openSettings = () => setIsSettingsOpen(true);
+  const closeSettings = () => setIsSettingsOpen(false);
+  const toggleSettings = () => setIsSettingsOpen(prev => !prev);
+
+  // Dot-notation alias map: maps dot-notation keys used in components to flat dict keys
+  const DOT_KEY_ALIASES = {
+    // admin.* keys → flat keys
+    'admin.bookings': 'bookings', 'admin.manageAllBookings': 'bookingsSubtitle',
+    'admin.createNewBooking': 'createNewBooking', 'admin.totalBookings': 'totalBookings',
+    'admin.allBookings': 'allBookings', 'admin.activeBookings': 'activeBookings',
+    'admin.awaitingConfirmation': 'awaitingConfirmation', 'admin.cancelledBookings': 'cancelledBookings',
+    'admin.searchBooking': 'searchBooking', 'admin.searchBookingPlaceholder': 'searchBookingPh',
+    'admin.bookingStatus': 'bookingStatus', 'admin.allStatus': 'allStatus',
+    'admin.dateRange': 'dateRange', 'admin.selectDateRange': 'selectDateRange',
+    'admin.location': 'location', 'admin.allLocations': 'allLocations',
+    'admin.export': 'export', 'admin.allBookingsTabs': 'tabAllBookings',
+    'admin.noBookingsFound': 'noBookingsFound', 'admin.adjustFiltersNotice': 'noBookingsFoundDesc',
+    'admin.shramikDetails': 'thShramikDetails', 'admin.jobDetails': 'thJobDetails',
+    'admin.bookingDate': 'thBookingDate', 'admin.scheduleDate': 'scheduleDate',
+    'admin.scheduleTime': 'scheduleTime', 'admin.markConfirmed': 'markConfirmed',
+    'admin.markCompleted': 'markCompleted', 'admin.cancelBooking': 'cancelBooking',
+    'admin.createNewJobBooking': 'createJobBooking', 'admin.dispatchNotice': 'dispatchShramik',
+    'admin.assignShramik': 'assignShramik', 'admin.jobTitleService': 'jobTitleService',
+    'admin.serviceLocation': 'serviceLocation', 'admin.initialStatus': 'initialStatus',
+    'admin.confirmAndCreate': 'confirmAndCreate', 'admin.setConfirmed': 'setConfirmed',
+    'admin.setCompleted': 'setCompleted', 'admin.settings': 'settingsNav',
+    'admin.settingsSubtitle': 'settingsAdminSubtitle', 'admin.platformInformation': 'platformInformation',
+    'admin.platformName': 'platformName', 'admin.adminEmail': 'adminContactEmail',
+    'admin.tagline': 'tagline', 'admin.supportPhone': 'supportPhone',
+    'admin.platformInfoSaved': 'adminPlatformSaved', 'admin.notificationsAndPreferences': 'notificationsPrefs',
+    'admin.emailNotifications': 'emailNotifications', 'admin.emailNotificationsDesc': 'emailNotifDesc',
+    'admin.approvalAlerts': 'approvalAlerts', 'admin.approvalAlertsDesc': 'approvalAlertsDesc',
+    'admin.autoApproveShramiks': 'autoApproveShramiks', 'admin.autoApproveShramiksDesc': 'autoApproveDesc',
+    'admin.dailySummaryReport': 'dailySummaryReport', 'admin.dailySummaryReportDesc': 'dailySummaryDesc',
+    'admin.notificationsSaved': 'adminNotifSaved', 'admin.actionInitiated': 'adminSystemAction',
+    'admin.systemDataManagement': 'systemDataManagement', 'admin.systemLogs': 'systemLogs',
+    'admin.systemLogsDesc': 'systemLogsDesc', 'admin.backupExport': 'backupExport',
+    'admin.backupExportDesc': 'backupExportDesc', 'admin.clearCache': 'clearCache',
+    'admin.clearCacheDesc': 'clearCacheDesc', 'admin.dataRetention': 'dataRetention',
+    'admin.dataRetentionDesc': 'dataRetentionDesc', 'admin.verificationQueue': 'verificationQueue',
+    'admin.verificationQueueSubtitle': 'queueDesc', 'admin.pendingCount': 'pendingApprovalCount',
+    'admin.pendingRegistrations': 'pendingRegistrations', 'admin.liveManagement': 'liveManagement',
+    'admin.approve': 'approve', 'admin.approveAndIssueId': 'approveAndIssue',
+    'admin.reject': 'rejectRegistration', 'admin.noPendingApprovals': 'noPendingQueue',
+    'admin.allShramiksVerified': 'allRegisteredVerified', 'admin.verifiedDirectory': 'verifiedDirectory',
+    'admin.verifiedActive': 'verifiedActive', 'admin.profileApplication': 'profileApplication',
+    // auth.* keys
+    'auth.phone': 'phoneNumber', 'auth.shramik': 'thShramik',
+    // booking.* keys
+    'booking.id': 'thBookingId', 'booking.status': 'thStatus',
+    'booking.amount': 'thAmount', 'booking.customer': 'customerName',
+    'booking.service': 'jobTitle', 'booking.dateTime': 'scheduledDateTime',
+    'booking.fourDigitCode': 'digitStartCode', 'booking.totalPayable': 'totalPayableAmount',
+    // common.* keys
+    'common.skill': 'thSkill', 'common.experience': 'thExperience',
+    'common.action': 'thActions', 'common.view': 'viewDetails',
+    'common.cancel': 'cancel', 'common.delete': 'delete',
+    'common.saveChanges': 'saveChanges', 'common.cityArea': 'cityArea',
+    'common.servicesOffered': 'servicesOffered',
+  };
+
+  const t = (key, paramsOrFallback = '') => {
+    const dict = TRANSLATIONS[language] || TRANSLATIONS.en || {};
+    // Resolve dot-notation aliases to flat keys
+    const flatKey = DOT_KEY_ALIASES[key] || key;
+    let val = dict[flatKey] ?? TRANSLATIONS.en?.[flatKey];
+    if (val === undefined) {
+      if (typeof paramsOrFallback === 'string') return paramsOrFallback;
+      return key;
+    }
+    if (typeof paramsOrFallback === 'object' && paramsOrFallback !== null) {
+      return String(val).replace(/\{(\w+)\}/g, (match, paramKey) => {
+        return paramsOrFallback[paramKey] !== undefined ? paramsOrFallback[paramKey] : match;
+      });
+    }
+    return val;
+  };
+
+  const tSkill = (skill) => {
+    if (!skill) return '';
+    const keyMap = {
+      'Electrician': 'skillElectrician',
+      'Plumber': 'skillPlumber',
+      'Carpenter': 'skillCarpenter',
+      'Painter': 'skillPainter',
+      'Mason': 'skillMason',
+      'AC Repair': 'skillAcRepair',
+      'Welder': 'skillWelder',
+      'Mechanic': 'skillMechanic',
+      'Tailor': 'skillTailor',
+      'Cook': 'skillCook'
+    };
+    const key = keyMap[skill];
+    return key ? t(key, skill) : skill;
+  };
+
+  const tStatus = (status) => {
+    if (!status) return '';
+    const keyMap = {
+      'Confirmed': 'statusConfirmed',
+      'Pending': 'statusPending',
+      'In Progress': 'statusInProgress',
+      'Completed': 'statusCompleted',
+      'Paid': 'statusPaid',
+      'Cancelled': 'statusCancelled'
+    };
+    const key = keyMap[status];
+    return key ? t(key, status) : status;
+  };
+
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   // Notification Toast state
   const [toast, setToast] = useState(null);
 
@@ -114,6 +439,7 @@ export const AppProvider = ({ children }) => {
   // Which login tab should be pre-selected (customer | shramik), set by landing CTAs
   const [intendedLoginRole, setIntendedLoginRole] = useState('customer');
 
+<<<<<<< HEAD
   function showToast(message, type = 'success') {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
@@ -137,6 +463,12 @@ export const AppProvider = ({ children }) => {
       .catch((error) => showToast(`Could not load workers: ${error.message}`, 'error'))
       .finally(() => setIsDataLoading(false));
   }, []);
+=======
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 
   const login = (userData) => {
     setCurrentUser(userData);
@@ -149,7 +481,11 @@ export const AppProvider = ({ children }) => {
     setIsLoggedIn(false);
     setRole('landing');
     setCurrentScreen('landing');
+<<<<<<< HEAD
     showToast('Logged out successfully.', 'info');
+=======
+    showToast(t('tLoggedOut', 'Logged out successfully.'), 'info');
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   };
 
   // Synchronize screen when role changes
@@ -192,7 +528,11 @@ export const AppProvider = ({ children }) => {
   };
 
   // Shramik Registration Flow
+<<<<<<< HEAD
   const registerShramik = async (formData) => {
+=======
+  const registerShramik = (formData) => {
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     const newId = `shr-${Date.now()}`;
     const newShramik = {
       id: newId,
@@ -214,6 +554,7 @@ export const AppProvider = ({ children }) => {
       pendingSince: 'Just now'
     };
 
+<<<<<<< HEAD
     if (isSupabaseConfigured) {
       try {
         const [savedShramik] = await createShramik({
@@ -236,12 +577,17 @@ export const AppProvider = ({ children }) => {
 
     setShramiks(prev => [newShramik, ...prev]);
     setActiveShramikId(newShramik.id);
+=======
+    setShramiks(prev => [newShramik, ...prev]);
+    setActiveShramikId(newId);
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     setRole('shramik');
     setCurrentScreen('shramik_pending');
     showToast('Registration submitted! Verification pending admin review.', 'info');
   };
 
   // Admin Approval Action
+<<<<<<< HEAD
   const approveShramik = async (id) => {
     if (isSupabaseConfigured) {
       try {
@@ -258,6 +604,24 @@ export const AppProvider = ({ children }) => {
     }
 
     showToast('Shramik approval requires the backend connection.', 'error');
+=======
+  const approveShramik = (id) => {
+    const nextIdNum = Math.floor(100000 + Math.random() * 900000);
+    const assignedShramikId = `SS-${nextIdNum}`;
+
+    setShramiks(prev => prev.map(s => {
+      if (s.id === id) {
+        return {
+          ...s,
+          verified: true,
+          shramikId: assignedShramikId
+        };
+      }
+      return s;
+    }));
+
+    showToast(`Shramik Approved! Assigned ID: ${assignedShramikId}`, 'success');
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   };
 
   // Admin Reject Action
@@ -267,7 +631,11 @@ export const AppProvider = ({ children }) => {
   };
 
   // Booking Flow Actions
+<<<<<<< HEAD
   const createBooking = async () => {
+=======
+  const createBooking = () => {
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
     const newBookingId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
     const randomStartCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -297,6 +665,7 @@ export const AppProvider = ({ children }) => {
       createdAt: new Date().toISOString()
     };
 
+<<<<<<< HEAD
     if (isSupabaseConfigured) {
       try {
         const savedBooking = await createBookingApi({
@@ -318,6 +687,8 @@ export const AppProvider = ({ children }) => {
       }
     }
 
+=======
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     setBookings(prev => [newBooking, ...prev]);
     setActiveBookingId(newBookingId);
     setCurrentScreen('track_booking');
@@ -413,6 +784,26 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  // Admin Add Booking
+  const addAdminBooking = (bookingData) => {
+    setBookings(prev => [bookingData, ...prev]);
+  };
+
+  // Admin Update Booking Status
+  const updateBookingStatus = (bookingId, status) => {
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status } : b));
+    showToast(`Booking ${bookingId} status updated to ${status}.`, 'info');
+  };
+
+  // Admin Delete Booking
+  const deleteBooking = (bookingId) => {
+    setBookings(prev => prev.filter(b => b.id !== bookingId));
+    showToast(`Booking ${bookingId} deleted.`, 'info');
+  };
+
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   return (
     <AppContext.Provider value={{
       role,
@@ -420,7 +811,10 @@ export const AppProvider = ({ children }) => {
       currentScreen,
       setCurrentScreen,
       shramiks,
+<<<<<<< HEAD
       isDataLoading,
+=======
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       bookings,
       selectedWorkerId,
       setSelectedWorkerId,
@@ -438,6 +832,12 @@ export const AppProvider = ({ children }) => {
       confirmWorkDone,
       processPayment,
       cancelBooking,
+<<<<<<< HEAD
+=======
+      addAdminBooking,
+      updateBookingStatus,
+      deleteBooking,
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       jumpToDemoStep,
       toast,
       showToast,
@@ -449,6 +849,22 @@ export const AppProvider = ({ children }) => {
       isLoggedIn,
       login,
       logout,
+<<<<<<< HEAD
+=======
+      language,
+      setLanguage,
+      selectedLocation,
+      setSelectedLocation,
+      isSettingsOpen,
+      setIsSettingsOpen,
+      openSettings,
+      closeSettings,
+      toggleSettings,
+      t,
+      tSkill,
+      tStatus,
+      LANGUAGES
+>>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     }}>
       {children}
     </AppContext.Provider>
