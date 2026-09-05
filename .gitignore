@@ -11,10 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-<<<<<<< HEAD
 .env
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 
 # Packaging output
 release
