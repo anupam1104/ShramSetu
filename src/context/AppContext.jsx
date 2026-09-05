@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { approveShramik as approveShramikApi, createBooking as createBookingApi, createShramik, getShramiks, isSupabaseConfigured } from '../lib/supabase';
-=======
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
+import { approveShramik as approveShramikApi, createBooking as createBookingApi, createShramik, getShramiks, isSupabaseConfigured } from '../lib/supabase';
 
 const AppContext = createContext();
 
@@ -81,12 +77,6 @@ const INITIAL_SHRAMIKS = [
     services: ['Wall Painting', 'Texture Design', 'Waterproofing', 'Primer Coat'],
     photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80',
     bio: 'Professional wall painting artist with expertise in weather-proof coatings and modern interior finishes.'
-<<<<<<< HEAD
-  }
-];
-
-const INITIAL_BOOKINGS = [];
-=======
   },
   {
     id: 'shr-5',
@@ -270,7 +260,6 @@ const INITIAL_BOOKINGS = [
     startCode: '3318'
   }
 ];
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 
 export const AppProvider = ({ children }) => {
   // Navigation & Role State
@@ -279,10 +268,6 @@ export const AppProvider = ({ children }) => {
   
   // Data States
   const [shramiks, setShramiks] = useState(INITIAL_SHRAMIKS);
-<<<<<<< HEAD
-  const [isDataLoading, setIsDataLoading] = useState(true);
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
   const [selectedWorkerId, setSelectedWorkerId] = useState('shr-1');
   const [activeBookingId, setActiveBookingId] = useState('');
@@ -298,8 +283,6 @@ export const AppProvider = ({ children }) => {
   // Selected Category filter for CustomerSearch
   const [searchCategory, setSearchCategory] = useState('All');
 
-<<<<<<< HEAD
-=======
   // Language & Settings Modal State
   const [language, setLanguageState] = useState(() => {
     return localStorage.getItem('shram_lang') || 'en';
@@ -324,7 +307,7 @@ export const AppProvider = ({ children }) => {
 
   // Dot-notation alias map: maps dot-notation keys used in components to flat dict keys
   const DOT_KEY_ALIASES = {
-    // admin.* keys → flat keys
+    // admin.* keys â†’ flat keys
     'admin.bookings': 'bookings', 'admin.manageAllBookings': 'bookingsSubtitle',
     'admin.createNewBooking': 'createNewBooking', 'admin.totalBookings': 'totalBookings',
     'admin.allBookings': 'allBookings', 'admin.activeBookings': 'activeBookings',
@@ -428,7 +411,6 @@ export const AppProvider = ({ children }) => {
     return key ? t(key, status) : status;
   };
 
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   // Notification Toast state
   const [toast, setToast] = useState(null);
 
@@ -439,36 +421,23 @@ export const AppProvider = ({ children }) => {
   // Which login tab should be pre-selected (customer | shramik), set by landing CTAs
   const [intendedLoginRole, setIntendedLoginRole] = useState('customer');
 
-<<<<<<< HEAD
-  function showToast(message, type = 'success') {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  }
-
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setIsDataLoading(false);
-      return;
-    }
-
-    getShramiks()
-      .then((rows) => {
-        setShramiks(rows.map((row) => ({
-          ...row,
-          shramikId: row.shramik_id,
-          jobsCount: row.jobs_count,
-          hourlyRate: row.hourly_rate,
-        })));
-      })
-      .catch((error) => showToast(`Could not load workers: ${error.message}`, 'error'))
-      .finally(() => setIsDataLoading(false));
-  }, []);
-=======
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    getShramiks()
+      .then((rows) => setShramiks(rows.map((row) => ({
+        ...row,
+        shramikId: row.shramik_id,
+        jobsCount: row.jobs_count,
+        hourlyRate: row.hourly_rate,
+      }))))
+      .catch((error) => showToast(`Could not load workers: ${error.message}`, 'error'));
+  }, []);
 
   const login = (userData) => {
     setCurrentUser(userData);
@@ -481,11 +450,7 @@ export const AppProvider = ({ children }) => {
     setIsLoggedIn(false);
     setRole('landing');
     setCurrentScreen('landing');
-<<<<<<< HEAD
-    showToast('Logged out successfully.', 'info');
-=======
     showToast(t('tLoggedOut', 'Logged out successfully.'), 'info');
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   };
 
   // Synchronize screen when role changes
@@ -528,11 +493,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Shramik Registration Flow
-<<<<<<< HEAD
   const registerShramik = async (formData) => {
-=======
-  const registerShramik = (formData) => {
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     const newId = `shr-${Date.now()}`;
     const newShramik = {
       id: newId,
@@ -549,12 +510,11 @@ export const AppProvider = ({ children }) => {
       area: formData.serviceArea || 'Salt Lake',
       experience: formData.experience || '3 years',
       services: formData.selectedServices || ['General Repair'],
-      photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=250&auto=format&fit=crop&q=80',
+      photo: formData.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=250&auto=format&fit=crop&q=80',
       bio: 'Skilled local technician dedicated to quality and safety.',
       pendingSince: 'Just now'
     };
 
-<<<<<<< HEAD
     if (isSupabaseConfigured) {
       try {
         const [savedShramik] = await createShramik({
@@ -577,51 +537,22 @@ export const AppProvider = ({ children }) => {
 
     setShramiks(prev => [newShramik, ...prev]);
     setActiveShramikId(newShramik.id);
-=======
-    setShramiks(prev => [newShramik, ...prev]);
-    setActiveShramikId(newId);
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     setRole('shramik');
     setCurrentScreen('shramik_pending');
     showToast('Registration submitted! Verification pending admin review.', 'info');
   };
 
   // Admin Approval Action
-<<<<<<< HEAD
   const approveShramik = async (id) => {
-    if (isSupabaseConfigured) {
-      try {
-        const approved = await approveShramikApi(id);
-        setShramiks(prev => prev.map(worker => worker.id === id
-          ? { ...worker, verified: approved.verified, shramikId: approved.shramik_id }
-          : worker));
-        showToast(`Shramik Approved! Assigned ID: ${approved.shramik_id}`, 'success');
-        return;
-      } catch (error) {
-        showToast(`Approval could not be saved: ${error.message}`, 'error');
-        return;
-      }
+    try {
+      const approved = await approveShramikApi(id);
+      setShramiks(prev => prev.map(worker => worker.id === id
+        ? { ...worker, verified: approved.verified, shramikId: approved.shramik_id }
+        : worker));
+      showToast(`Shramik Approved! Assigned ID: ${approved.shramik_id}`, 'success');
+    } catch (error) {
+      showToast(`Approval could not be saved: ${error.message}`, 'error');
     }
-
-    showToast('Shramik approval requires the backend connection.', 'error');
-=======
-  const approveShramik = (id) => {
-    const nextIdNum = Math.floor(100000 + Math.random() * 900000);
-    const assignedShramikId = `SS-${nextIdNum}`;
-
-    setShramiks(prev => prev.map(s => {
-      if (s.id === id) {
-        return {
-          ...s,
-          verified: true,
-          shramikId: assignedShramikId
-        };
-      }
-      return s;
-    }));
-
-    showToast(`Shramik Approved! Assigned ID: ${assignedShramikId}`, 'success');
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   };
 
   // Admin Reject Action
@@ -631,11 +562,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Booking Flow Actions
-<<<<<<< HEAD
   const createBooking = async () => {
-=======
-  const createBooking = () => {
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
     const newBookingId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
     const randomStartCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -665,7 +592,6 @@ export const AppProvider = ({ children }) => {
       createdAt: new Date().toISOString()
     };
 
-<<<<<<< HEAD
     if (isSupabaseConfigured) {
       try {
         const savedBooking = await createBookingApi({
@@ -687,10 +613,8 @@ export const AppProvider = ({ children }) => {
       }
     }
 
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     setBookings(prev => [newBooking, ...prev]);
-    setActiveBookingId(newBookingId);
+    setActiveBookingId(newBooking.id);
     setCurrentScreen('track_booking');
     showToast(`Booking Confirmed! Your Start Code is ${randomStartCode}`, 'success');
   };
@@ -708,7 +632,7 @@ export const AppProvider = ({ children }) => {
 
     if (currentBooking.startCode === code) {
       setBookings(prev => prev.map(b => b.id === activeBookingId ? { ...b, status: 'In Progress' } : b));
-      showToast('✓ Code verified! Job started successfully.', 'success');
+      showToast('âœ“ Code verified! Job started successfully.', 'success');
       return true;
     } else {
       showToast('Invalid Start Code! Please check with customer.', 'error');
@@ -739,7 +663,7 @@ export const AppProvider = ({ children }) => {
         return s;
       }));
     }
-    showToast(`₹${booking?.totalAmount || 550} Paid Successfully! Thank you for using Shram Setu.`, 'success');
+    showToast(`â‚¹${booking?.totalAmount || 550} Paid Successfully! Thank you for using Shram Setu.`, 'success');
   };
 
   // Quick Demo Step Launcher (Backbone Flow Preset)
@@ -784,8 +708,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-<<<<<<< HEAD
-=======
   // Admin Add Booking
   const addAdminBooking = (bookingData) => {
     setBookings(prev => [bookingData, ...prev]);
@@ -803,7 +725,6 @@ export const AppProvider = ({ children }) => {
     showToast(`Booking ${bookingId} deleted.`, 'info');
   };
 
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   return (
     <AppContext.Provider value={{
       role,
@@ -811,10 +732,6 @@ export const AppProvider = ({ children }) => {
       currentScreen,
       setCurrentScreen,
       shramiks,
-<<<<<<< HEAD
-      isDataLoading,
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       bookings,
       selectedWorkerId,
       setSelectedWorkerId,
@@ -832,12 +749,9 @@ export const AppProvider = ({ children }) => {
       confirmWorkDone,
       processPayment,
       cancelBooking,
-<<<<<<< HEAD
-=======
       addAdminBooking,
       updateBookingStatus,
       deleteBooking,
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       jumpToDemoStep,
       toast,
       showToast,
@@ -849,8 +763,6 @@ export const AppProvider = ({ children }) => {
       isLoggedIn,
       login,
       logout,
-<<<<<<< HEAD
-=======
       language,
       setLanguage,
       selectedLocation,
@@ -864,7 +776,6 @@ export const AppProvider = ({ children }) => {
       tSkill,
       tStatus,
       LANGUAGES
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     }}>
       {children}
     </AppContext.Provider>

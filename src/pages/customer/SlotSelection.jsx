@@ -3,11 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Calendar, Clock, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const SlotSelection = () => {
-<<<<<<< HEAD
-  const { shramiks, selectedWorkerId, setBookingDraft, setCurrentScreen } = useApp();
-=======
   const { shramiks, selectedWorkerId, setBookingDraft, setCurrentScreen, t } = useApp();
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
 
   const dates = [
@@ -41,55 +37,33 @@ export const SlotSelection = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 max-w-xl mx-auto space-y-6">
-=======
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-xl mx-auto space-y-6">
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       
       <button
         onClick={() => setCurrentScreen('profile')}
         className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1"
       >
-<<<<<<< HEAD
-        <ArrowLeft className="w-4 h-4" /> Back to Profile
-=======
         <ArrowLeft className="w-4 h-4" /> {t('backToProfile', 'Back to Profile')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       </button>
 
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xl space-y-6">
         
         <div className="space-y-1">
           <span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">
-<<<<<<< HEAD
-            Step 2 of 3 • Select Slot
-          </span>
-          <h1 className="text-2xl font-bold font-heading text-slate-900 pt-2">
-            Schedule Appointment with {worker.name}
-          </h1>
-          <p className="text-xs text-slate-500">
-            Choose your preferred date and available time slot.
-=======
-            {t('step2of3', 'Step 2 of 3 • Select Slot')}
+            {t('step2of3', 'Step 2 of 3 â€¢ Select Slot')}
           </span>
           <h1 className="text-2xl font-bold font-heading text-slate-900 pt-2">
             {t('scheduleWith', { name: worker.name })}
           </h1>
           <p className="text-xs text-slate-500">
             {t('choosePrefSlot', 'Choose your preferred date and available time slot.')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </p>
         </div>
 
         {/* Service Type Selection */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-<<<<<<< HEAD
-            Select Required Service
-=======
             {t('selectRequiredService', 'Select Required Service')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </label>
           <select
             value={selectedService}
@@ -106,11 +80,7 @@ export const SlotSelection = () => {
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
             <Calendar className="w-4 h-4 text-emerald-600" />
-<<<<<<< HEAD
-            Select Date
-=======
             {t('selectDate', 'Select Date')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </label>
 
           <div className="grid grid-cols-5 gap-2">
@@ -136,11 +106,7 @@ export const SlotSelection = () => {
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
             <Clock className="w-4 h-4 text-emerald-600" />
-<<<<<<< HEAD
-            Available Time Slots
-=======
             {t('availableTimeSlots', 'Available Time Slots')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </label>
 
           <div className="grid grid-cols-2 gap-3">
@@ -160,11 +126,7 @@ export const SlotSelection = () => {
               >
                 <span>{slot.time}</span>
                 {!slot.available ? (
-<<<<<<< HEAD
-                  <span className="text-[10px] font-sans text-red-500 font-semibold no-underline">Booked</span>
-=======
                   <span className="text-[10px] font-sans text-red-500 font-semibold no-underline">{t('bookedslot', 'Booked')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 ) : selectedTime === slot.time ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 ) : null}
@@ -177,11 +139,7 @@ export const SlotSelection = () => {
           onClick={handleConfirmSlot}
           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center space-x-2 mt-4"
         >
-<<<<<<< HEAD
-          <span>Proceed to Summary</span>
-=======
           <span>{t('proceedToSummary', 'Proceed to Summary')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           <ArrowRight className="w-4 h-4" />
         </button>
 

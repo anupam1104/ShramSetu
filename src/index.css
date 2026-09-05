@@ -17,11 +17,7 @@
 body {
   margin: 0;
   padding: 0;
-<<<<<<< HEAD
-  background-color: #f8fafc;
-=======
   background-color: #e2e8f0;
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   color: #0f172a;
   min-height: 100vh;
   font-family: 'JetBrains Mono', monospace;
@@ -29,9 +25,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-<<<<<<< HEAD
-=======
-/* ═══ FIXED FULL-VIEWPORT BACKDROP ═══
+/* â•â•â• FIXED FULL-VIEWPORT BACKDROP â•â•â•
    A dedicated fixed layer fills the visible screen on every device.
    (background-attachment: fixed is unreliable on mobile browsers, so we use a
    position:fixed element that always covers the exact viewport.) */
@@ -52,7 +46,6 @@ body::before {
   background-repeat: no-repeat;
 }
 
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 /* Sharp Satoshi Bold for headings */
 h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: 'Satoshi', system-ui, -apple-system, sans-serif !important;
@@ -164,9 +157,7 @@ button, input, select, textarea, .font-body {
   border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-<<<<<<< HEAD
-=======
-/* ═══ FROSTED BOX CARDS ═══
+/* â•â•â• FROSTED BOX CARDS â•â•â•
    Main white cards get a translucent frosted surface + soft elevation so
    they float cleanly and stay readable over the app backdrop image. */
 .rounded-3xl.bg-white {
@@ -179,31 +170,30 @@ button, input, select, textarea, .font-body {
     0 4px 12px -6px rgba(15, 23, 55, 0.12);
 }
 
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
-/* ═══ MOBILE-FIRST COMPACT CARDS ═══
+/* â•â•â• MOBILE-FIRST COMPACT CARDS â•â•â•
    Tightens card/padding/spacing on small screens so that
    cards and boxes look clean and proportional in mobile view
    instead of clunky and oversized. Only applies below sm (640px). */
 @media (max-width: 640px) {
-  /* Card & box padding — smaller so cards take less vertical space */
+  /* Card & box padding â€” smaller so cards take less vertical space */
   .p-4 { padding: 0.9rem !important; }
   .p-5 { padding: 1rem !important; }
   .p-6 { padding: 1.1rem !important; }
   .p-8 { padding: 1.25rem !important; }
   .p-10 { padding: 1.5rem !important; }
 
-  /* Page/container vertical breathing room — reduce empty bulk */
+  /* Page/container vertical breathing room â€” reduce empty bulk */
   .py-8 { padding-top: 1.15rem !important; padding-bottom: 1.15rem !important; }
   .py-10 { padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
   .py-12 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
 
-  /* Internal stacking space — closer, less cluttered */
+  /* Internal stacking space â€” closer, less cluttered */
   .space-y-5 > * + * { margin-top: 1rem !important; }
   .space-y-6 > * + * { margin-top: 1.1rem !important; }
   .space-y-8 > * + * { margin-top: 1.25rem !important; }
   .space-y-10 > * + * { margin-top: 1.5rem !important; }
 
-  /* Grid gaps between cards — tighter */
+  /* Grid gaps between cards â€” tighter */
   .gap-4 { gap: 0.9rem !important; }
   .gap-6 { gap: 1rem !important; }
   .gap-8 { gap: 1.25rem !important; }

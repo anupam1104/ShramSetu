@@ -3,21 +3,13 @@ import { useApp } from '../../context/AppContext';
 import { ShieldCheck, CheckCircle2, Clock, Sparkles, ArrowRight, ShieldAlert } from 'lucide-react';
 
 export const ShramikPending = () => {
-<<<<<<< HEAD
-  const { activeShramikId, shramiks, approveShramik, setCurrentScreen, switchRole } = useApp();
-=======
   const { activeShramikId, shramiks, approveShramik, setCurrentScreen, switchRole, t, tSkill } = useApp();
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   
   const currentShramik = shramiks.find(s => s.id === activeShramikId) || shramiks[2]; // fallback to Vikash (pending)
   const isVerified = currentShramik?.verified;
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
-=======
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 sm:p-8 space-y-6 text-center relative overflow-hidden">
         
         {/* Top Decorative Header */}
@@ -32,34 +24,20 @@ export const ShramikPending = () => {
 
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-300">
-<<<<<<< HEAD
-                ● Registration Submitted
-              </span>
-              <h2 className="text-2xl font-bold font-heading text-slate-900">
-                Your profile is being reviewed
-              </h2>
-              <p className="text-sm text-slate-600">
-                Shram Setu administrators are verifying your professional credentials and phone details.
-=======
-                ● {t('registrationSubmitted', 'Registration Submitted')}
+                â— {t('registrationSubmitted', 'Registration Submitted')}
               </span>
               <h2 className="text-2xl font-bold font-heading text-slate-900">
                 {t('reviewInProgress', 'Your profile is being reviewed')}
               </h2>
               <p className="text-sm text-slate-600">
                 {t('reviewDesc', 'Shram Setu administrators are verifying your professional credentials and phone details.')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </p>
             </div>
 
             {/* Verification Stepper Box */}
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-left space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-<<<<<<< HEAD
-                Verification Progress
-=======
                 {t('verificationProgress', 'Verification Progress')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </h3>
 
               <div className="space-y-3 relative pl-6">
@@ -67,57 +45,38 @@ export const ShramikPending = () => {
 
                 <div className="flex items-center space-x-3 relative z-10">
                   <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                    ✓
+                    âœ“
                   </div>
                   <div>
-<<<<<<< HEAD
-                    <p className="text-xs font-bold text-slate-900">Registration Submitted</p>
-                    <p className="text-[11px] text-slate-500">Application details received</p>
-=======
                     <p className="text-xs font-bold text-slate-900">{t('registrationSubmitted', 'Registration Submitted')}</p>
                     <p className="text-[11px] text-slate-500">{t('applicationReceived', 'Application details received')}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3 relative z-10">
                   <div className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold animate-pulse">
-                    ●
+                    â—
                   </div>
                   <div>
-<<<<<<< HEAD
-                    <p className="text-xs font-bold text-amber-900">Admin Review</p>
-                    <p className="text-[11px] text-amber-700">Verification in progress...</p>
-=======
                     <p className="text-xs font-bold text-amber-900">{t('adminReview', 'Admin Review')}</p>
                     <p className="text-[11px] text-amber-700">{t('verificationInProgress', 'Verification in progress...')}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3 relative z-10 opacity-50">
                   <div className="w-5 h-5 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs font-bold">
-                    ○
+                    â—‹
                   </div>
                   <div>
-<<<<<<< HEAD
-                    <p className="text-xs font-semibold text-slate-600">Verified Badge Issued</p>
-                    <p className="text-[11px] text-slate-400">Unlocks customer bookings</p>
-=======
                     <p className="text-xs font-semibold text-slate-600">{t('verifiedBadgeIssued', 'Verified Badge Issued')}</p>
                     <p className="text-[11px] text-slate-400">{t('unlocksBookings', 'Unlocks customer bookings')}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                   </div>
                 </div>
               </div>
             </div>
 
             <p className="text-xs text-slate-500">
-<<<<<<< HEAD
-              We'll notify you automatically when your profile is approved.
-=======
               {t('notifyAuto', "We'll notify you automatically when your profile is approved.")}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
             </p>
 
             <div className="pt-2 border-t border-slate-100 space-y-2">
@@ -126,11 +85,7 @@ export const ShramikPending = () => {
                 className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all flex items-center justify-center space-x-2"
               >
                 <Sparkles className="w-4 h-4 text-emerald-200" />
-<<<<<<< HEAD
-                <span>Simulate Verification Approval</span>
-=======
                 <span>{t('simulateApproval', 'Simulate Verification Approval')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </button>
             </div>
           </div>
@@ -143,15 +98,6 @@ export const ShramikPending = () => {
 
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-300">
-<<<<<<< HEAD
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Verified Shramik
-              </span>
-              <h2 className="text-3xl font-extrabold font-heading text-slate-900">
-                You're Verified!
-              </h2>
-              <p className="text-sm text-slate-600">
-                Congratulations {currentShramik.name}! Your account is fully verified and active on Shram Setu.
-=======
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {t('verifiedShramikBadge', 'Verified Shramik')}
               </span>
               <h2 className="text-3xl font-extrabold font-heading text-slate-900">
@@ -159,7 +105,6 @@ export const ShramikPending = () => {
               </h2>
               <p className="text-sm text-slate-600">
                 {t('verifiedCongrats', { name: currentShramik.name })}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </p>
             </div>
 
@@ -167,11 +112,7 @@ export const ShramikPending = () => {
             <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white p-5 rounded-2xl shadow-xl text-left space-y-2 relative overflow-hidden">
               <div className="flex justify-between items-start">
                 <div>
-<<<<<<< HEAD
-                  <p className="text-[10px] text-emerald-200 uppercase font-semibold">Official Shramik ID</p>
-=======
                   <p className="text-[10px] text-emerald-200 uppercase font-semibold">{t('officialShramikId', 'Official Shramik ID')}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                   <p className="text-2xl font-mono font-bold text-white tracking-wider mt-0.5">
                     {currentShramik.shramikId || 'SS-10234'}
                   </p>
@@ -180,13 +121,8 @@ export const ShramikPending = () => {
               </div>
 
               <div className="pt-3 border-t border-emerald-700/60 flex justify-between items-center text-xs text-emerald-100">
-<<<<<<< HEAD
-                <span>Skill: <strong>{currentShramik.skill}</strong></span>
-                <span>City: <strong>{currentShramik.city}</strong></span>
-=======
                 <span>{t('skillLabel', 'Skill:')} <strong>{tSkill(currentShramik.skill)}</strong></span>
                 <span>{t('cityLabel', 'City:')} <strong>{currentShramik.city}</strong></span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </div>
             </div>
 
@@ -194,11 +130,7 @@ export const ShramikPending = () => {
               onClick={() => setCurrentScreen('shramik_dashboard')}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 text-sm"
             >
-<<<<<<< HEAD
-              <span>Go to Shramik Dashboard</span>
-=======
               <span>{t('goToDashboard', 'Go to Shramik Dashboard')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

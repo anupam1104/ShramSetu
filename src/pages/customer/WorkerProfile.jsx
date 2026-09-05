@@ -14,11 +14,7 @@ import {
 } from 'lucide-react';
 
 export const WorkerProfile = () => {
-<<<<<<< HEAD
-  const { shramiks, selectedWorkerId, setCurrentScreen } = useApp();
-=======
   const { shramiks, selectedWorkerId, setCurrentScreen, t, tSkill } = useApp();
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
 
   const handleBookNow = () => {
@@ -26,25 +22,17 @@ export const WorkerProfile = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-6 pb-28">
-=======
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-6 pb-28">
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       
       {/* Back Button */}
       <button
         onClick={() => setCurrentScreen('search')}
         className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1"
       >
-<<<<<<< HEAD
-        <ArrowLeft className="w-4 h-4" /> Back to Search Results
-=======
         <ArrowLeft className="w-4 h-4" /> {t('backToSearch', 'Back to Search Results')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       </button>
 
-      {/* Top Section — Worker Hero Card */}
+      {/* Top Section â€” Worker Hero Card */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-lg space-y-6">
         
         <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
@@ -62,38 +50,22 @@ export const WorkerProfile = () => {
 
               {worker.verified ? (
                 <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-300 self-center sm:self-auto">
-<<<<<<< HEAD
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Verified Shramik
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-300">
-                  ● Pending Verification
-=======
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {t('verifiedShramikBadge', 'Verified Shramik')}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-300">
-                  ● {t('pendingVerification', 'Pending Verification')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
+                  â— {t('pendingVerification', 'Pending Verification')}
                 </span>
               )}
             </div>
 
-<<<<<<< HEAD
-            <p className="text-base font-semibold text-emerald-700">{worker.skill}</p>
-=======
             <p className="text-base font-semibold text-emerald-700">{tSkill(worker.skill)}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
 
             {/* Quick Stats Pill Row */}
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-semibold text-slate-600 pt-1">
               <div className="flex items-center text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400 mr-1" />
-<<<<<<< HEAD
-                {worker.rating > 0 ? worker.rating : 'New'} ({worker.jobsCount} completed jobs)
-=======
                 {worker.rating > 0 ? worker.rating : t('ratingNew', 'New')} ({worker.jobsCount} {t('completedJobs', 'completed jobs')})
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </div>
 
               <div className="flex items-center text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
@@ -113,25 +85,15 @@ export const WorkerProfile = () => {
 
         {/* About Section */}
         <div className="space-y-2">
-<<<<<<< HEAD
-          <h2 className="text-lg font-bold font-heading text-slate-900">About</h2>
-          <p className="text-sm text-slate-600 leading-relaxed font-normal">
-            {worker.bio || `${worker.name} is a licensed ${worker.skill} specializing in residential and commercial maintenance with transparent pricing.`}
-=======
           <h2 className="text-lg font-bold font-heading text-slate-900">{t('about', 'About')}</h2>
           <p className="text-sm text-slate-600 leading-relaxed font-normal">
             {worker.bio || t('bioFallback', { name: worker.name, skill: tSkill(worker.skill) })}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </p>
         </div>
 
         {/* Specific Services Checklist */}
         <div className="space-y-3">
-<<<<<<< HEAD
-          <h2 className="text-lg font-bold font-heading text-slate-900">Skills & Services</h2>
-=======
           <h2 className="text-lg font-bold font-heading text-slate-900">{t('skillsServices', 'Skills & Services')}</h2>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           <div className="flex flex-wrap gap-2">
             {worker.services.map((skill, idx) => (
               <span 
@@ -148,15 +110,9 @@ export const WorkerProfile = () => {
         {/* Pricing Card */}
         <div className="bg-slate-50 border border-slate-200 p-4 sm:p-5 rounded-2xl flex justify-between items-center">
           <div>
-<<<<<<< HEAD
-            <p className="text-xs text-slate-500 font-semibold uppercase">Pricing Rate</p>
-            <p className="text-2xl font-extrabold font-mono text-slate-900">
-              ₹{worker.hourlyRate} <span className="text-xs font-normal text-slate-500">/ hour</span>
-=======
             <p className="text-xs text-slate-500 font-semibold uppercase">{t('pricingRate', 'Pricing Rate')}</p>
             <p className="text-2xl font-extrabold font-mono text-slate-900">
-              ₹{worker.hourlyRate} <span className="text-xs font-normal text-slate-500">{t('perHour', '/ hour')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
+              â‚¹{worker.hourlyRate} <span className="text-xs font-normal text-slate-500">{t('perHour', '/ hour')}</span>
             </p>
           </div>
 
@@ -165,11 +121,7 @@ export const WorkerProfile = () => {
             className="hidden sm:flex bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm items-center space-x-2"
           >
             <Calendar className="w-4 h-4" />
-<<<<<<< HEAD
-            <span>Book Now</span>
-=======
             <span>{t('bookNow', 'Book Now')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </button>
         </div>
 
@@ -178,13 +130,8 @@ export const WorkerProfile = () => {
       {/* Sticky Bottom Booking Bar for Mobile */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-4 shadow-2xl flex items-center justify-between">
         <div>
-<<<<<<< HEAD
-          <p className="text-[10px] text-slate-500 font-bold uppercase">Rate</p>
-          <p className="text-xl font-bold font-mono text-slate-900">₹{worker.hourlyRate}/hr</p>
-=======
           <p className="text-[10px] text-slate-500 font-bold uppercase">{t('rate', 'Rate')}</p>
-          <p className="text-xl font-bold font-mono text-slate-900">₹{worker.hourlyRate}{t('perHr', '/hr')}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
+          <p className="text-xl font-bold font-mono text-slate-900">â‚¹{worker.hourlyRate}{t('perHr', '/hr')}</p>
         </div>
 
         <button
@@ -192,11 +139,7 @@ export const WorkerProfile = () => {
           className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm flex items-center space-x-2"
         >
           <Calendar className="w-4 h-4" />
-<<<<<<< HEAD
-          <span>Book Now</span>
-=======
           <span>{t('bookNow', 'Book Now')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
         </button>
       </div>
 

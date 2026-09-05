@@ -10,19 +10,11 @@ import {
   ArrowLeft, 
   ShieldCheck,
   Phone,
-<<<<<<< HEAD
-  Sparkles,
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   ArrowRight
 } from 'lucide-react';
 
 export const ShramikJobScreen = () => {
-<<<<<<< HEAD
-  const { bookings, activeBookingId, verifyStartCode, setCurrentScreen, switchRole } = useApp();
-=======
   const { bookings, activeBookingId, verifyStartCode, setCurrentScreen, t, tStatus, tSkill } = useApp();
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const currentBooking = bookings.find(b => b.id === activeBookingId) || bookings[0];
 
   const [pinDigits, setPinDigits] = useState(['', '', '', '']);
@@ -58,18 +50,8 @@ export const ShramikJobScreen = () => {
     }
   };
 
-<<<<<<< HEAD
-  const handleAutoFillCode = () => {
-    const code = currentBooking.startCode || '1472';
-    setPinDigits(code.split(''));
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 flex justify-center">
-=======
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center">
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
       <div className="w-full max-w-xl bg-white rounded-3xl shadow-xl border border-slate-200 p-6 sm:p-8 space-y-6">
         
         {/* Top Header */}
@@ -78,11 +60,7 @@ export const ShramikJobScreen = () => {
             onClick={() => setCurrentScreen('shramik_dashboard')}
             className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1"
           >
-<<<<<<< HEAD
-            <ArrowLeft className="w-4 h-4" /> Back to Jobs
-=======
             <ArrowLeft className="w-4 h-4" /> {t('shramik.backToJobs', 'Back to Jobs')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </button>
 
           <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
@@ -90,31 +68,19 @@ export const ShramikJobScreen = () => {
             currentBooking.status === 'Completed' ? 'badge-completed' :
             currentBooking.status === 'Paid' ? 'badge-paid' : 'badge-confirmed'
           }`}>
-<<<<<<< HEAD
-            ● {currentBooking.status}
-=======
-            ● {tStatus(currentBooking.status)}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
+            â— {tStatus(currentBooking.status)}
           </span>
         </div>
 
         {/* Job Info Summary */}
         <div className="space-y-3">
           <h2 className="text-2xl font-extrabold font-heading text-slate-900">
-<<<<<<< HEAD
-            {currentBooking.serviceName}
-=======
             {tSkill(currentBooking.serviceName)}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </h2>
 
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 text-sm text-slate-700">
             <div className="flex justify-between items-center">
-<<<<<<< HEAD
-              <span className="text-slate-500 font-medium">Customer:</span>
-=======
               <span className="text-slate-500 font-medium">{t('booking.customer', 'Customer')}:</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               <span className="font-bold text-slate-900 flex items-center gap-1.5">
                 <User className="w-4 h-4 text-emerald-600" />
                 {currentBooking.customerName}
@@ -122,22 +88,14 @@ export const ShramikJobScreen = () => {
             </div>
 
             <div className="flex justify-between items-center">
-<<<<<<< HEAD
-              <span className="text-slate-500 font-medium">Date & Time:</span>
-=======
               <span className="text-slate-500 font-medium">{t('booking.dateTime', 'Date & Time')}:</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               <span className="font-semibold text-slate-800 font-mono">
-                {currentBooking.date} • {currentBooking.time}
+                {currentBooking.date} â€¢ {currentBooking.time}
               </span>
             </div>
 
             <div className="flex justify-between items-center pt-2 border-t border-slate-200/60">
-<<<<<<< HEAD
-              <span className="text-slate-500 font-medium">Address:</span>
-=======
               <span className="text-slate-500 font-medium">{t('booking.address', 'Address')}:</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               <span className="font-medium text-slate-800 text-right max-w-xs">
                 {currentBooking.customerAddress}
               </span>
@@ -153,17 +111,10 @@ export const ShramikJobScreen = () => {
                 <Key className="w-6 h-6 stroke-[2.2]" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 font-heading pt-2">
-<<<<<<< HEAD
-                Enter Customer's 4-digit Start Code
-              </h3>
-              <p className="text-xs text-slate-600">
-                Ask the customer for the verification code displayed on their screen.
-=======
                 {t('shramik.enterStartCode', "Enter Customer's 4-digit Start Code")}
               </h3>
               <p className="text-xs text-slate-600">
                 {t('shramik.askStartCodeNotice', "Ask the customer for the verification code displayed on their screen.")}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </p>
             </div>
 
@@ -189,20 +140,7 @@ export const ShramikJobScreen = () => {
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center space-x-2"
               >
                 <CheckCircle2 className="w-5 h-5" />
-<<<<<<< HEAD
-                <span>Start Job</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleAutoFillCode}
-                className="text-xs text-emerald-800 font-semibold hover:underline inline-flex items-center gap-1"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                Auto-fill Customer's Code ({currentBooking.startCode})
-=======
                 <span>{t('shramik.startJob', 'Start Job')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </button>
             </div>
           </form>
@@ -216,41 +154,24 @@ export const ShramikJobScreen = () => {
 
               <div className="space-y-1">
                 <h3 className="text-xl font-bold text-emerald-950 font-heading">
-<<<<<<< HEAD
-                  {currentBooking.status === 'In Progress' && '✓ Code Verified! Job In Progress'}
-                  {currentBooking.status === 'Completed' && '✓ Work Done Confirmed by Customer'}
-                  {currentBooking.status === 'Paid' && '✓ Job Completed & Paid'}
-                </h3>
-                <p className="text-xs text-emerald-800">
-                  Service: <strong>{currentBooking.serviceName}</strong> for {currentBooking.customerName}
-=======
-                  {currentBooking.status === 'In Progress' && t('shramik.codeVerifiedInProgress', '✓ Code Verified! Job In Progress')}
-                  {currentBooking.status === 'Completed' && t('shramik.workDoneConfirmed', '✓ Work Done Confirmed by Customer')}
-                  {currentBooking.status === 'Paid' && t('shramik.jobPaid', '✓ Job Completed & Paid')}
+                  {currentBooking.status === 'In Progress' && t('shramik.codeVerifiedInProgress', 'âœ“ Code Verified! Job In Progress')}
+                  {currentBooking.status === 'Completed' && t('shramik.workDoneConfirmed', 'âœ“ Work Done Confirmed by Customer')}
+                  {currentBooking.status === 'Paid' && t('shramik.jobPaid', 'âœ“ Job Completed & Paid')}
                 </h3>
                 <p className="text-xs text-emerald-800">
                   {t('booking.service', 'Service')}: <strong>{tSkill(currentBooking.serviceName)}</strong> {t('common.for', 'for')} {currentBooking.customerName}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </p>
               </div>
 
               {currentBooking.status === 'In Progress' && (
                 <p className="text-xs text-slate-600 bg-white/80 p-3 rounded-xl border border-emerald-200">
-<<<<<<< HEAD
-                  Once you finish the task, ask the customer to click <strong>"Confirm Work Done"</strong> on their screen to proceed to payment.
-=======
                   {t('shramik.finishInstruction', 'Once you finish the task, ask the customer to click "Confirm Work Done" on their screen to proceed to payment.')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </p>
               )}
 
               {currentBooking.status === 'Paid' && (
                 <p className="text-xs text-emerald-900 bg-emerald-200/60 p-3 rounded-xl border border-emerald-300 font-bold">
-<<<<<<< HEAD
-                  ₹{currentBooking.serviceFee} credited to your daily earnings.
-=======
-                  {t('shramik.creditedNotice', '₹{amount} credited to your daily earnings.', { amount: currentBooking.serviceFee })}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
+                  {t('shramik.creditedNotice', 'â‚¹{amount} credited to your daily earnings.', { amount: currentBooking.serviceFee })}
                 </p>
               )}
             </div>
@@ -260,11 +181,7 @@ export const ShramikJobScreen = () => {
               onClick={() => setCurrentScreen('shramik_dashboard')}
               className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-xs"
             >
-<<<<<<< HEAD
-              Back to Shramik Dashboard
-=======
               {t('shramik.backToDashboard', 'Back to Shramik Dashboard')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
             </button>
           </div>
         )}

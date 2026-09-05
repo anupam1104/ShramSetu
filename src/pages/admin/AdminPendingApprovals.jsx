@@ -15,11 +15,7 @@ import {
 } from 'lucide-react';
 
 export const AdminPendingApprovals = () => {
-<<<<<<< HEAD
-  const { shramiks, approveShramik, rejectShramik, switchRole, setSelectedWorkerId, setCurrentScreen } = useApp();
-=======
   const { shramiks, approveShramik, rejectShramik, switchRole, setSelectedWorkerId, setCurrentScreen, t, tSkill, tStatus } = useApp();
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
   const [selectedModalWorker, setSelectedModalWorker] = useState(null);
 
   const pendingList = shramiks.filter(s => !s.verified);
@@ -33,27 +29,16 @@ export const AdminPendingApprovals = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">
-<<<<<<< HEAD
-              Shramik Verification Queue
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Review candidate background and issue official Shramik IDs (`SS-XXXXXX`).
-=======
               {t('admin.verificationQueue', 'Shramik Verification Queue')}
             </h1>
             <p className="text-sm text-slate-500 mt-1">
               {t('admin.verificationQueueSubtitle', 'Review candidate background and issue official Shramik IDs (SS-XXXXXX).')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
             </p>
           </div>
 
           <span className="bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1.5">
             <UserCheck className="w-4 h-4 text-amber-700" />
-<<<<<<< HEAD
-            {pendingList.length} Pending Approval(s)
-=======
             {t('admin.pendingCount', '{count} Pending Approval(s)', { count: pendingList.length })}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </span>
         </div>
 
@@ -62,36 +47,21 @@ export const AdminPendingApprovals = () => {
           
           <div className="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
             <h3 className="font-bold text-slate-900 text-sm font-heading uppercase tracking-wider">
-<<<<<<< HEAD
-              Pending Registrations
-            </h3>
-            <span className="text-xs text-slate-500">Live Management</span>
-=======
               {t('admin.pendingRegistrations', 'Pending Registrations')}
             </h3>
             <span className="text-xs text-slate-500">{t('admin.liveManagement', 'Live Management')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-100/70 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600">
-<<<<<<< HEAD
-                  <th className="py-3.5 px-4 sm:px-6">Shramik</th>
-                  <th className="py-3.5 px-4">Skill</th>
-                  <th className="py-3.5 px-4">Experience</th>
-                  <th className="py-3.5 px-4">Phone</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 sm:px-6 text-right">Action</th>
-=======
                   <th className="py-3.5 px-4 sm:px-6">{t('auth.shramik', 'Shramik')}</th>
                   <th className="py-3.5 px-4">{t('common.skill', 'Skill')}</th>
                   <th className="py-3.5 px-4">{t('common.experience', 'Experience')}</th>
                   <th className="py-3.5 px-4">{t('auth.phone', 'Phone')}</th>
                   <th className="py-3.5 px-4">{t('booking.status', 'Status')}</th>
                   <th className="py-3.5 px-4 sm:px-6 text-right">{t('common.action', 'Action')}</th>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </tr>
               </thead>
 
@@ -117,11 +87,7 @@ export const AdminPendingApprovals = () => {
 
                       {/* Skill */}
                       <td className="py-4 px-4 font-semibold text-slate-800">
-<<<<<<< HEAD
-                        {worker.skill}
-=======
                         {tSkill(worker.skill)}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                       </td>
 
                       {/* Experience */}
@@ -137,11 +103,7 @@ export const AdminPendingApprovals = () => {
                       {/* Status Badge */}
                       <td className="py-4 px-4">
                         <span className="badge-pending px-2.5 py-1 rounded-full text-xs font-bold">
-<<<<<<< HEAD
-                          Pending
-=======
                           {tStatus('Pending')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                         </span>
                       </td>
 
@@ -152,17 +114,10 @@ export const AdminPendingApprovals = () => {
                           <button
                             onClick={() => setSelectedModalWorker(worker)}
                             className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 transition-colors text-xs flex items-center space-x-1"
-<<<<<<< HEAD
-                            title="View Document Details"
-                          >
-                            <Eye className="w-4 h-4" />
-                            <span className="hidden sm:inline">View</span>
-=======
                             title={t('common.view', 'View')}
                           >
                             <Eye className="w-4 h-4" />
                             <span className="hidden sm:inline">{t('common.view', 'View')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                           </button>
 
                           <button
@@ -170,21 +125,13 @@ export const AdminPendingApprovals = () => {
                             className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl shadow-xs transition-all text-xs flex items-center space-x-1"
                           >
                             <CheckCircle2 className="w-4 h-4" />
-<<<<<<< HEAD
-                            <span>Approve</span>
-=======
                             <span>{t('admin.approve', 'Approve')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                           </button>
 
                           <button
                             onClick={() => rejectShramik(worker.id)}
                             className="p-2 rounded-xl text-red-600 hover:bg-red-50 border border-red-200 transition-colors text-xs"
-<<<<<<< HEAD
-                            title="Reject Registration"
-=======
                             title={t('admin.reject', 'Reject')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                           >
                             <XCircle className="w-4 h-4" />
                           </button>
@@ -198,13 +145,8 @@ export const AdminPendingApprovals = () => {
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-500 space-y-2">
                       <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
-<<<<<<< HEAD
-                      <p className="font-bold text-slate-900 text-base">No pending approvals in queue.</p>
-                      <p className="text-xs text-slate-400">All registered Shramiks are verified!</p>
-=======
                       <p className="font-bold text-slate-900 text-base">{t('admin.noPendingApprovals', 'No pending approvals in queue.')}</p>
                       <p className="text-xs text-slate-400">{t('admin.allShramiksVerified', 'All registered Shramiks are verified!')}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                     </td>
                   </tr>
                 )}
@@ -217,11 +159,7 @@ export const AdminPendingApprovals = () => {
         {/* Verified Directory Table */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
           <h3 className="font-bold text-slate-900 text-lg font-heading">
-<<<<<<< HEAD
-            Verified Shramiks Directory ({verifiedList.length})
-=======
             {t('admin.verifiedDirectory', 'Verified Shramiks Directory ({count})', { count: verifiedList.length })}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -238,13 +176,8 @@ export const AdminPendingApprovals = () => {
                   </div>
                 </div>
                 <div className="flex justify-between text-xs text-slate-600 pt-1 border-t border-slate-200">
-<<<<<<< HEAD
-                  <span>Skill: <strong>{worker.skill}</strong></span>
-                  <span className="text-emerald-700 font-semibold font-mono text-[11px]">Verified Active</span>
-=======
                   <span>{t('common.skill', 'Skill')}: <strong>{tSkill(worker.skill)}</strong></span>
                   <span className="text-emerald-700 font-semibold font-mono text-[11px]">{t('admin.verifiedActive', 'Verified Active')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 </div>
               </div>
             ))}
@@ -259,17 +192,13 @@ export const AdminPendingApprovals = () => {
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-scale-up">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-900 text-lg font-heading">
-<<<<<<< HEAD
-                Shramik Profile Application
-=======
                 {t('admin.profileApplication', 'Shramik Profile Application')}
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </h3>
               <button 
                 onClick={() => setSelectedModalWorker(null)}
                 className="text-slate-400 hover:text-slate-600 text-xl font-bold"
               >
-                ✕
+                âœ•
               </button>
             </div>
 
@@ -281,25 +210,15 @@ export const AdminPendingApprovals = () => {
               />
               <div>
                 <h4 className="font-bold text-slate-900 text-base">{selectedModalWorker.name}</h4>
-<<<<<<< HEAD
-                <p className="text-xs font-semibold text-emerald-700">{selectedModalWorker.skill}</p>
-=======
                 <p className="text-xs font-semibold text-emerald-700">{tSkill(selectedModalWorker.skill)}</p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
                 <p className="text-xs text-slate-500 font-mono">{selectedModalWorker.phone}</p>
               </div>
             </div>
 
             <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-xs text-slate-700">
-<<<<<<< HEAD
-              <p>Experience: <strong>{selectedModalWorker.experience}</strong></p>
-              <p>City & Area: <strong>{selectedModalWorker.city}, {selectedModalWorker.area}</strong></p>
-              <p>Services Offered: <strong>{selectedModalWorker.services?.join(', ')}</strong></p>
-=======
               <p>{t('common.experience', 'Experience')}: <strong>{selectedModalWorker.experience}</strong></p>
               <p>{t('common.cityArea', 'City & Area')}: <strong>{selectedModalWorker.city}, {selectedModalWorker.area}</strong></p>
               <p>{t('common.servicesOffered', 'Services Offered')}: <strong>{selectedModalWorker.services?.map(s => tSkill(s)).join(', ')}</strong></p>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
             </div>
 
             <div className="flex space-x-3 pt-2">
@@ -311,11 +230,7 @@ export const AdminPendingApprovals = () => {
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition-all text-xs flex items-center justify-center space-x-1"
               >
                 <CheckCircle2 className="w-4 h-4" />
-<<<<<<< HEAD
-                <span>Approve & Issue ID</span>
-=======
                 <span>{t('admin.approveAndIssueId', 'Approve & Issue ID')}</span>
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
               </button>
             </div>
           </div>

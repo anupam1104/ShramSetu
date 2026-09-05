@@ -7,11 +7,6 @@
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
-<<<<<<< HEAD
-    "server": "node server/index.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
@@ -52,11 +47,6 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "canvas-confetti": "^1.9.4",
-<<<<<<< HEAD
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     "lucide-react": "^1.40.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -66,10 +56,6 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
-<<<<<<< HEAD
-    "concurrently": "^10.0.5",
-=======
->>>>>>> 89bdcd22088655f7e32b72f515388fa9027033d4
     "electron": "^44.2.0",
     "electron-builder": "^26.15.3",
     "oxlint": "^1.79.0",
