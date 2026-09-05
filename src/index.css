@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@500,600,700,800,900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'JetBrains Mono', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-heading: 'Satoshi', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  font-family: 'JetBrains Mono', monospace;
+  color-scheme: light;
+  letter-spacing: -0.015em;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+  color: #0f172a;
+  min-height: 100vh;
+  font-family: 'JetBrains Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sharp Satoshi Bold for headings */
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Satoshi', system-ui, -apple-system, sans-serif !important;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+/* JetBrains Mono for body, buttons, and form inputs */
+button, input, select, textarea, .font-body {
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.01em;
+}
+
+/* Custom animations */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.01); }
+}
+
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(22, 163, 74, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.6); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s infinite ease-in-out;
+}
+
+.animate-badge-glow {
+  animation: badge-glow 2.5s infinite ease-in-out;
+}
+
+@keyframes page-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Status Badges Styling */
+.badge-verified {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-pending {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.badge-confirmed {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.badge-in-progress {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.badge-completed {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-paid {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* ═══ MOBILE-FIRST COMPACT CARDS ═══
+   Tightens card/padding/spacing on small screens so that
+   cards and boxes look clean and proportional in mobile view
+   instead of clunky and oversized. Only applies below sm (640px). */
+@media (max-width: 640px) {
+  /* Card & box padding — smaller so cards take less vertical space */
+  .p-4 { padding: 0.9rem !important; }
+  .p-5 { padding: 1rem !important; }
+  .p-6 { padding: 1.1rem !important; }
+  .p-8 { padding: 1.25rem !important; }
+  .p-10 { padding: 1.5rem !important; }
+
+  /* Page/container vertical breathing room — reduce empty bulk */
+  .py-8 { padding-top: 1.15rem !important; padding-bottom: 1.15rem !important; }
+  .py-10 { padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+  .py-12 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+
+  /* Internal stacking space — closer, less cluttered */
+  .space-y-5 > * + * { margin-top: 1rem !important; }
+  .space-y-6 > * + * { margin-top: 1.1rem !important; }
+  .space-y-8 > * + * { margin-top: 1.25rem !important; }
+  .space-y-10 > * + * { margin-top: 1.5rem !important; }
+
+  /* Grid gaps between cards — tighter */
+  .gap-4 { gap: 0.9rem !important; }
+  .gap-6 { gap: 1rem !important; }
+  .gap-8 { gap: 1.25rem !important; }
+
+  /* Softer, lighter corner radius reads cleaner on small screens */
+  .rounded-3xl { border-radius: 1.25rem !important; }
+}

@@ -1,0 +1,98 @@
+import React, { useEffect } from 'react';
+import { AppProvider, useApp } from './context/AppContext';
+import { Navbar } from './components/Navbar';
+import { Toast } from './components/Toast';
+
+import { LandingPage } from './pages/LandingPage';
+import { LoginPage } from './pages/LoginPage';
+
+import { CustomerSearch } from './pages/customer/CustomerSearch';
+import { WorkerProfile } from './pages/customer/WorkerProfile';
+import { SlotSelection } from './pages/customer/SlotSelection';
+import { BookingConfirmation } from './pages/customer/BookingConfirmation';
+import { TrackBooking } from './pages/customer/TrackBooking';
+import { PaymentPage } from './pages/customer/PaymentPage';
+
+import { ShramikSignup } from './pages/shramik/ShramikSignup';
+import { ShramikPending } from './pages/shramik/ShramikPending';
+import { ShramikDashboard } from './pages/shramik/ShramikDashboard';
+import { ShramikJobScreen } from './pages/shramik/ShramikJobScreen';
+
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminPendingApprovals } from './pages/admin/AdminPendingApprovals';
+
+const MainContent = () => {
+  const { currentScreen, role, isLoggedIn } = useApp();
+
+  // Smooth scroll to top whenever screen changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentScreen]);
+
+  const isCustomerServiceScreen = ['search', 'profile', 'slot', 'booking_confirm', 'track_booking', 'payment'].includes(currentScreen);
+  const isShramikPrivateScreen = ['shramik_dashboard', 'shramik_job'].includes(currentScreen);
+  const isAdminPrivateScreen = currentScreen.startsWith('admin_');
+
+  const requiresLogin = !isLoggedIn && (isCustomerServiceScreen || isShramikPrivateScreen || isAdminPrivateScreen);
+
+  // Screen selection strictly isolated by active role
+  const renderScreen = () => {
+    if (requiresLogin) {
+      return <LoginPage />;
+    }
+
+    if (!isLoggedIn) {
+      if (currentScreen === 'login') return <LoginPage />;
+      return <LandingPage />;
+    }
+
+    // STRICT CUSTOMER PORTAL
+    if (role === 'customer') {
+      if (currentScreen === 'profile') return <WorkerProfile />;
+      if (currentScreen === 'slot') return <SlotSelection />;
+      if (currentScreen === 'booking_confirm') return <BookingConfirmation />;
+      if (currentScreen === 'track_booking') return <TrackBooking />;
+      if (currentScreen === 'payment') return <PaymentPage />;
+      return <CustomerSearch />;
+    }
+
+    // STRICT SHRAMIK PORTAL
+    if (role === 'shramik') {
+      if (currentScreen === 'shramik_job') return <ShramikJobScreen />;
+      if (currentScreen === 'shramik_pending') return <ShramikPending />;
+      if (currentScreen === 'shramik_signup') return <ShramikSignup />;
+      return <ShramikDashboard />;
+    }
+
+    // STRICT ADMIN PORTAL
+    if (role === 'admin') {
+      if (currentScreen === 'admin_approvals') return <AdminPendingApprovals />;
+      return <AdminDashboard />;
+    }
+
+    return <LandingPage />;
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      {/* Main Navbar (Sticky at top, hidden for admin which has dedicated sidebar console) */}
+      {role !== 'admin' && <Navbar />}
+
+      {/* Screen Router with Smooth Animated Transition */}
+      <div key={`${role}-${currentScreen}`} className="flex-1 animate-page-enter">
+        {renderScreen()}
+      </div>
+
+      {/* Floating Notifications */}
+      <Toast />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AppProvider>
+      <MainContent />
+    </AppProvider>
+  );
+}
