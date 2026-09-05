@@ -36,6 +36,7 @@ const registeredAdmins = [];
    State + City/District/Village Dropdown
 ───────────────────────────────────────── */
 const LocationDropdown = ({ value, onChange, showLabel = true }) => {
+  const { t } = useApp();
   const [selectedState, setSelectedState] = useState(() => {
     if (!value) return '';
     const parts = value.split(' | ');
@@ -107,12 +108,12 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
   return (
     <div className="space-y-2.5">
       {/* State Dropdown */}
-      {showLabel && <label className={LC}>State</label>}
+      {showLabel && <label className={LC}>{t('auth.state', 'State')}</label>}
       <div className="relative">
         {stateIcon}
         <select value={selectedState} onChange={(e) => handleStateChange(e.target.value)}
           className={selectBase}>
-          <option value="">Select State / UT...</option>
+          <option value="">{t('auth.selectState', 'Select State / UT...')}</option>
           {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -121,12 +122,12 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
       {/* City / District / Village Dropdown */}
       {selectedState && (
         <div>
-          {showLabel && <label className={LC}>City / District / Village</label>}
+          {showLabel && <label className={LC}>{t('auth.cityDistrict', 'City / District / Village')}</label>}
           <div className="relative" ref={cityRef}>
             <MapPin className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
             <input
               type="text"
-              placeholder={selectedCity ? selectedCity : `Search in ${selectedState}...`}
+              placeholder={selectedCity ? selectedCity : t('auth.searchInState', 'Search in {state}...', { state: selectedState })}
               value={selectedCity ? selectedCity : citySearch}
               onChange={(e) => {
                 setSelectedCity('');
@@ -156,7 +157,7 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
             )}
             {cityDropdownOpen && filteredCities.length === 0 && citySearch.length >= 1 && (
               <div className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl px-4 py-3 text-sm text-slate-500">
-                No city found in {selectedState}.
+                {t('auth.noCityFound', 'No city found in {state}.', { state: selectedState })}
               </div>
             )}
           </div>
@@ -166,7 +167,7 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
       {/* Clear all */}
       {selectedState && (
         <button type="button" onClick={clearLocation} className="text-[11px] text-slate-400 hover:text-red-500 transition-colors ml-1">
-          Clear selection
+          {t('common.clear', 'Clear selection')}
         </button>
       )}
     </div>
@@ -206,6 +207,7 @@ const AddressDetails = ({
   locationType, onHouse, onFlat, onStreet, onVillage, onTown,
   houseValue, flatValue, streetValue, villageValue, townValue
 }) => {
+  const { t } = useApp();
   const { detecting, lat, lng, error, detect } = useDetectLocation();
 
   const isInterior = locationType === 'interior';
@@ -215,7 +217,7 @@ const AddressDetails = ({
   return (
     <div className="space-y-3 border-t border-slate-100 pt-4 mt-1">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Exact Address Details</p>
+        <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">{t('auth.exactAddressDetails', 'Exact Address Details')}</p>
         <button
           type="button"
           onClick={detect}
@@ -223,14 +225,14 @@ const AddressDetails = ({
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-emerald-300 text-emerald-700 hover:bg-emerald-50 transition-all disabled:opacity-50"
         >
           <MapPin className="w-3.5 h-3.5" />
-          {detecting ? 'Detecting...' : 'Detect Location'}
+          {detecting ? t('auth.detecting', 'Detecting...') : t('auth.detectLocation', 'Detect Location')}
         </button>
       </div>
 
       {lat && lng && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-[11px] text-emerald-800 flex items-center gap-2">
           <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-          Detected: {lat}, {lng}
+          {t('auth.detected', 'Detected:')} {lat}, {lng}
         </div>
       )}
       {error && (
@@ -242,12 +244,12 @@ const AddressDetails = ({
       {/* House Number + Flat Number */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={LC}>House Number <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
+          <label className={LC}>{t('auth.houseNumber', 'House Number')} <span className="text-slate-300 normal-case font-normal">{t('auth.optional', '(optional)')}</span></label>
           <input type="text" placeholder="e.g. 42" value={houseValue}
             onChange={e => onHouse(e.target.value)} className={FT} />
         </div>
         <div>
-          <label className={LC}>Flat / Apartment No. <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
+          <label className={LC}>{t('auth.flatNumber', 'Flat / Apartment No.')} <span className="text-slate-300 normal-case font-normal">{t('auth.optional', '(optional)')}</span></label>
           <input type="text" placeholder="e.g. 3B / Block C" value={flatValue}
             onChange={e => onFlat(e.target.value)} className={FT} />
         </div>
@@ -255,7 +257,7 @@ const AddressDetails = ({
 
       {/* Street Name — free text */}
       <div>
-        <label className={LC}>Street Name / Landmark <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
+        <label className={LC}>{t('auth.streetName', 'Street Name / Landmark')} <span className="text-slate-300 normal-case font-normal">{t('auth.optional', '(optional)')}</span></label>
         <input type="text" placeholder="e.g. Park Street, near City Mall" value={streetValue}
           onChange={e => onStreet(e.target.value)} className={FT} />
       </div>
@@ -264,12 +266,12 @@ const AddressDetails = ({
       {isInterior && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={LC}>Village Name <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
+            <label className={LC}>{t('auth.villageName', 'Village Name')} <span className="text-slate-300 normal-case font-normal">{t('auth.optional', '(optional)')}</span></label>
             <input type="text" placeholder="e.g. Kuppam" value={villageValue}
               onChange={e => onVillage(e.target.value)} className={FT} />
           </div>
           <div>
-            <label className={LC}>Town Name <span className="text-slate-300 normal-case font-normal">(optional)</span></label>
+            <label className={LC}>{t('auth.townName', 'Town Name')} <span className="text-slate-300 normal-case font-normal">{t('auth.optional', '(optional)')}</span></label>
             <input type="text" placeholder="e.g. Kuppam Town" value={townValue}
               onChange={e => onTown(e.target.value)} className={FT} />
           </div>
@@ -279,7 +281,7 @@ const AddressDetails = ({
       {/* Live address preview */}
       {(houseValue || flatValue || streetValue || villageValue || townValue) && (
         <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-600 leading-relaxed">
-          <span className="font-bold text-slate-800 mb-0.5 block">Address Preview:</span>
+          <span className="font-bold text-slate-800 mb-0.5 block">{t('auth.addressPreview', 'Address Preview:')}</span>
           {[flatValue, houseValue, streetValue, villageValue, townValue].filter(Boolean).join(', ')}
         </div>
       )}
@@ -294,10 +296,10 @@ const LC = 'block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1
 const onlyDigits = (val) => /^\d*$/.test(val);
 
 /* ── Password strength helper ── */
-const useStrength = (pw) => {
+const useStrength = (pw, t) => {
   const s = pw.length >= 8 ? 3 : pw.length >= 6 ? 2 : pw.length >= 4 ? 1 : 0;
   const colors = ['bg-slate-200', 'bg-red-400', 'bg-amber-400', 'bg-emerald-500'];
-  const labels = ['', 'Weak', 'Fair', 'Strong'];
+  const labels = ['', t ? t('auth.weak', 'Weak') : 'Weak', t ? t('auth.fair', 'Fair') : 'Fair', t ? t('auth.strong', 'Strong') : 'Strong'];
   return { strength: s, color: colors[s], label: labels[s] };
 };
 
@@ -305,7 +307,8 @@ const useStrength = (pw) => {
    PasswordField helper
 ══════════════════════════════════════════════════════════════ */
 const PasswordField = ({ label, value, onChange, placeholder, show, onToggle, numeric = false, showStrength = false, confirmValue }) => {
-  const { strength, color, label: sLabel } = useStrength(value);
+  const { t } = useApp();
+  const { strength, color, label: sLabel } = useStrength(value, t);
   const matchOk = confirmValue !== undefined ? (confirmValue.length > 0 && confirmValue === value) : null;
   const matchBad = confirmValue !== undefined ? (confirmValue.length > 0 && confirmValue !== value) : null;
 
@@ -336,8 +339,8 @@ const PasswordField = ({ label, value, onChange, placeholder, show, onToggle, nu
           <span className={`text-xs font-semibold ${strength === 3 ? 'text-emerald-600' : strength === 2 ? 'text-amber-500' : 'text-red-500'}`}>{sLabel}</span>
         </div>
       )}
-      {matchBad && <p className="text-xs text-red-500 mt-1 ml-1">Passwords do not match</p>}
-      {matchOk && <p className="text-xs text-emerald-600 mt-1 ml-1 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" />Passwords match</p>}
+      {matchBad && <p className="text-xs text-red-500 mt-1 ml-1">{t('auth.passwordsDoNotMatch', 'Passwords do not match')}</p>}
+      {matchOk && <p className="text-xs text-emerald-600 mt-1 ml-1 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" />{t('auth.passwordsMatch', 'Passwords match')}</p>}
     </div>
   );
 };
@@ -346,7 +349,7 @@ const PasswordField = ({ label, value, onChange, placeholder, show, onToggle, nu
    MAIN LoginPage
 ══════════════════════════════════════════════════════════════ */
 export const LoginPage = () => {
-  const { switchRole, setCurrentScreen, showToast, setActiveShramikId, intendedLoginRole, login, shramiks, activeShramikId, openSettings, t } = useApp();
+  const { switchRole, setCurrentScreen, showToast, setActiveShramikId, intendedLoginRole, login, shramiks, activeShramikId, openSettings, t, tSkill } = useApp();
 
   const [activeRoleTab, setActiveRoleTab] = useState(intendedLoginRole || 'customer');
   const [authMode, setAuthMode] = useState('signin'); // 'signin' | 'signup'
@@ -409,25 +412,25 @@ export const LoginPage = () => {
   /* Customer Sign In */
   const handleCSignIn = (e) => {
     e.preventDefault();
-    if (!csiPhone || csiPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!csiPw) return showToast('Please enter your password.', 'error');
+    if (!csiPhone || csiPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
+    if (!csiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
     const found = registeredCustomers.find(c => c.phone === csiPhone && c.password === csiPw);
-    if (!found) return showToast('No account found. Please sign up first, or check your credentials.', 'error');
+    if (!found) return showToast(t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
     login(found);
-    showToast(`Welcome back, ${found.name}!`, 'success');
+    showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
     setCurrentScreen('search');
   };
 
   /* Customer Sign Up */
   const handleCSignUp = (e) => {
     e.preventDefault();
-    if (!csuName.trim()) return showToast('Please enter your full name.', 'error');
-    if (!csuAge || parseInt(csuAge) < 18 || parseInt(csuAge) > 100) return showToast('Enter a valid age (18–100).', 'error');
-    if (!csuCity) return showToast('Please select your city.', 'error');
-    if (!csuPhone || csuPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!csuPw || csuPw.length < 4 || !onlyDigits(csuPw)) return showToast('Password must be at least 4 digits (numbers only).', 'error');
-    if (csuPw !== csuCpw) return showToast('Passwords do not match.', 'error');
-    if (registeredCustomers.find(c => c.phone === csuPhone)) return showToast('Phone already registered. Please sign in.', 'error');
+    if (!csuName.trim()) return showToast(t('auth.enterNameErr', 'Please enter your full name.'), 'error');
+    if (!csuAge || parseInt(csuAge) < 18 || parseInt(csuAge) > 100) return showToast(t('auth.validAgeErr', 'Enter a valid age (18–100).'), 'error');
+    if (!csuCity) return showToast(t('auth.selectCityErr', 'Please select your city.'), 'error');
+    if (!csuPhone || csuPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
+    if (!csuPw || csuPw.length < 4 || !onlyDigits(csuPw)) return showToast(t('auth.validPasswordErr', 'Password must be at least 4 digits (numbers only).'), 'error');
+    if (csuPw !== csuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
+    if (registeredCustomers.find(c => c.phone === csuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
     const fullAddress = [csuFlat, csuHouse, csuStreet, csuVillage, csuTown, csuCity].filter(Boolean).join(', ');
     const user = {
       name: csuName.trim(), age: csuAge, city: csuCity, phone: csuPhone,
@@ -437,66 +440,66 @@ export const LoginPage = () => {
     };
     registeredCustomers.push(user);
     login(user);
-    showToast(`Account created! Welcome, ${user.name}!`, 'success');
+    showToast(t('auth.accountCreatedToast', 'Account created! Welcome, {name}!', { name: user.name }), 'success');
     setCurrentScreen('search');
   };
 
   /* Shramik Sign In */
   const handleSSignIn = (e) => {
     e.preventDefault();
-    if (!ssiPhone || ssiPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!ssiPw) return showToast('Please enter your password.', 'error');
+    if (!ssiPhone || ssiPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
+    if (!ssiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
     const found = registeredShramiks.find(s => s.phone === ssiPhone && s.password === ssiPw);
-    if (!found) return showToast('No Shramik account found. Please sign up first.', 'error');
+    if (!found) return showToast(t('auth.noShramikAccountErr', 'No Shramik account found. Please sign up first.'), 'error');
     login(found);
-    showToast(`Welcome back, ${found.name}!`, 'success');
+    showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
     setCurrentScreen('shramik_pending');
   };
 
   /* Shramik Sign Up */
   const handleSSignUp = (e) => {
     e.preventDefault();
-    if (!ssuName.trim()) return showToast('Please enter your full name.', 'error');
-    if (!ssuAge || parseInt(ssuAge) < 18 || parseInt(ssuAge) > 70) return showToast('Enter a valid age (18–70).', 'error');
-    if (!ssuCity) return showToast('Please select your city.', 'error');
-    if (!ssuPhone || ssuPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!ssuSkill) return showToast('Please select your primary skill.', 'error');
-    if (!ssuPw || ssuPw.length < 4 || !onlyDigits(ssuPw)) return showToast('Password must be at least 4 digits (numbers only).', 'error');
-    if (ssuPw !== ssuCpw) return showToast('Passwords do not match.', 'error');
-    if (registeredShramiks.find(s => s.phone === ssuPhone)) return showToast('Phone already registered. Please sign in.', 'error');
+    if (!ssuName.trim()) return showToast(t('auth.enterNameErr', 'Please enter your full name.'), 'error');
+    if (!ssuAge || parseInt(ssuAge) < 18 || parseInt(ssuAge) > 70) return showToast(t('auth.validShramikAgeErr', 'Enter a valid age (18–70).'), 'error');
+    if (!ssuCity) return showToast(t('auth.selectCityErr', 'Please select your city.'), 'error');
+    if (!ssuPhone || ssuPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
+    if (!ssuSkill) return showToast(t('auth.selectSkillErr', 'Please select your primary skill.'), 'error');
+    if (!ssuPw || ssuPw.length < 4 || !onlyDigits(ssuPw)) return showToast(t('auth.validPasswordErr', 'Password must be at least 4 digits (numbers only).'), 'error');
+    if (ssuPw !== ssuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
+    if (registeredShramiks.find(s => s.phone === ssuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
     const shramikUser = { name: ssuName.trim(), age: ssuAge, city: ssuCity, phone: ssuPhone, skill: ssuSkill, password: ssuPw, role: 'shramik', verified: false, shramikId: null };
     registeredShramiks.push(shramikUser);
     login(shramikUser);
-    showToast(`Welcome, ${shramikUser.name}! Your registration is under review.`, 'info');
+    showToast(t('auth.shramikReviewToast', 'Welcome, {name}! Your registration is under review.', { name: shramikUser.name }), 'info');
     setCurrentScreen('shramik_pending');
   };
 
   /* Admin Sign In */
   const handleASignIn = (e) => {
     e.preventDefault();
-    if (!asiPhone) return showToast('Please enter your phone/ID.', 'error');
-    if (!asiPw) return showToast('Please enter your password.', 'error');
+    if (!asiPhone) return showToast(t('auth.enterAdminIdErr', 'Please enter your phone/ID.'), 'error');
+    if (!asiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
     const found = registeredAdmins.find(a => a.phone === asiPhone && a.password === asiPw);
-    if (!found) return showToast('No admin account found. Please register first.', 'error');
+    if (!found) return showToast(t('auth.noAdminAccountErr', 'No admin account found. Please register first.'), 'error');
     login(found);
-    showToast(`Welcome back, ${found.name}!`, 'success');
+    showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
     setCurrentScreen('admin_dashboard');
   };
 
   /* Admin Sign Up */
   const handleASignUp = (e) => {
     e.preventDefault();
-    if (!asuName.trim()) return showToast('Please enter your full name.', 'error');
-    if (!asuCity) return showToast('Please select your city.', 'error');
-    if (!asuPhone || asuPhone.length !== 10) return showToast('Enter a valid 10-digit phone number.', 'error');
-    if (!asuEmpId.trim()) return showToast('Please enter your Employee/Admin ID.', 'error');
-    if (!asuPw || asuPw.length < 4 || !onlyDigits(asuPw)) return showToast('Password must be at least 4 digits (numbers only).', 'error');
-    if (asuPw !== asuCpw) return showToast('Passwords do not match.', 'error');
-    if (registeredAdmins.find(a => a.phone === asuPhone)) return showToast('Phone already registered. Please sign in.', 'error');
+    if (!asuName.trim()) return showToast(t('auth.enterNameErr', 'Please enter your full name.'), 'error');
+    if (!asuCity) return showToast(t('auth.selectCityErr', 'Please select your city.'), 'error');
+    if (!asuPhone || asuPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
+    if (!asuEmpId.trim()) return showToast(t('auth.enterEmpIdErr', 'Please enter your Employee/Admin ID.'), 'error');
+    if (!asuPw || asuPw.length < 4 || !onlyDigits(asuPw)) return showToast(t('auth.validPasswordErr', 'Password must be at least 4 digits (numbers only).'), 'error');
+    if (asuPw !== asuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
+    if (registeredAdmins.find(a => a.phone === asuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
     const adminUser = { name: asuName.trim(), city: asuCity, phone: asuPhone, empId: asuEmpId.trim(), password: asuPw, role: 'admin' };
     registeredAdmins.push(adminUser);
     login(adminUser);
-    showToast(`Admin account created! Welcome, ${adminUser.name}.`, 'success');
+    showToast(t('auth.adminAccountCreatedToast', 'Admin account created! Welcome, {name}.', { name: adminUser.name }), 'success');
     setCurrentScreen('admin_dashboard');
   };
 
@@ -506,12 +509,18 @@ export const LoginPage = () => {
   const csuState = csuCity.includes(' | ') ? csuCity.split(' | ')[1] : '';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-emerald-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-      {/* Back */}
-      <div className="w-full max-w-5xl mb-4 flex justify-start">
-        <button onClick={() => { switchRole('landing'); setCurrentScreen('landing'); }} className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1.5 transition-colors">
-          ← Back to Home
+    <div className="min-h-screen flex flex-col items-center justify-start sm:justify-center px-4 pt-5 sm:p-6 lg:p-8 pb-14">
+      {/* Mobile-first header with centered Language option bar */}
+      <div className="w-full max-w-5xl mb-4 md:mb-5 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+        <button onClick={() => { switchRole('landing'); setCurrentScreen('landing'); }} className="justify-self-start text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1.5 transition-colors">
+          {t('auth.backToHome', '← Back to Home')}
         </button>
+        {/* Language option bar - centered on the page */}
+        <div className="mt-3 md:mt-0 flex justify-center">
+          <LanguageSelectDropdown />
+        </div>
+        {/* Symmetry spacer (desktop only) */}
+        <div className="hidden md:block" />
       </div>
 
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden grid grid-cols-1 md:grid-cols-5">
@@ -527,13 +536,18 @@ export const LoginPage = () => {
               <span className="font-bold text-xl font-heading tracking-wide">SHRAM SETU</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold font-heading pt-4 text-emerald-100 leading-snug">
-              Connecting Skilled Hands with Local Demand.
+              {t('auth.heroTitle', 'Connecting Skilled Hands with Local Demand.')}
             </h2>
             <p className="text-sm text-emerald-100/80 leading-relaxed font-light">
-              A trusted platform for verified skilled workers and customers.
+              {t('auth.heroSubtitle', 'A trusted platform for verified skilled workers and customers.')}
             </p>
             <ul className="space-y-3 pt-2">
-              {['Verified local skilled workers', 'Transparent pricing and booking', 'Secure 4-digit job start code', 'Pay only after work is done'].map(f => (
+              {[
+                t('auth.feature1', 'Verified local skilled workers'),
+                t('auth.feature2', 'Transparent pricing and booking'),
+                t('auth.feature3', 'Secure 4-digit job start code'),
+                t('auth.feature4', 'Pay only after work is done')
+              ].map(f => (
                 <li key={f} className="flex items-center gap-2 text-xs text-emerald-100/90">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />{f}
                 </li>
@@ -543,9 +557,15 @@ export const LoginPage = () => {
 
           {/* Role pills */}
           <div className="relative z-10 pt-6 border-t border-white/10 mt-6">
-            <p className="text-xs text-emerald-300/70 mb-2 uppercase tracking-wider font-semibold">Login as</p>
+            <p className="text-xs text-emerald-300/70 mb-2 uppercase tracking-wider font-semibold">
+              {t('auth.loginAs', 'Login as')}
+            </p>
             <div className="flex flex-wrap gap-2">
-              {[{ label: 'Customer', value: 'customer', icon: User }, { label: 'Shramik', value: 'shramik', icon: Briefcase }, { label: 'Admin', value: 'admin', icon: Shield }].map(({ label, value, icon: Icon }) => (
+              {[
+                { label: t('auth.customer', 'Customer'), value: 'customer', icon: User },
+                { label: t('auth.shramik', 'Shramik'), value: 'shramik', icon: Briefcase },
+                { label: t('auth.admin', 'Admin'), value: 'admin', icon: Shield }
+              ].map(({ label, value, icon: Icon }) => (
                 <button key={value} onClick={() => setActiveRoleTab(value)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${activeRoleTab === value ? 'bg-white text-emerald-800 border-white shadow-md' : 'bg-white/10 text-white/80 border-white/20 hover:bg-white/20'}`}
                 >
@@ -557,16 +577,16 @@ export const LoginPage = () => {
         </div>
 
         {/* ── RIGHT PANEL ── */}
-        <div className="md:col-span-3 p-6 sm:p-10 flex flex-col justify-start max-h-screen overflow-y-auto">
+        <div className="md:col-span-3 p-5 sm:p-10 flex flex-col justify-start md:max-h-screen md:overflow-y-auto">
 
-          {/* Top Bar with Back Button */}
-          <div className="mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+          {/* Top Bar with Back Button (desktop only - mobile has it in the page header) */}
+          <div className="hidden md:block mb-4 pb-3 border-b border-slate-100">
             <button
               type="button"
               onClick={() => setCurrentScreen('landing')}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white flex items-center gap-1 transition-colors"
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
             >
-              ← Back to Home
+              {t('auth.backToHome', '← Back to Home')}
             </button>
           </div>
 
@@ -581,7 +601,9 @@ export const LoginPage = () => {
                   <span className="text-base font-bold font-heading text-slate-900 tracking-tight leading-tight">
                     SHRAM SETU
                   </span>
-                  <p className="text-[11px] text-slate-500 font-body leading-tight">Trusted Skilled Services</p>
+                  <p className="text-[11px] text-slate-500 font-body leading-tight">
+                    {t('landing.trustedNetwork', 'India’s Unified Platform')}
+                  </p>
                 </div>
               </div>
               {activeRoleTab !== 'customer' && (
@@ -593,7 +615,11 @@ export const LoginPage = () => {
 
             {/* Role switcher (mobile) */}
             <div className="flex gap-1.5">
-              {[{ label: 'Customer', value: 'customer', icon: User }, { label: 'Shramik', value: 'shramik', icon: Briefcase }, { label: 'Admin', value: 'admin', icon: Shield }].map(({ label, value, icon: Icon }) => (
+              {[
+                { label: t('auth.customer', 'Customer'), value: 'customer', icon: User },
+                { label: t('auth.shramik', 'Shramik'), value: 'shramik', icon: Briefcase },
+                { label: t('auth.admin', 'Admin'), value: 'admin', icon: Shield }
+              ].map(({ label, value, icon: Icon }) => (
                 <button key={value} onClick={() => setActiveRoleTab(value)}
                   className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl text-xs font-semibold border transition-all ${activeRoleTab === value ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
                 >
@@ -607,13 +633,20 @@ export const LoginPage = () => {
           {activeRoleTab === 'customer' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white">{authMode === 'signin' ? 'Welcome back 👋' : 'Create Account 🚀'}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{authMode === 'signin' ? 'Sign in with your registered credentials.' : 'Fill in the details below to create your account.'}</p>
+                <h3 className="text-2xl font-bold font-heading text-slate-900">
+                  {authMode === 'signin' ? t('auth.welcomeBack', 'Welcome back 👋') : t('auth.createAccount', 'Create Account 🚀')}
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {authMode === 'signin' ? t('auth.signInDesc', 'Sign in with your registered credentials.') : t('auth.signUpDesc', 'Fill in the details below to create your account.')}
+                </p>
               </div>
 
               {/* Toggle */}
               <div className="bg-slate-100 p-1 rounded-xl flex text-sm font-semibold">
-                {[{ mode: 'signin', icon: LogIn, label: 'Sign In' }, { mode: 'signup', icon: UserPlus, label: 'Sign Up' }].map(({ mode, icon: Icon, label }) => (
+                {[
+                  { mode: 'signin', icon: LogIn, label: t('auth.signIn', 'Sign In') },
+                  { mode: 'signup', icon: UserPlus, label: t('auth.signUp', 'Sign Up') }
+                ].map(({ mode, icon: Icon, label }) => (
                   <button key={mode} onClick={() => setAuthMode(mode)}
                     className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode === mode ? 'bg-white text-emerald-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}>
                     <Icon className="w-4 h-4" />{label}
@@ -625,20 +658,20 @@ export const LoginPage = () => {
               {authMode === 'signin' && (
                 <form onSubmit={handleCSignIn} className="space-y-4">
                   <div>
-                    <label className={LC}>Phone Number</label>
+                    <label className={LC}>{t('auth.phone', 'Phone Number')}</label>
                     <div className="relative">
                       <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={csiPhone}
+                      <input type="tel" maxLength={10} placeholder={t('auth.phonePlaceholder', '10-digit mobile number')} value={csiPhone}
                         onChange={e => onlyDigits(e.target.value) && setCsiPhone(e.target.value)} className={IC} />
                     </div>
                   </div>
-                  <PasswordField label="Numeric Password" value={csiPw} onChange={setCsiPw}
-                    placeholder="Enter your numeric password" show={showCsiPw} onToggle={() => setShowCsiPw(v => !v)} numeric />
+                  <PasswordField label={t('auth.numericPassword', 'Numeric Password')} value={csiPw} onChange={setCsiPw}
+                    placeholder={t('auth.enterNumericPassword', 'Enter your numeric password')} show={showCsiPw} onToggle={() => setShowCsiPw(v => !v)} numeric />
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    Sign In <ArrowRight className="w-4 h-4" />
+                    {t('auth.signIn', 'Sign In')} <ArrowRight className="w-4 h-4" />
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    New here?{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">Create an account</button>
+                    {t('auth.newHere', 'New here?')}{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">{t('auth.createAnAccount', 'Create an account')}</button>
                   </p>
                 </form>
               )}
@@ -648,7 +681,7 @@ export const LoginPage = () => {
                 <form onSubmit={handleCSignUp} className="space-y-4">
                   {/* Full Name */}
                   <div>
-                    <label className={LC}>Full Name</label>
+                    <label className={LC}>{t('auth.fullName', 'Full Name')}</label>
                     <div className="relative">
                       <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="text" placeholder="e.g. Amit Sharma" value={csuName} onChange={e => setCsuName(e.target.value)}
@@ -658,7 +691,7 @@ export const LoginPage = () => {
                   {/* Age + City */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className={LC}>Age</label>
+                      <label className={LC}>{t('auth.age', 'Age')}</label>
                       <div className="relative">
                         <Calendar className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input type="text" inputMode="numeric" maxLength={3} placeholder="e.g. 28" value={csuAge}
@@ -671,13 +704,13 @@ export const LoginPage = () => {
                   </div>
                   {/* Phone */}
                   <div>
-                    <label className={LC}>Phone Number</label>
+                    <label className={LC}>{t('auth.phone', 'Phone Number')}</label>
                     <div className="relative">
                       <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={csuPhone}
+                      <input type="tel" maxLength={10} placeholder={t('auth.phonePlaceholder', '10-digit mobile number')} value={csuPhone}
                         onChange={e => onlyDigits(e.target.value) && setCsuPhone(e.target.value)} className={IC} />
                     </div>
-                    {csuPhone.length > 0 && csuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - csuPhone.length} more digit{10 - csuPhone.length !== 1 ? 's' : ''} needed</p>}
+                    {csuPhone.length > 0 && csuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - csuPhone.length} {t('auth.digitsNeeded', 'more digits needed')}</p>}
                   </div>
 
                   {/* Exact Address Details (customer only) */}
@@ -692,17 +725,17 @@ export const LoginPage = () => {
                     />
                   )}
                   {/* Create Password */}
-                  <PasswordField label="Create Numeric Password" value={csuPw} onChange={setCsuPw}
-                    placeholder="Numbers only (min. 4 digits)" show={showCsuPw} onToggle={() => setShowCsuPw(v => !v)} numeric showStrength />
+                  <PasswordField label={t('auth.createNumericPassword', 'Create Numeric Password')} value={csuPw} onChange={setCsuPw}
+                    placeholder={t('auth.numbersOnlyMin4', 'Numbers only (min. 4 digits)')} show={showCsuPw} onToggle={() => setShowCsuPw(v => !v)} numeric showStrength />
                   {/* Confirm Password */}
-                  <PasswordField label="Confirm Password" value={csuCpw} onChange={setCsuCpw}
-                    placeholder="Re-enter your password" show={showCsuCpw} onToggle={() => setShowCsuCpw(v => !v)} numeric confirmValue={csuPw} />
+                  <PasswordField label={t('auth.confirmPassword', 'Confirm Password')} value={csuCpw} onChange={setCsuCpw}
+                    placeholder={t('auth.reenterPassword', 'Re-enter your password')} show={showCsuCpw} onToggle={() => setShowCsuCpw(v => !v)} numeric confirmValue={csuPw} />
 
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <UserPlus className="w-4 h-4" /> Create Account & Continue
+                    <UserPlus className="w-4 h-4" /> {t('auth.createAccountAndContinue', 'Create Account & Continue')}
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    Already have an account?{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">Sign In</button>
+                    {t('auth.alreadyHaveAccount', 'Already have an account?')}{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">{t('auth.signIn', 'Sign In')}</button>
                   </p>
                 </form>
               )}
@@ -713,13 +746,20 @@ export const LoginPage = () => {
           {activeRoleTab === 'shramik' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white">{authMode === 'signin' ? 'Shramik Sign In 🔨' : 'Partner Registration 📝'}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{authMode === 'signin' ? 'Sign in to manage your jobs.' : 'Register to start accepting jobs near you.'}</p>
+                <h3 className="text-2xl font-bold font-heading text-slate-900">
+                  {authMode === 'signin' ? t('auth.shramikSignIn', 'Shramik Sign In 🔨') : t('auth.partnerRegistration', 'Partner Registration 📝')}
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {authMode === 'signin' ? t('auth.shramikSignInDesc', 'Sign in to manage your jobs.') : t('auth.partnerRegistrationDesc', 'Register to start accepting jobs near you.')}
+                </p>
               </div>
 
               {/* Toggle */}
               <div className="bg-slate-100 p-1 rounded-xl flex text-sm font-semibold">
-                {[{ mode: 'signin', icon: LogIn, label: 'Sign In' }, { mode: 'signup', icon: UserPlus, label: 'Register' }].map(({ mode, icon: Icon, label }) => (
+                {[
+                  { mode: 'signin', icon: LogIn, label: t('auth.signIn', 'Sign In') },
+                  { mode: 'signup', icon: UserPlus, label: t('auth.register', 'Register') }
+                ].map(({ mode, icon: Icon, label }) => (
                   <button key={mode} onClick={() => setAuthMode(mode)}
                     className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode === mode ? 'bg-white text-emerald-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}>
                     <Icon className="w-4 h-4" />{label}
@@ -731,20 +771,20 @@ export const LoginPage = () => {
               {authMode === 'signin' && (
                 <form onSubmit={handleSSignIn} className="space-y-4">
                   <div>
-                    <label className={LC}>Registered Phone Number</label>
+                    <label className={LC}>{t('auth.registeredPhone', 'Registered Phone Number')}</label>
                     <div className="relative">
                       <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={ssiPhone}
+                      <input type="tel" maxLength={10} placeholder={t('auth.phonePlaceholder', '10-digit mobile number')} value={ssiPhone}
                         onChange={e => onlyDigits(e.target.value) && setSsiPhone(e.target.value)} className={IC} />
                     </div>
                   </div>
-                  <PasswordField label="Numeric Password" value={ssiPw} onChange={setSsiPw}
-                    placeholder="Enter your numeric password" show={showSsiPw} onToggle={() => setShowSsiPw(v => !v)} numeric />
+                  <PasswordField label={t('auth.numericPassword', 'Numeric Password')} value={ssiPw} onChange={setSsiPw}
+                    placeholder={t('auth.enterNumericPassword', 'Enter your numeric password')} show={showSsiPw} onToggle={() => setShowSsiPw(v => !v)} numeric />
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    Sign In as Shramik <ArrowRight className="w-4 h-4" />
+                    {t('auth.signInAsShramik', 'Sign In as Shramik')} <ArrowRight className="w-4 h-4" />
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    New Shramik?{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">Register Here</button>
+                    {t('auth.newShramik', 'New Shramik?')}{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-emerald-700 font-bold hover:underline">{t('auth.registerHere', 'Register Here')}</button>
                   </p>
                 </form>
               )}
@@ -754,7 +794,7 @@ export const LoginPage = () => {
                 <form onSubmit={handleSSignUp} className="space-y-4">
                   {/* Full Name */}
                   <div>
-                    <label className={LC}>Full Name</label>
+                    <label className={LC}>{t('auth.fullName', 'Full Name')}</label>
                     <div className="relative">
                       <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="text" placeholder="e.g. Ramesh Kumar" value={ssuName} onChange={e => setSsuName(e.target.value)} className={IC + ' font-sans'} />
@@ -763,7 +803,7 @@ export const LoginPage = () => {
                   {/* Age + City */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className={LC}>Age</label>
+                      <label className={LC}>{t('auth.age', 'Age')}</label>
                       <div className="relative">
                         <Calendar className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input type="text" inputMode="numeric" maxLength={2} placeholder="e.g. 30" value={ssuAge}
@@ -776,38 +816,38 @@ export const LoginPage = () => {
                   </div>
                   {/* Phone */}
                   <div>
-                    <label className={LC}>Phone Number</label>
+                    <label className={LC}>{t('auth.phone', 'Phone Number')}</label>
                     <div className="relative">
                       <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={ssuPhone}
+                      <input type="tel" maxLength={10} placeholder={t('auth.phonePlaceholder', '10-digit mobile number')} value={ssuPhone}
                         onChange={e => onlyDigits(e.target.value) && setSsuPhone(e.target.value)} className={IC} />
                     </div>
-                    {ssuPhone.length > 0 && ssuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - ssuPhone.length} more digit{10 - ssuPhone.length !== 1 ? 's' : ''} needed</p>}
+                    {ssuPhone.length > 0 && ssuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - ssuPhone.length} {t('auth.digitsNeeded', 'more digits needed')}</p>}
                   </div>
                   {/* Primary Skill */}
                   <div>
-                    <label className={LC}>Primary Skill</label>
+                    <label className={LC}>{t('shramik.primarySkill', 'Primary Skill')}</label>
                     <div className="relative">
                       <Briefcase className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
                       <select value={ssuSkill} onChange={e => setSsuSkill(e.target.value)}
                         className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all appearance-none font-sans text-slate-700">
-                        <option value="">Select your skill…</option>
-                        {SKILLS.map(s => <option key={s} value={s}>{s}</option>)}
+                        <option value="">{t('shramik.selectSkill', 'Select your skill…')}</option>
+                        {SKILLS.map(s => <option key={s} value={s}>{tSkill(s)}</option>)}
                       </select>
                       <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
                   {/* Passwords */}
-                  <PasswordField label="Create Numeric Password" value={ssuPw} onChange={setSsuPw}
-                    placeholder="Numbers only (min. 4 digits)" show={showSsuPw} onToggle={() => setShowSsuPw(v => !v)} numeric showStrength />
-                  <PasswordField label="Confirm Password" value={ssuCpw} onChange={setSsuCpw}
-                    placeholder="Re-enter your password" show={showSsuCpw} onToggle={() => setShowSsuCpw(v => !v)} numeric confirmValue={ssuPw} />
+                  <PasswordField label={t('auth.createNumericPassword', 'Create Numeric Password')} value={ssuPw} onChange={setSsuPw}
+                    placeholder={t('auth.numbersOnlyMin4', 'Numbers only (min. 4 digits)')} show={showSsuPw} onToggle={() => setShowSsuPw(v => !v)} numeric showStrength />
+                  <PasswordField label={t('auth.confirmPassword', 'Confirm Password')} value={ssuCpw} onChange={setSsuCpw}
+                    placeholder={t('auth.reenterPassword', 'Re-enter your password')} show={showSsuCpw} onToggle={() => setShowSsuCpw(v => !v)} numeric confirmValue={ssuPw} />
 
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <UserPlus className="w-4 h-4" /> Register as Shramik
+                    <UserPlus className="w-4 h-4" /> {t('auth.registerAsShramik', 'Register as Shramik')}
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    Already registered?{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">Sign In</button>
+                    {t('auth.alreadyRegistered', 'Already registered?')}{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-emerald-700 font-bold hover:underline">{t('auth.signIn', 'Sign In')}</button>
                   </p>
                 </form>
               )}
@@ -818,13 +858,20 @@ export const LoginPage = () => {
           {activeRoleTab === 'admin' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-2xl font-bold font-heading text-slate-900">{authMode === 'signin' ? 'Admin Login 🛡️' : 'Admin Registration 🛡️'}</h3>
-                <p className="text-sm text-slate-500 mt-1">{authMode === 'signin' ? 'Sign in to manage the platform.' : 'Register your official admin account.'}</p>
+                <h3 className="text-2xl font-bold font-heading text-slate-900">
+                  {authMode === 'signin' ? t('auth.adminLogin', 'Admin Login 🛡️') : t('auth.adminRegistration', 'Admin Registration 🛡️')}
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {authMode === 'signin' ? t('auth.adminLoginDesc', 'Sign in to manage the platform.') : t('auth.adminRegDesc', 'Register your official admin account.')}
+                </p>
               </div>
 
               {/* Toggle */}
               <div className="bg-slate-100 p-1 rounded-xl flex text-sm font-semibold">
-                {[{ mode: 'signin', icon: LogIn, label: 'Sign In' }, { mode: 'signup', icon: UserPlus, label: 'Register' }].map(({ mode, icon: Icon, label }) => (
+                {[
+                  { mode: 'signin', icon: LogIn, label: t('auth.signIn', 'Sign In') },
+                  { mode: 'signup', icon: UserPlus, label: t('auth.register', 'Register') }
+                ].map(({ mode, icon: Icon, label }) => (
                   <button key={mode} onClick={() => setAuthMode(mode)}
                     className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${authMode === mode ? 'bg-white text-slate-800 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}>
                     <Icon className="w-4 h-4" />{label}
@@ -836,20 +883,20 @@ export const LoginPage = () => {
               {authMode === 'signin' && (
                 <form onSubmit={handleASignIn} className="space-y-4">
                   <div>
-                    <label className={LC}>Admin Phone / ID</label>
+                    <label className={LC}>{t('auth.adminPhoneId', 'Admin Phone / ID')}</label>
                     <div className="relative">
                       <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input type="tel" placeholder="Registered phone number" value={asiPhone}
+                      <input type="tel" placeholder={t('auth.registeredPhone', 'Registered phone number')} value={asiPhone}
                         onChange={e => setAsiPhone(e.target.value)} className={IC} />
                     </div>
                   </div>
-                  <PasswordField label="Numeric Password" value={asiPw} onChange={setAsiPw}
-                    placeholder="Enter your numeric password" show={showAsiPw} onToggle={() => setShowAsiPw(v => !v)} numeric />
+                  <PasswordField label={t('auth.numericPassword', 'Numeric Password')} value={asiPw} onChange={setAsiPw}
+                    placeholder={t('auth.enterNumericPassword', 'Enter your numeric password')} show={showAsiPw} onToggle={() => setShowAsiPw(v => !v)} numeric />
                   <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <Shield className="w-4 h-4" /> Sign In as Administrator
+                    <Shield className="w-4 h-4" /> {t('auth.signInAsAdmin', 'Sign In as Administrator')}
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    New admin?{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-slate-700 font-bold hover:underline">Register Here</button>
+                    {t('auth.newAdmin', 'New admin?')}{' '}<button type="button" onClick={() => setAuthMode('signup')} className="text-slate-700 font-bold hover:underline">{t('auth.registerHere', 'Register Here')}</button>
                   </p>
                 </form>
               )}
@@ -859,7 +906,7 @@ export const LoginPage = () => {
                 <form onSubmit={handleASignUp} className="space-y-4">
                   {/* Full Name */}
                   <div>
-                    <label className={LC}>Full Name</label>
+                    <label className={LC}>{t('auth.fullName', 'Full Name')}</label>
                     <div className="relative">
                       <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="text" placeholder="e.g. Priya Mehta" value={asuName} onChange={e => setAsuName(e.target.value)} className={IC + ' font-sans'} />
@@ -871,33 +918,33 @@ export const LoginPage = () => {
                   </div>
                   {/* Phone */}
                   <div>
-                    <label className={LC}>Phone Number</label>
+                    <label className={LC}>{t('auth.phone', 'Phone Number')}</label>
                     <div className="relative">
                       <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input type="tel" maxLength={10} placeholder="10-digit mobile number" value={asuPhone}
+                      <input type="tel" maxLength={10} placeholder={t('auth.phonePlaceholder', '10-digit mobile number')} value={asuPhone}
                         onChange={e => onlyDigits(e.target.value) && setAsuPhone(e.target.value)} className={IC} />
                     </div>
-                    {asuPhone.length > 0 && asuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - asuPhone.length} more digit{10 - asuPhone.length !== 1 ? 's' : ''} needed</p>}
+                    {asuPhone.length > 0 && asuPhone.length < 10 && <p className="text-xs text-amber-600 mt-1 ml-1">{10 - asuPhone.length} {t('auth.digitsNeeded', 'more digits needed')}</p>}
                   </div>
                   {/* Employee ID */}
                   <div>
-                    <label className={LC}>Employee / Admin ID</label>
+                    <label className={LC}>{t('auth.empId', 'Employee / Admin ID')}</label>
                     <div className="relative">
                       <Shield className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input type="text" placeholder="e.g. GOV-ADM-2024" value={asuEmpId} onChange={e => setAsuEmpId(e.target.value)} className={IC + ' font-sans'} />
                     </div>
                   </div>
                   {/* Passwords */}
-                  <PasswordField label="Create Numeric Password" value={asuPw} onChange={setAsuPw}
-                    placeholder="Numbers only (min. 4 digits)" show={showAsuPw} onToggle={() => setShowAsuPw(v => !v)} numeric showStrength />
-                  <PasswordField label="Confirm Password" value={asuCpw} onChange={setAsuCpw}
-                    placeholder="Re-enter your password" show={showAsuCpw} onToggle={() => setShowAsuCpw(v => !v)} numeric confirmValue={asuPw} />
+                  <PasswordField label={t('auth.createNumericPassword', 'Create Numeric Password')} value={asuPw} onChange={setAsuPw}
+                    placeholder={t('auth.numbersOnlyMin4', 'Numbers only (min. 4 digits)')} show={showAsuPw} onToggle={() => setShowAsuPw(v => !v)} numeric showStrength />
+                  <PasswordField label={t('auth.confirmPassword', 'Confirm Password')} value={asuCpw} onChange={setAsuCpw}
+                    placeholder={t('auth.reenterPassword', 'Re-enter your password')} show={showAsuCpw} onToggle={() => setShowAsuCpw(v => !v)} numeric confirmValue={asuPw} />
 
                   <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <UserPlus className="w-4 h-4" /> Register Admin Account
+                    <UserPlus className="w-4 h-4" /> {t('auth.registerAdminAccount', 'Register Admin Account')}
                   </button>
                   <p className="text-center text-xs text-slate-500">
-                    Already registered?{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-slate-700 font-bold hover:underline">Sign In</button>
+                    {t('auth.alreadyRegistered', 'Already registered?')}{' '}<button type="button" onClick={() => setAuthMode('signin')} className="text-slate-700 font-bold hover:underline">{t('auth.signIn', 'Sign In')}</button>
                   </p>
                 </form>
               )}

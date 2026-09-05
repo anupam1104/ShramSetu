@@ -18,6 +18,10 @@ import { ShramikSignup } from './pages/shramik/ShramikSignup';
 import { ShramikPending } from './pages/shramik/ShramikPending';
 import { ShramikDashboard } from './pages/shramik/ShramikDashboard';
 import { ShramikJobScreen } from './pages/shramik/ShramikJobScreen';
+import { ShramikEarnings } from './pages/shramik/ShramikEarnings';
+import { ShramikCutRatio } from './pages/shramik/ShramikCutRatio';
+import { ShramikPaymentHistory } from './pages/shramik/ShramikPaymentHistory';
+import { ShramikGrievance } from './pages/shramik/ShramikGrievance';
 
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminPendingApprovals } from './pages/admin/AdminPendingApprovals';
@@ -33,7 +37,7 @@ const MainContent = () => {
   }, [currentScreen]);
 
   const isCustomerServiceScreen = ['search', 'profile', 'slot', 'booking_confirm', 'track_booking', 'payment'].includes(currentScreen);
-  const isShramikPrivateScreen = ['shramik_dashboard', 'shramik_job'].includes(currentScreen);
+  const isShramikPrivateScreen = ['shramik_dashboard', 'shramik_job', 'shramik_earnings', 'shramik_cut_ratio', 'shramik_payment_history', 'shramik_grievance'].includes(currentScreen);
   const isAdminPrivateScreen = currentScreen.startsWith('admin_');
 
   const requiresLogin = !isLoggedIn && (isCustomerServiceScreen || isShramikPrivateScreen || isAdminPrivateScreen);
@@ -62,6 +66,10 @@ const MainContent = () => {
     // STRICT SHRAMIK PORTAL
     if (role === 'shramik') {
       if (currentScreen === 'shramik_job') return <ShramikJobScreen />;
+      if (currentScreen === 'shramik_earnings') return <ShramikEarnings />;
+      if (currentScreen === 'shramik_cut_ratio') return <ShramikCutRatio />;
+      if (currentScreen === 'shramik_payment_history') return <ShramikPaymentHistory />;
+      if (currentScreen === 'shramik_grievance') return <ShramikGrievance />;
       if (currentScreen === 'shramik_pending') return <ShramikPending />;
       if (currentScreen === 'shramik_signup') return <ShramikSignup />;
       return <ShramikDashboard />;
@@ -79,7 +87,7 @@ const MainContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+    <div className="min-h-screen text-slate-900  flex flex-col font-sans transition-colors duration-300">
       {/* Main Navbar (Sticky at top, hidden for admin which has dedicated sidebar console) */}
       {role !== 'admin' && <Navbar />}
 

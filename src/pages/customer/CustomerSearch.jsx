@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const CustomerSearch = () => {
-  const { shramiks, setSelectedWorkerId, setCurrentScreen, searchCategory, setSearchCategory } = useApp();
+  const { shramiks, setSelectedWorkerId, setCurrentScreen, searchCategory, setSearchCategory, t, tSkill } = useApp();
   
   const [searchQuery, setSearchQuery] = useState('');
   const selectedCategory = searchCategory || 'All';
@@ -42,12 +42,12 @@ export const CustomerSearch = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-6 pb-20">
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-6 pb-20">
 
       {/* Search Header */}
       <div className="space-y-4">
         <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">
-          Find Local Verified Professionals
+          {t('findProfessionals', 'Find Local Verified Professionals')}
         </h1>
 
         {/* Prominent Search Bar */}
@@ -55,7 +55,7 @@ export const CustomerSearch = () => {
           <Search className="w-6 h-6 text-emerald-600 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by skill (Electrician, Plumber, Repair...)"
+            placeholder={t('searchPh', 'Search by skill (Electrician, Plumber, Repair...)')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-13 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl text-base shadow-sm focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100 transition-all font-medium placeholder:text-slate-400"
@@ -74,7 +74,7 @@ export const CustomerSearch = () => {
                   : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
               }`}
             >
-              {cat}
+              {cat === 'All' ? t('allStatus', 'All') : tSkill(cat)}
             </button>
           ))}
         </div>
@@ -113,15 +113,15 @@ export const CustomerSearch = () => {
 
                   {worker.verified ? (
                     <span className="inline-flex items-center gap-0.5 md:gap-1 bg-emerald-100 text-emerald-800 text-[10px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded-full border border-emerald-300">
-                      <CheckCircle2 className="w-2.5 md:w-3 h-2.5 md:h-3 text-emerald-600" /> Verified
+                      <CheckCircle2 className="w-2.5 md:w-3 h-2.5 md:h-3 text-emerald-600" /> {t('verified', 'Verified')}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-0.5 md:gap-1 bg-amber-100 text-amber-800 text-[10px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded-full border border-amber-300">
-                      ● Pending
+                      ● {t('statusPending', 'Pending')}
                     </span>
                   )}
 
-                  <p className="text-[11px] md:text-xs font-semibold text-slate-500 mt-0.5 md:mt-1 truncate">{worker.skill}</p>
+                  <p className="text-[11px] md:text-xs font-semibold text-slate-500 mt-0.5 md:mt-1 truncate">{tSkill(worker.skill)}</p>
                 </div>
               </div>
 
@@ -129,8 +129,8 @@ export const CustomerSearch = () => {
               <div className="flex items-center justify-between text-[11px] md:text-xs text-slate-600 bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-xl border border-slate-100">
                 <div className="flex items-center text-amber-600 font-bold">
                   <Star className="w-3.5 md:w-4 h-3.5 md:h-4 fill-amber-400 text-amber-400 mr-0.5 md:mr-1" />
-                  {worker.rating > 0 ? worker.rating : 'New'}
-                  <span className="hidden md:inline text-slate-400 font-normal ml-1">({worker.jobsCount} jobs)</span>
+                  {worker.rating > 0 ? worker.rating : t('ratingNew', 'New')}
+                  <span className="hidden md:inline text-slate-400 font-normal ml-1">({worker.jobsCount} {t('jobsCount', 'jobs')})</span>
                 </div>
 
                 <div className="flex items-center text-slate-500 font-medium">
@@ -141,9 +141,9 @@ export const CustomerSearch = () => {
 
               {/* Rate */}
               <div className="flex justify-between items-center">
-                <span className="text-slate-500 font-medium text-[11px] md:text-sm">Rate</span>
+                <span className="text-slate-500 font-medium text-[11px] md:text-sm">{t('rate', 'Rate')}</span>
                 <span className="text-sm md:text-lg font-bold font-mono text-slate-900">
-                  ₹{worker.hourlyRate}<span className="text-[10px] md:text-xs font-normal text-slate-500">/hr</span>
+                  ₹{worker.hourlyRate}<span className="text-[10px] md:text-xs font-normal text-slate-500">{t('perHr', '/hr')}</span>
                 </span>
               </div>
             </div>
@@ -153,8 +153,8 @@ export const CustomerSearch = () => {
               onClick={() => handleViewProfile(worker.id)}
               className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-2 md:py-3 rounded-lg md:rounded-xl shadow-xs transition-all text-[11px] md:text-xs flex items-center justify-center space-x-1 group-hover:shadow-emerald-600/20"
             >
-              <span className="md:hidden">View</span>
-              <span className="hidden md:inline">View Profile</span>
+              <span className="md:hidden">{t('viewBtn', 'View')}</span>
+              <span className="hidden md:inline">{t('viewProfile', 'View Profile')}</span>
               <ChevronRight className="w-3.5 md:w-4 h-3.5 md:h-4" />
             </button>
 

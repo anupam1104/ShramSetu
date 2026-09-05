@@ -197,6 +197,66 @@ const INITIAL_BOOKINGS = [
     customerPhone: '+91 98319 88120',
     customerAddress: '14/1 Topsia Road South, Kolkata',
     startCode: '9045'
+  },
+  {
+    id: 'BK-10079',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Fan & Light Repair',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '01 Sep 2025',
+    bookingTime: '11:20 AM',
+    scheduleDate: '02 Sep 2025',
+    scheduleTime: '03:00 PM',
+    status: 'Paid',
+    amount: 800,
+    customerName: 'Sneha Chatterjee',
+    customerPhone: '+91 98344 56712',
+    customerAddress: 'Flat 5C, CF-12, Sector 1, Salt Lake, Kolkata',
+    startCode: '5521'
+  },
+  {
+    id: 'BK-10078',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Power Point Installation',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '28 Aug 2025',
+    bookingTime: '10:05 AM',
+    scheduleDate: '29 Aug 2025',
+    scheduleTime: '12:00 PM',
+    status: 'Completed',
+    amount: 950,
+    customerName: 'Deblina Ray',
+    customerPhone: '+91 98765 22110',
+    customerAddress: '37/6 Canal Street, Salt Lake, Kolkata',
+    startCode: '7709'
+  },
+  {
+    id: 'BK-10077',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Inverter & Wiring Setup',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '20 Aug 2025',
+    bookingTime: '05:40 PM',
+    scheduleDate: '21 Aug 2025',
+    scheduleTime: '10:30 AM',
+    status: 'Paid',
+    amount: 700,
+    customerName: 'Kunal Sarkar',
+    customerPhone: '+91 98100 33456',
+    customerAddress: 'B-9, Lake Town, Kolkata',
+    startCode: '3318'
   }
 ];
 
@@ -222,10 +282,7 @@ export const AppProvider = ({ children }) => {
   // Selected Category filter for CustomerSearch
   const [searchCategory, setSearchCategory] = useState('All');
 
-  // Theme & Language & Settings Modal State
-  const [theme, setThemeState] = useState(() => {
-    return localStorage.getItem('shram_theme') || 'light';
-  });
+  // Language & Settings Modal State
   const [language, setLanguageState] = useState(() => {
     return localStorage.getItem('shram_lang') || 'en';
   });
@@ -235,22 +292,9 @@ export const AppProvider = ({ children }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('shram_theme', theme);
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.classList.remove('dark');
-    }
-  }, [theme]);
-
-  useEffect(() => {
     localStorage.setItem('shram_lang', language);
   }, [language]);
 
-  const setTheme = (newTheme) => setThemeState(newTheme);
-  const toggleTheme = () => setThemeState(prev => (prev === 'dark' ? 'light' : 'dark'));
   const setLanguage = (newLang) => setLanguageState(newLang);
   const setSelectedLocation = (loc) => {
     setSelectedLocationState(loc);
@@ -260,9 +304,110 @@ export const AppProvider = ({ children }) => {
   const closeSettings = () => setIsSettingsOpen(false);
   const toggleSettings = () => setIsSettingsOpen(prev => !prev);
 
-  const t = (key, fallback = '') => {
-    const dict = TRANSLATIONS[language] || TRANSLATIONS.en;
-    return dict[key] || TRANSLATIONS.en[key] || fallback || key;
+  // Dot-notation alias map: maps dot-notation keys used in components to flat dict keys
+  const DOT_KEY_ALIASES = {
+    // admin.* keys → flat keys
+    'admin.bookings': 'bookings', 'admin.manageAllBookings': 'bookingsSubtitle',
+    'admin.createNewBooking': 'createNewBooking', 'admin.totalBookings': 'totalBookings',
+    'admin.allBookings': 'allBookings', 'admin.activeBookings': 'activeBookings',
+    'admin.awaitingConfirmation': 'awaitingConfirmation', 'admin.cancelledBookings': 'cancelledBookings',
+    'admin.searchBooking': 'searchBooking', 'admin.searchBookingPlaceholder': 'searchBookingPh',
+    'admin.bookingStatus': 'bookingStatus', 'admin.allStatus': 'allStatus',
+    'admin.dateRange': 'dateRange', 'admin.selectDateRange': 'selectDateRange',
+    'admin.location': 'location', 'admin.allLocations': 'allLocations',
+    'admin.export': 'export', 'admin.allBookingsTabs': 'tabAllBookings',
+    'admin.noBookingsFound': 'noBookingsFound', 'admin.adjustFiltersNotice': 'noBookingsFoundDesc',
+    'admin.shramikDetails': 'thShramikDetails', 'admin.jobDetails': 'thJobDetails',
+    'admin.bookingDate': 'thBookingDate', 'admin.scheduleDate': 'scheduleDate',
+    'admin.scheduleTime': 'scheduleTime', 'admin.markConfirmed': 'markConfirmed',
+    'admin.markCompleted': 'markCompleted', 'admin.cancelBooking': 'cancelBooking',
+    'admin.createNewJobBooking': 'createJobBooking', 'admin.dispatchNotice': 'dispatchShramik',
+    'admin.assignShramik': 'assignShramik', 'admin.jobTitleService': 'jobTitleService',
+    'admin.serviceLocation': 'serviceLocation', 'admin.initialStatus': 'initialStatus',
+    'admin.confirmAndCreate': 'confirmAndCreate', 'admin.setConfirmed': 'setConfirmed',
+    'admin.setCompleted': 'setCompleted', 'admin.settings': 'settingsNav',
+    'admin.settingsSubtitle': 'settingsAdminSubtitle', 'admin.platformInformation': 'platformInformation',
+    'admin.platformName': 'platformName', 'admin.adminEmail': 'adminContactEmail',
+    'admin.tagline': 'tagline', 'admin.supportPhone': 'supportPhone',
+    'admin.platformInfoSaved': 'adminPlatformSaved', 'admin.notificationsAndPreferences': 'notificationsPrefs',
+    'admin.emailNotifications': 'emailNotifications', 'admin.emailNotificationsDesc': 'emailNotifDesc',
+    'admin.approvalAlerts': 'approvalAlerts', 'admin.approvalAlertsDesc': 'approvalAlertsDesc',
+    'admin.autoApproveShramiks': 'autoApproveShramiks', 'admin.autoApproveShramiksDesc': 'autoApproveDesc',
+    'admin.dailySummaryReport': 'dailySummaryReport', 'admin.dailySummaryReportDesc': 'dailySummaryDesc',
+    'admin.notificationsSaved': 'adminNotifSaved', 'admin.actionInitiated': 'adminSystemAction',
+    'admin.systemDataManagement': 'systemDataManagement', 'admin.systemLogs': 'systemLogs',
+    'admin.systemLogsDesc': 'systemLogsDesc', 'admin.backupExport': 'backupExport',
+    'admin.backupExportDesc': 'backupExportDesc', 'admin.clearCache': 'clearCache',
+    'admin.clearCacheDesc': 'clearCacheDesc', 'admin.dataRetention': 'dataRetention',
+    'admin.dataRetentionDesc': 'dataRetentionDesc', 'admin.verificationQueue': 'verificationQueue',
+    'admin.verificationQueueSubtitle': 'queueDesc', 'admin.pendingCount': 'pendingApprovalCount',
+    'admin.pendingRegistrations': 'pendingRegistrations', 'admin.liveManagement': 'liveManagement',
+    'admin.approve': 'approve', 'admin.approveAndIssueId': 'approveAndIssue',
+    'admin.reject': 'rejectRegistration', 'admin.noPendingApprovals': 'noPendingQueue',
+    'admin.allShramiksVerified': 'allRegisteredVerified', 'admin.verifiedDirectory': 'verifiedDirectory',
+    'admin.verifiedActive': 'verifiedActive', 'admin.profileApplication': 'profileApplication',
+    // auth.* keys
+    'auth.phone': 'phoneNumber', 'auth.shramik': 'thShramik',
+    // booking.* keys
+    'booking.id': 'thBookingId', 'booking.status': 'thStatus',
+    'booking.amount': 'thAmount', 'booking.customer': 'customerName',
+    'booking.service': 'jobTitle', 'booking.dateTime': 'scheduledDateTime',
+    'booking.fourDigitCode': 'digitStartCode', 'booking.totalPayable': 'totalPayableAmount',
+    // common.* keys
+    'common.skill': 'thSkill', 'common.experience': 'thExperience',
+    'common.action': 'thActions', 'common.view': 'viewDetails',
+    'common.cancel': 'cancel', 'common.delete': 'delete',
+    'common.saveChanges': 'saveChanges', 'common.cityArea': 'cityArea',
+    'common.servicesOffered': 'servicesOffered',
+  };
+
+  const t = (key, paramsOrFallback = '') => {
+    const dict = TRANSLATIONS[language] || TRANSLATIONS.en || {};
+    // Resolve dot-notation aliases to flat keys
+    const flatKey = DOT_KEY_ALIASES[key] || key;
+    let val = dict[flatKey] ?? TRANSLATIONS.en?.[flatKey];
+    if (val === undefined) {
+      if (typeof paramsOrFallback === 'string') return paramsOrFallback;
+      return key;
+    }
+    if (typeof paramsOrFallback === 'object' && paramsOrFallback !== null) {
+      return String(val).replace(/\{(\w+)\}/g, (match, paramKey) => {
+        return paramsOrFallback[paramKey] !== undefined ? paramsOrFallback[paramKey] : match;
+      });
+    }
+    return val;
+  };
+
+  const tSkill = (skill) => {
+    if (!skill) return '';
+    const keyMap = {
+      'Electrician': 'skillElectrician',
+      'Plumber': 'skillPlumber',
+      'Carpenter': 'skillCarpenter',
+      'Painter': 'skillPainter',
+      'Mason': 'skillMason',
+      'AC Repair': 'skillAcRepair',
+      'Welder': 'skillWelder',
+      'Mechanic': 'skillMechanic',
+      'Tailor': 'skillTailor',
+      'Cook': 'skillCook'
+    };
+    const key = keyMap[skill];
+    return key ? t(key, skill) : skill;
+  };
+
+  const tStatus = (status) => {
+    if (!status) return '';
+    const keyMap = {
+      'Confirmed': 'statusConfirmed',
+      'Pending': 'statusPending',
+      'In Progress': 'statusInProgress',
+      'Completed': 'statusCompleted',
+      'Paid': 'statusPaid',
+      'Cancelled': 'statusCancelled'
+    };
+    const key = keyMap[status];
+    return key ? t(key, status) : status;
   };
 
   // Notification Toast state
@@ -291,7 +436,7 @@ export const AppProvider = ({ children }) => {
     setIsLoggedIn(false);
     setRole('landing');
     setCurrentScreen('landing');
-    showToast('Logged out successfully.', 'info');
+    showToast(t('tLoggedOut', 'Logged out successfully.'), 'info');
   };
 
   // Synchronize screen when role changes
@@ -569,9 +714,6 @@ export const AppProvider = ({ children }) => {
       isLoggedIn,
       login,
       logout,
-      theme,
-      setTheme,
-      toggleTheme,
       language,
       setLanguage,
       selectedLocation,
@@ -582,6 +724,8 @@ export const AppProvider = ({ children }) => {
       closeSettings,
       toggleSettings,
       t,
+      tSkill,
+      tStatus,
       LANGUAGES
     }}>
       {children}

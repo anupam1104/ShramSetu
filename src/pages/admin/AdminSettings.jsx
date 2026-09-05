@@ -3,7 +3,6 @@ import { useApp } from '../../context/AppContext';
 import { AdminLayout } from './AdminLayout';
 import {
   Info,
-  Palette,
   Bell,
   Mail,
   ShieldCheck,
@@ -16,22 +15,16 @@ import {
   Trash2,
   Database,
   ChevronRight,
-  Sun,
-  Moon,
-  Monitor,
 } from 'lucide-react';
 
 export const AdminSettings = () => {
-  const { showToast } = useApp();
+  const { showToast, t } = useApp();
 
   // Platform Information state
   const [platformName, setPlatformName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [tagline, setTagline] = useState('');
   const [supportPhone, setSupportPhone] = useState('');
-
-  // Appearance state
-  const [themeMode, setThemeMode] = useState('light');
 
   // Notifications state
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -40,19 +33,15 @@ export const AdminSettings = () => {
   const [dailySummary, setDailySummary] = useState(false);
 
   const handleSavePlatform = () => {
-    showToast('Platform information saved successfully!', 'success');
-  };
-
-  const handleSaveAppearance = () => {
-    showToast('Appearance settings saved successfully!', 'success');
+    showToast(t('admin.platformInfoSaved', 'Platform information saved successfully!'), 'success');
   };
 
   const handleSaveNotifications = () => {
-    showToast('Notification preferences saved successfully!', 'success');
+    showToast(t('admin.notificationsSaved', 'Notification preferences saved successfully!'), 'success');
   };
 
   const handleSystemAction = (action) => {
-    showToast(`${action} initiated...`, 'info');
+    showToast(t('admin.actionInitiated', '{action} initiated...', { action }), 'info');
   };
 
   // Toggle switch component
@@ -74,13 +63,6 @@ export const AdminSettings = () => {
     </button>
   );
 
-  // Theme mode icon
-  const ThemeIcon = () => {
-    if (themeMode === 'light') return <Sun className="w-4 h-4 text-amber-500" />;
-    if (themeMode === 'dark') return <Moon className="w-4 h-4 text-slate-400" />;
-    return <Monitor className="w-4 h-4 text-blue-500" />;
-  };
-
   return (
     <AdminLayout>
       <div className="space-y-8 max-w-6xl mx-auto">
@@ -88,15 +70,15 @@ export const AdminSettings = () => {
         {/* Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">
-            Settings
+            {t('admin.settings', 'Settings')}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Manage platform preferences and system configurations
+            {t('admin.settingsSubtitle', 'Manage platform preferences and system configurations')}
           </p>
         </div>
 
-        {/* Top Row: Platform Information + Appearance */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Platform Information */}
+        <div>
 
           {/* Platform Information Card */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5">
@@ -105,14 +87,14 @@ export const AdminSettings = () => {
                 <Info className="w-4 h-4" />
               </div>
               <h2 className="font-bold text-slate-900 text-base font-heading">
-                Platform Information
+                {t('admin.platformInformation', 'Platform Information')}
               </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Platform Name
+                  {t('admin.platformName', 'Platform Name')}
                 </label>
                 <input
                   id="settings-platform-name"
@@ -125,7 +107,7 @@ export const AdminSettings = () => {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Admin Contact Email
+                  {t('admin.adminEmail', 'Admin Contact Email')}
                 </label>
                 <input
                   id="settings-admin-email"
@@ -138,7 +120,7 @@ export const AdminSettings = () => {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Tagline
+                  {t('admin.tagline', 'Tagline')}
                 </label>
                 <input
                   id="settings-tagline"
@@ -151,7 +133,7 @@ export const AdminSettings = () => {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Support Phone Number
+                  {t('admin.supportPhone', 'Support Phone Number')}
                 </label>
                 <input
                   id="settings-support-phone"
@@ -171,53 +153,7 @@ export const AdminSettings = () => {
                 className="bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-300 text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2 hover:shadow-md"
               >
                 <Save className="w-3.5 h-3.5" />
-                <span>Save Changes</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Appearance Card */}
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5">
-            <div className="flex items-center space-x-3 pb-2">
-              <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                <Palette className="w-4 h-4" />
-              </div>
-              <h2 className="font-bold text-slate-900 text-base font-heading">
-                Appearance
-              </h2>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Theme Mode
-              </label>
-              <div className="relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <ThemeIcon />
-                </div>
-                <select
-                  id="settings-theme-mode"
-                  value={themeMode}
-                  onChange={(e) => setThemeMode(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all appearance-none cursor-pointer"
-                >
-                  <option value="light">Light Mode</option>
-                  <option value="dark">Dark Mode</option>
-                </select>
-              </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Choose the default theme for the admin console
-              </p>
-            </div>
-
-            <div className="flex justify-end pt-1">
-              <button
-                id="settings-save-appearance"
-                onClick={handleSaveAppearance}
-                className="bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-300 text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2 hover:shadow-md"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>Save Changes</span>
+                <span>{t('common.saveChanges', 'Save Changes')}</span>
               </button>
             </div>
           </div>
@@ -230,7 +166,7 @@ export const AdminSettings = () => {
               <Bell className="w-4 h-4" />
             </div>
             <h2 className="font-bold text-slate-900 text-base font-heading">
-              Notifications & Preferences
+              {t('admin.notificationsAndPreferences', 'Notifications & Preferences')}
             </h2>
           </div>
 
@@ -242,9 +178,9 @@ export const AdminSettings = () => {
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Email Notifications</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.emailNotifications', 'Email Notifications')}</p>
                   <p className="text-[11px] text-slate-500">
-                    Receive important system notifications via email
+                    {t('admin.emailNotificationsDesc', 'Receive important system notifications via email')}
                   </p>
                 </div>
               </div>
@@ -262,9 +198,9 @@ export const AdminSettings = () => {
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Approval Alerts</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.approvalAlerts', 'Approval Alerts')}</p>
                   <p className="text-[11px] text-slate-500">
-                    Get notified for new registrations and approvals
+                    {t('admin.approvalAlertsDesc', 'Get notified for new registrations and approvals')}
                   </p>
                 </div>
               </div>
@@ -282,9 +218,9 @@ export const AdminSettings = () => {
                   <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Auto Approve Shramiks</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.autoApproveShramiks', 'Auto Approve Shramiks')}</p>
                   <p className="text-[11px] text-slate-500">
-                    Automatically approve verified Shramiks
+                    {t('admin.autoApproveShramiksDesc', 'Automatically approve verified Shramiks')}
                   </p>
                 </div>
               </div>
@@ -302,9 +238,9 @@ export const AdminSettings = () => {
                   <FileBarChart className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Daily Summary Report</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.dailySummaryReport', 'Daily Summary Report')}</p>
                   <p className="text-[11px] text-slate-500">
-                    Receive daily summary of platform activity
+                    {t('admin.dailySummaryReportDesc', 'Receive daily summary of platform activity')}
                   </p>
                 </div>
               </div>
@@ -323,7 +259,7 @@ export const AdminSettings = () => {
               className="bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-300 text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2 hover:shadow-md"
             >
               <Save className="w-3.5 h-3.5" />
-              <span>Save Changes</span>
+              <span>{t('common.saveChanges', 'Save Changes')}</span>
             </button>
           </div>
         </div>
@@ -335,7 +271,7 @@ export const AdminSettings = () => {
               <Settings className="w-4 h-4" />
             </div>
             <h2 className="font-bold text-slate-900 text-base font-heading">
-              System & Data Management
+              {t('admin.systemDataManagement', 'System & Data Management')}
             </h2>
           </div>
 
@@ -351,8 +287,8 @@ export const AdminSettings = () => {
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">System Logs</p>
-                  <p className="text-[10px] text-slate-500">View system activity logs</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.systemLogs', 'System Logs')}</p>
+                  <p className="text-[10px] text-slate-500">{t('admin.systemLogsDesc', 'View system activity logs')}</p>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
@@ -369,8 +305,8 @@ export const AdminSettings = () => {
                   <Download className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Backup & Export</p>
-                  <p className="text-[10px] text-slate-500">Backup and export data</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.backupExport', 'Backup & Export')}</p>
+                  <p className="text-[10px] text-slate-500">{t('admin.backupExportDesc', 'Backup and export data')}</p>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
@@ -387,8 +323,8 @@ export const AdminSettings = () => {
                   <Trash2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Clear Cache</p>
-                  <p className="text-[10px] text-slate-500">Clear system cache</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.clearCache', 'Clear Cache')}</p>
+                  <p className="text-[10px] text-slate-500">{t('admin.clearCacheDesc', 'Clear system cache')}</p>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors" />
@@ -405,8 +341,8 @@ export const AdminSettings = () => {
                   <Database className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">Data Retention</p>
-                  <p className="text-[10px] text-slate-500">Manage data retention policy</p>
+                  <p className="text-sm font-bold text-slate-900">{t('admin.dataRetention', 'Data Retention')}</p>
+                  <p className="text-[10px] text-slate-500">{t('admin.dataRetentionDesc', 'Manage data retention policy')}</p>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />

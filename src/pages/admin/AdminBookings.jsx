@@ -34,7 +34,10 @@ export const AdminBookings = () => {
     updateBookingStatus, 
     deleteBooking, 
     showToast, 
-    currentUser 
+    currentUser,
+    t,
+    tSkill,
+    tStatus
   } = useApp();
 
   // Filter and Search States
@@ -163,9 +166,9 @@ export const AdminBookings = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showToast('Bookings export generated successfully!', 'success');
+      showToast(t('adminExportSuccess', 'Bookings export generated successfully!'), 'success');
     } catch (err) {
-      showToast('Export failed. Please try again.', 'error');
+      showToast(t('adminExportFail', 'Export failed. Please try again.'), 'error');
     }
   };
 
@@ -200,7 +203,7 @@ export const AdminBookings = () => {
       addAdminBooking(bookingPayload);
     }
     setIsCreateModalOpen(false);
-    showToast(`Booking ${newId} created successfully!`, 'success');
+    showToast(t('bookingCreatedToast', 'Booking {id} created successfully!', { id: newId }), 'success');
   };
 
   // Status Badge Helper
@@ -209,31 +212,31 @@ export const AdminBookings = () => {
       case 'confirmed':
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Confirmed
+            {tStatus('Confirmed')}
           </span>
         );
       case 'pending':
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-            Pending
+            {tStatus('Pending')}
           </span>
         );
       case 'completed':
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-            Completed
+            {tStatus('Completed')}
           </span>
         );
       case 'cancelled':
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-            Cancelled
+            {tStatus('Cancelled')}
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
-            {status || 'Unknown'}
+            {tStatus(status || 'Unknown')}
           </span>
         );
     }
@@ -247,10 +250,10 @@ export const AdminBookings = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 tracking-tight">
-              Bookings
+              {t('admin.bookings', 'Bookings')}
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Manage all job bookings and assignments
+              {t('admin.manageAllBookings', 'Manage all job bookings and assignments')}
             </p>
           </div>
 
@@ -259,7 +262,7 @@ export const AdminBookings = () => {
             className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-2 shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span>Create New Booking</span>
+            <span>{t('admin.createNewBooking', 'Create New Booking')}</span>
           </button>
         </div>
 
@@ -272,11 +275,11 @@ export const AdminBookings = () => {
               <Calendar className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Bookings</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('admin.totalBookings', 'Total Bookings')}</p>
               <p className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 mt-0.5">
                 {totalBookingsCount}
               </p>
-              <p className="text-xs text-blue-600 font-semibold mt-0.5">All Bookings</p>
+              <p className="text-xs text-blue-600 font-semibold mt-0.5">{t('admin.allBookings', 'All Bookings')}</p>
             </div>
           </div>
 
@@ -286,11 +289,11 @@ export const AdminBookings = () => {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Confirmed</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{tStatus('Confirmed')}</p>
               <p className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 mt-0.5">
                 {confirmedCount}
               </p>
-              <p className="text-xs text-emerald-600 font-semibold mt-0.5">Active Bookings</p>
+              <p className="text-xs text-emerald-600 font-semibold mt-0.5">{t('admin.activeBookings', 'Active Bookings')}</p>
             </div>
           </div>
 
@@ -300,11 +303,11 @@ export const AdminBookings = () => {
               <Clock className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pending</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{tStatus('Pending')}</p>
               <p className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 mt-0.5">
                 {pendingCount}
               </p>
-              <p className="text-xs text-amber-600 font-semibold mt-0.5">Awaiting Confirmation</p>
+              <p className="text-xs text-amber-600 font-semibold mt-0.5">{t('admin.awaitingConfirmation', 'Awaiting Confirmation')}</p>
             </div>
           </div>
 
@@ -314,11 +317,11 @@ export const AdminBookings = () => {
               <XCircle className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cancelled</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{tStatus('Cancelled')}</p>
               <p className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 mt-0.5">
                 {cancelledCount}
               </p>
-              <p className="text-xs text-purple-600 font-semibold mt-0.5">Cancelled Bookings</p>
+              <p className="text-xs text-purple-600 font-semibold mt-0.5">{t('admin.cancelledBookings', 'Cancelled Bookings')}</p>
             </div>
           </div>
 
@@ -330,12 +333,12 @@ export const AdminBookings = () => {
             
             {/* Search Input */}
             <div className="md:col-span-4 space-y-1">
-              <label className="text-xs font-bold text-slate-700">Search Booking</label>
+              <label className="text-xs font-bold text-slate-700">{t('admin.searchBooking', 'Search Booking')}</label>
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Search by ID, Shramik name, or mobile..."
+                  placeholder={t('admin.searchBookingPlaceholder', 'Search by ID, Shramik name, or mobile...')}
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -348,7 +351,7 @@ export const AdminBookings = () => {
 
             {/* Booking Status Dropdown */}
             <div className="md:col-span-2 space-y-1">
-              <label className="text-xs font-bold text-slate-700">Booking Status</label>
+              <label className="text-xs font-bold text-slate-700">{t('admin.bookingStatus', 'Booking Status')}</label>
               <select
                 value={selectedStatus}
                 onChange={(e) => {
@@ -357,17 +360,17 @@ export const AdminBookings = () => {
                 }}
                 className="w-full px-3 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-800 cursor-pointer"
               >
-                <option value="All">All Status</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
+                <option value="All">{t('admin.allStatus', 'All Status')}</option>
+                <option value="Confirmed">{tStatus('Confirmed')}</option>
+                <option value="Pending">{tStatus('Pending')}</option>
+                <option value="Completed">{tStatus('Completed')}</option>
+                <option value="Cancelled">{tStatus('Cancelled')}</option>
               </select>
             </div>
 
             {/* Date Range Selector */}
             <div className="md:col-span-2 space-y-1">
-              <label className="text-xs font-bold text-slate-700">Date Range</label>
+              <label className="text-xs font-bold text-slate-700">{t('admin.dateRange', 'Date Range')}</label>
               <div className="relative">
                 <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <select
@@ -375,7 +378,7 @@ export const AdminBookings = () => {
                   onChange={(e) => setDateRange(e.target.value)}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-800 cursor-pointer"
                 >
-                  <option value="all">Select Date Range</option>
+                  <option value="all">{t('admin.selectDateRange', 'Select Date Range')}</option>
                   <option value="today">Today</option>
                   <option value="this_week">This Week</option>
                   <option value="this_month">September 2025</option>
@@ -385,7 +388,7 @@ export const AdminBookings = () => {
 
             {/* Location Selector */}
             <div className="md:col-span-2 space-y-1">
-              <label className="text-xs font-bold text-slate-700">Location</label>
+              <label className="text-xs font-bold text-slate-700">{t('admin.location', 'Location')}</label>
               <select
                 value={selectedLocation}
                 onChange={(e) => {
@@ -394,7 +397,7 @@ export const AdminBookings = () => {
                 }}
                 className="w-full px-3 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-800 cursor-pointer"
               >
-                <option value="All">All Locations</option>
+                <option value="All">{t('admin.allLocations', 'All Locations')}</option>
                 {locationOptions.map((loc) => (
                   <option key={loc} value={loc}>{loc}</option>
                 ))}
@@ -408,7 +411,7 @@ export const AdminBookings = () => {
                 className="w-full bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-700 font-bold border border-emerald-600/70 py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-xs"
               >
                 <Download className="w-4 h-4 text-emerald-600" />
-                <span>Export</span>
+                <span>{t('admin.export', 'Export')}</span>
               </button>
             </div>
 
@@ -420,14 +423,18 @@ export const AdminBookings = () => {
           
           {/* Status Tabs */}
           <div className="flex border-b border-slate-100 px-6 pt-3 gap-6 text-xs sm:text-sm font-semibold">
-            {['All Bookings', 'Confirmed', 'Pending', 'Cancelled'].map((tab) => {
-              const tabKey = tab === 'All Bookings' ? 'All' : tab;
-              const isActive = activeTab === tabKey;
+            {[
+              { label: t('admin.allBookings', 'All Bookings'), key: 'All' },
+              { label: tStatus('Confirmed'), key: 'Confirmed' },
+              { label: tStatus('Pending'), key: 'Pending' },
+              { label: tStatus('Cancelled'), key: 'Cancelled' }
+            ].map(({ label, key }) => {
+              const isActive = activeTab === key;
               return (
                 <button
-                  key={tab}
+                  key={key}
                   onClick={() => {
-                    setActiveTab(tabKey);
+                    setActiveTab(key);
                     setCurrentPage(1);
                   }}
                   className={`pb-3 relative font-medium transition-all ${
@@ -436,7 +443,7 @@ export const AdminBookings = () => {
                       : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  {tab}
+                  {label}
                   {isActive && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 rounded-full" />
                   )}
@@ -450,14 +457,14 @@ export const AdminBookings = () => {
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead>
                 <tr className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400 bg-white">
-                  <th className="py-3.5 px-6">BOOKING ID</th>
-                  <th className="py-3.5 px-4">SHRAMIK DETAILS</th>
-                  <th className="py-3.5 px-4">JOB DETAILS</th>
-                  <th className="py-3.5 px-4">BOOKING DATE</th>
-                  <th className="py-3.5 px-4">SCHEDULE DATE</th>
-                  <th className="py-3.5 px-4">STATUS</th>
-                  <th className="py-3.5 px-4">AMOUNT</th>
-                  <th className="py-3.5 px-6 text-right">ACTIONS</th>
+                  <th className="py-3.5 px-6">{t('booking.id', 'BOOKING ID')}</th>
+                  <th className="py-3.5 px-4">{t('admin.shramikDetails', 'SHRAMIK DETAILS')}</th>
+                  <th className="py-3.5 px-4">{t('admin.jobDetails', 'JOB DETAILS')}</th>
+                  <th className="py-3.5 px-4">{t('admin.bookingDate', 'BOOKING DATE')}</th>
+                  <th className="py-3.5 px-4">{t('admin.scheduleDate', 'SCHEDULE DATE')}</th>
+                  <th className="py-3.5 px-4">{t('booking.status', 'STATUS')}</th>
+                  <th className="py-3.5 px-4">{t('booking.amount', 'AMOUNT')}</th>
+                  <th className="py-3.5 px-6 text-right">{t('common.action', 'ACTIONS')}</th>
                 </tr>
               </thead>
 
@@ -484,7 +491,7 @@ export const AdminBookings = () => {
                           <div>
                             <p className="font-bold text-slate-900 text-xs sm:text-sm">{b.shramikName}</p>
                             <p className="text-[11px] text-slate-500 font-medium">
-                              {b.shramikSkill} • {b.shramikArea || 'Salt Lake'}
+                              {tSkill(b.shramikSkill)} • {b.shramikArea || 'Salt Lake'}
                             </p>
                           </div>
                         </div>
@@ -493,7 +500,7 @@ export const AdminBookings = () => {
                       {/* Job Details */}
                       <td className="py-4 px-4">
                         <div>
-                          <p className="font-bold text-slate-900 text-xs sm:text-sm">{b.jobTitle || 'General Service'}</p>
+                          <p className="font-bold text-slate-900 text-xs sm:text-sm">{tSkill(b.jobTitle || 'General Service')}</p>
                           <p className="text-[11px] text-slate-500 font-medium">
                             {b.jobLocation || 'Kolkata'}
                           </p>
@@ -550,7 +557,7 @@ export const AdminBookings = () => {
                               className="w-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center space-x-2"
                             >
                               <Eye className="w-3.5 h-3.5 text-slate-500" />
-                              <span>View Details</span>
+                              <span>{t('common.view', 'View Details')}</span>
                             </button>
 
                             <button
@@ -561,7 +568,7 @@ export const AdminBookings = () => {
                               className="w-full px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 flex items-center space-x-2"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Mark Confirmed</span>
+                              <span>{t('admin.markConfirmed', 'Mark Confirmed')}</span>
                             </button>
 
                             <button
@@ -572,7 +579,7 @@ export const AdminBookings = () => {
                               className="w-full px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-50 flex items-center space-x-2"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-                              <span>Mark Completed</span>
+                              <span>{t('admin.markCompleted', 'Mark Completed')}</span>
                             </button>
 
                             <button
@@ -583,7 +590,7 @@ export const AdminBookings = () => {
                               className="w-full px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 flex items-center space-x-2"
                             >
                               <XCircle className="w-3.5 h-3.5 text-rose-600" />
-                              <span>Cancel Booking</span>
+                              <span>{t('admin.cancelBooking', 'Cancel Booking')}</span>
                             </button>
 
                             <div className="border-t border-slate-100 my-1" />
@@ -596,7 +603,7 @@ export const AdminBookings = () => {
                               className="w-full px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center space-x-2"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
-                              <span>Delete</span>
+                              <span>{t('common.delete', 'Delete')}</span>
                             </button>
                           </div>
                         )}
@@ -608,8 +615,8 @@ export const AdminBookings = () => {
                   <tr>
                     <td colSpan={8} className="py-12 text-center text-slate-500 space-y-2">
                       <Calendar className="w-10 h-10 text-slate-300 mx-auto" />
-                      <p className="font-bold text-slate-800 text-sm">No bookings found</p>
-                      <p className="text-xs text-slate-400">Try adjusting your filters or search keywords.</p>
+                      <p className="font-bold text-slate-800 text-sm">{t('admin.noBookingsFound', 'No bookings found')}</p>
+                      <p className="text-xs text-slate-400">{t('admin.adjustFiltersNotice', 'Try adjusting your filters or search keywords.')}</p>
                     </td>
                   </tr>
                 )}
@@ -661,9 +668,9 @@ export const AdminBookings = () => {
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-slate-900 text-lg font-heading">
-                  Create New Job Booking
+                  {t('admin.createNewJobBooking', 'Create New Job Booking')}
                 </h3>
-                <p className="text-xs text-slate-500">Dispatch a certified Shramik for customer order</p>
+                <p className="text-xs text-slate-500">{t('admin.dispatchNotice', 'Dispatch a certified Shramik for customer order')}</p>
               </div>
               <button 
                 onClick={() => setIsCreateModalOpen(false)}
@@ -676,7 +683,7 @@ export const AdminBookings = () => {
             <form onSubmit={handleCreateBooking} className="space-y-4">
               {/* Select Shramik */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Assign Shramik</label>
+                <label className="text-xs font-bold text-slate-700">{t('admin.assignShramik', 'Assign Shramik')}</label>
                 <select
                   value={newBookingForm.shramikId}
                   onChange={(e) => setNewBookingForm({ ...newBookingForm, shramikId: e.target.value })}
@@ -684,7 +691,7 @@ export const AdminBookings = () => {
                 >
                   {shramiks.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name} ({s.skill} • {s.area || 'Kolkata'})
+                      {s.name} ({tSkill(s.skill)} • {s.area || 'Kolkata'})
                     </option>
                   ))}
                 </select>
@@ -693,7 +700,7 @@ export const AdminBookings = () => {
               {/* Job Title & Location */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Job Title / Service</label>
+                  <label className="text-xs font-bold text-slate-700">{t('admin.jobTitleService', 'Job Title / Service')}</label>
                   <input
                     type="text"
                     required
@@ -705,7 +712,7 @@ export const AdminBookings = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Service Location</label>
+                  <label className="text-xs font-bold text-slate-700">{t('admin.serviceLocation', 'Service Location')}</label>
                   <input
                     type="text"
                     required
@@ -720,7 +727,7 @@ export const AdminBookings = () => {
               {/* Schedule Date & Time */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Schedule Date</label>
+                  <label className="text-xs font-bold text-slate-700">{t('admin.scheduleDate', 'Schedule Date')}</label>
                   <input
                     type="date"
                     required
@@ -731,7 +738,7 @@ export const AdminBookings = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Schedule Time</label>
+                  <label className="text-xs font-bold text-slate-700">{t('admin.scheduleTime', 'Schedule Time')}</label>
                   <input
                     type="text"
                     required
@@ -746,7 +753,7 @@ export const AdminBookings = () => {
               {/* Customer Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Customer Name</label>
+                  <label className="text-xs font-bold text-slate-700">{t('booking.customer', 'Customer Name')}</label>
                   <input
                     type="text"
                     required
@@ -758,7 +765,7 @@ export const AdminBookings = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Customer Phone</label>
+                  <label className="text-xs font-bold text-slate-700">{t('auth.phone', 'Customer Phone')}</label>
                   <input
                     type="tel"
                     required
@@ -773,7 +780,7 @@ export const AdminBookings = () => {
               {/* Amount & Status */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Amount (₹)</label>
+                  <label className="text-xs font-bold text-slate-700">{t('booking.amount', 'Amount')} (₹)</label>
                   <input
                     type="number"
                     required
@@ -784,14 +791,14 @@ export const AdminBookings = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Initial Status</label>
+                  <label className="text-xs font-bold text-slate-700">{t('admin.initialStatus', 'Initial Status')}</label>
                   <select
                     value={newBookingForm.status}
                     onChange={(e) => setNewBookingForm({ ...newBookingForm, status: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-slate-50 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
                   >
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">{tStatus('Confirmed')}</option>
+                    <option value="Pending">{tStatus('Pending')}</option>
                   </select>
                 </div>
               </div>
@@ -802,13 +809,13 @@ export const AdminBookings = () => {
                   onClick={() => setIsCreateModalOpen(false)}
                   className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition-all"
                 >
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md"
                 >
-                  Confirm & Create
+                  {t('admin.confirmAndCreate', 'Confirm & Create')}
                 </button>
               </div>
             </form>
@@ -844,7 +851,7 @@ export const AdminBookings = () => {
               />
               <div className="flex-1">
                 <p className="font-bold text-slate-900 text-sm">{viewBooking.shramikName}</p>
-                <p className="text-xs text-emerald-700 font-semibold">{viewBooking.shramikSkill} • {viewBooking.shramikArea || 'Kolkata'}</p>
+                <p className="text-xs text-emerald-700 font-semibold">{tSkill(viewBooking.shramikSkill)} • {viewBooking.shramikArea || 'Kolkata'}</p>
                 <p className="text-[11px] text-slate-500 font-mono">ID: SS-10101</p>
               </div>
             </div>
@@ -852,33 +859,33 @@ export const AdminBookings = () => {
             {/* Job & Customer Details */}
             <div className="space-y-2.5 text-xs text-slate-700">
               <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Job Title</span>
-                <span className="font-bold text-slate-900">{viewBooking.jobTitle || 'House Wiring'}</span>
+                <span className="text-slate-500">{t('booking.service', 'Job Title')}</span>
+                <span className="font-bold text-slate-900">{tSkill(viewBooking.jobTitle || 'House Wiring')}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Service Location</span>
+                <span className="text-slate-500">{t('admin.serviceLocation', 'Service Location')}</span>
                 <span className="font-bold text-slate-900">{viewBooking.jobLocation || 'Salt Lake, Kolkata'}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Scheduled Date & Time</span>
+                <span className="text-slate-500">{t('booking.dateTime', 'Scheduled Date & Time')}</span>
                 <span className="font-bold text-slate-900">{viewBooking.scheduleDate} at {viewBooking.scheduleTime}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Customer Name</span>
+                <span className="text-slate-500">{t('booking.customer', 'Customer Name')}</span>
                 <span className="font-bold text-slate-900">{viewBooking.customerName || 'Ananya Mukherjee'}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Customer Phone</span>
+                <span className="text-slate-500">{t('auth.phone', 'Customer Phone')}</span>
                 <span className="font-bold font-mono text-slate-900">{viewBooking.customerPhone || '+91 98311 02938'}</span>
               </div>
               {viewBooking.startCode && (
                 <div className="flex justify-between py-1.5 border-b border-slate-100">
-                  <span className="text-slate-500">4-Digit Start Code</span>
+                  <span className="text-slate-500">{t('booking.fourDigitCode', '4-Digit Start Code')}</span>
                   <span className="font-extrabold font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">{viewBooking.startCode}</span>
                 </div>
               )}
               <div className="flex justify-between py-2 bg-slate-50 px-3 rounded-xl">
-                <span className="font-bold text-slate-800">Total Payable Amount</span>
+                <span className="font-bold text-slate-800">{t('booking.totalPayable', 'Total Payable Amount')}</span>
                 <span className="font-extrabold font-mono text-emerald-700 text-sm">₹{(viewBooking.amount || viewBooking.totalAmount || 1200).toLocaleString('en-IN')}</span>
               </div>
             </div>
@@ -892,7 +899,7 @@ export const AdminBookings = () => {
                 }}
                 className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-2 rounded-xl text-xs border border-emerald-200 transition-all"
               >
-                Set Confirmed
+                {t('admin.setConfirmed', 'Set Confirmed')}
               </button>
               <button
                 onClick={() => {
@@ -901,7 +908,7 @@ export const AdminBookings = () => {
                 }}
                 className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-2 rounded-xl text-xs border border-blue-200 transition-all"
               >
-                Set Completed
+                {t('admin.setCompleted', 'Set Completed')}
               </button>
               <button
                 onClick={() => {
@@ -910,7 +917,7 @@ export const AdminBookings = () => {
                 }}
                 className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold py-2 rounded-xl text-xs border border-rose-200 transition-all"
               >
-                Cancel
+                {t('common.cancel', 'Cancel')}
               </button>
             </div>
           </div>

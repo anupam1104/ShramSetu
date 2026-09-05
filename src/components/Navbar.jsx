@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { LanguageSelectDropdown } from './LanguageSelectDropdown';
 import { 
   Shield, 
   Search, 
@@ -13,8 +12,28 @@ import {
   LogOut,
   Menu,
   X,
-  Settings
+  Settings,
+  Wallet,
+  CirclePercent,
+  ReceiptIndianRupee,
+  LifeBuoy
 } from 'lucide-react';
+
+const NavBtn = ({ active, onClick, icon: Icon, children }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full transition-all duration-200 ${
+      active
+        ? 'bg-emerald-600 text-white font-semibold shadow-sm'
+        : 'text-slate-600 font-medium hover:bg-emerald-50 hover:text-emerald-700'
+    }`}
+  >
+    <Icon className={`w-4 h-4 ${active ? 'text-emerald-200' : 'text-slate-400'}`} />
+    {children}
+  </button>
+);
+
+const NavDivider = () => <span className="w-px h-5 bg-slate-200 mx-1.5" />;
 
 export const Navbar = () => {
   const { 
@@ -58,7 +77,7 @@ export const Navbar = () => {
   const mobileItems = [];
   if (!isLoggedIn) {
     mobileItems.push({
-      label: 'Home',
+      label: t('home', 'Home'),
       icon: Home,
       active: currentScreen === 'landing',
       onClick: () => { switchRole('landing'); navigate('landing'); }
@@ -77,19 +96,25 @@ export const Navbar = () => {
     });
   } else if (role === 'customer') {
     mobileItems.push({
-      label: 'Find Workers',
+      label: t('findWorkers', 'Find Workers'),
       icon: Search,
       active: ['search', 'profile', 'slot', 'booking_confirm'].includes(currentScreen),
       onClick: () => navigate('search')
     });
     mobileItems.push({
-      label: 'My Bookings',
+      label: t('myBookings', 'My Bookings'),
       icon: Calendar,
       active: ['track_booking', 'payment'].includes(currentScreen),
       onClick: () => navigate('track_booking')
     });
     mobileItems.push({
-      label: 'Logout',
+      label: t('settings', 'Settings'),
+      icon: Settings,
+      active: false,
+      onClick: () => { closeMenu(); openSettings(); }
+    });
+    mobileItems.push({
+      label: t('signOut', 'Logout'),
       icon: LogOut,
       danger: true,
       active: false,
@@ -97,19 +122,49 @@ export const Navbar = () => {
     });
   } else if (role === 'shramik') {
     mobileItems.push({
-      label: 'Dashboard',
+      label: t('myDashboard', 'Dashboard'),
       icon: Home,
       active: ['shramik_dashboard', 'shramik_pending', 'shramik_signup'].includes(currentScreen),
       onClick: () => navigate(activeShramik?.verified ? 'shramik_dashboard' : 'shramik_pending')
     });
     mobileItems.push({
-      label: 'Active Job',
+      label: t('activeJob', 'Active Job'),
       icon: Briefcase,
       active: currentScreen === 'shramik_job',
       onClick: () => navigate('shramik_job')
     });
     mobileItems.push({
-      label: 'Logout',
+      label: t('earningsNav', 'Earnings'),
+      icon: Wallet,
+      active: currentScreen === 'shramik_earnings',
+      onClick: () => navigate('shramik_earnings')
+    });
+    mobileItems.push({
+      label: t('cutRatioNav', 'Cut Ratio'),
+      icon: CirclePercent,
+      active: currentScreen === 'shramik_cut_ratio',
+      onClick: () => navigate('shramik_cut_ratio')
+    });
+    mobileItems.push({
+      label: t('paymentsNav', 'Payments'),
+      icon: ReceiptIndianRupee,
+      active: currentScreen === 'shramik_payment_history',
+      onClick: () => navigate('shramik_payment_history')
+    });
+    mobileItems.push({
+      label: t('supportNav', 'Support'),
+      icon: LifeBuoy,
+      active: currentScreen === 'shramik_grievance',
+      onClick: () => navigate('shramik_grievance')
+    });
+    mobileItems.push({
+      label: t('settings', 'Settings'),
+      icon: Settings,
+      active: false,
+      onClick: () => { closeMenu(); openSettings(); }
+    });
+    mobileItems.push({
+      label: t('signOut', 'Logout'),
       icon: LogOut,
       danger: true,
       active: false,
@@ -117,19 +172,19 @@ export const Navbar = () => {
     });
   } else if (role === 'admin') {
     mobileItems.push({
-      label: 'Dashboard',
+      label: t('dashboard', 'Dashboard'),
       icon: Home,
       active: currentScreen === 'admin_dashboard',
       onClick: () => navigate('admin_dashboard')
     });
     mobileItems.push({
-      label: 'Pending Approvals',
+      label: t('pendingApprovals', 'Pending Approvals'),
       icon: UserCheck,
       active: currentScreen === 'admin_approvals',
       onClick: () => navigate('admin_approvals')
     });
     mobileItems.push({
-      label: 'Logout',
+      label: t('signOut', 'Logout'),
       icon: LogOut,
       danger: true,
       active: false,
@@ -138,7 +193,7 @@ export const Navbar = () => {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 shadow-xs relative transition-colors duration-300">
+    <header className="sticky top-0 z-40 bg-white/95  backdrop-blur-md border-b border-slate-200/90  shadow-xs relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12 md:h-16">
           
@@ -151,10 +206,10 @@ export const Navbar = () => {
               <Shield className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
             </div>
             <div>
-              <span className="text-base md:text-xl font-bold font-heading text-slate-900 dark:text-white tracking-tight block leading-tight">
+              <span className="text-base md:text-xl font-bold font-heading text-slate-900  tracking-tight block leading-tight">
                 {t('brandName', 'SHRAM SETU')}
               </span>
-              <p className="text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block font-body">
+              <p className="text-[10px] md:text-[11px] text-slate-500  hidden sm:block font-body">
                 {!isLoggedIn && t('brandTagline', 'Trusted Skilled Services')}
                 {isLoggedIn && role === 'customer' && t('customerPortal', 'Customer Portal')}
                 {isLoggedIn && role === 'shramik' && t('shramikPortal', 'Shramik Partner Portal')}
@@ -164,74 +219,109 @@ export const Navbar = () => {
           </div>
 
           {/* Navigation links - Strictly isolated by role (desktop) */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center gap-1">
             {!isLoggedIn && (
-              <button 
+              <NavBtn
+                icon={Home}
+                active={currentScreen === 'landing'}
                 onClick={() => { switchRole('landing'); setCurrentScreen('landing'); }}
-                className={`flex items-center space-x-2 text-sm font-medium transition-colors ${currentScreen === 'landing' ? 'text-emerald-600 font-semibold' : 'text-slate-600 hover:text-slate-900'}`}
               >
-                <Home className="w-4 h-4" />
-                <span>Home</span>
-              </button>
+                {t('home', 'Home')}
+              </NavBtn>
             )}
 
             {/* CUSTOMER PORTAL LINKS ONLY */}
             {isLoggedIn && role === 'customer' && (
               <>
-                <button 
+                <NavBtn
+                  icon={Search}
+                  active={['search', 'profile', 'slot', 'booking_confirm'].includes(currentScreen)}
                   onClick={() => setCurrentScreen('search')}
-                  className={`flex items-center space-x-2 text-sm font-medium transition-colors ${currentScreen === 'search' || currentScreen === 'profile' || currentScreen === 'slot' || currentScreen === 'booking_confirm' ? 'text-emerald-700 font-bold border-b-2 border-emerald-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                  <Search className="w-4 h-4" />
-                  <span>Find Workers</span>
-                </button>
-                <button 
+                  {t('findWorkers', 'Find Workers')}
+                </NavBtn>
+                <NavBtn
+                  icon={Calendar}
+                  active={['track_booking', 'payment'].includes(currentScreen)}
                   onClick={() => setCurrentScreen('track_booking')}
-                  className={`flex items-center space-x-2 text-sm font-medium transition-colors ${currentScreen === 'track_booking' || currentScreen === 'payment' ? 'text-emerald-700 font-bold border-b-2 border-emerald-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                  <Calendar className="w-4 h-4" />
-                  <span>My Bookings</span>
-                </button>
+                  {t('myBookings', 'My Bookings')}
+                </NavBtn>
               </>
             )}
 
             {/* SHRAMIK PORTAL LINKS ONLY */}
             {isLoggedIn && role === 'shramik' && (
               <>
-                <button 
+                {/* Work group */}
+                <NavBtn
+                  icon={Home}
+                  active={['shramik_dashboard', 'shramik_pending', 'shramik_signup'].includes(currentScreen)}
                   onClick={() => setCurrentScreen(activeShramik?.verified ? 'shramik_dashboard' : 'shramik_pending')}
-                  className={`flex items-center space-x-2 text-sm font-medium transition-colors ${currentScreen === 'shramik_dashboard' || currentScreen === 'shramik_pending' ? 'text-emerald-700 font-bold border-b-2 border-emerald-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                  <Home className="w-4 h-4" />
-                  <span>My Dashboard</span>
-                </button>
-                <button 
+                  {t('myDashboard', 'Dashboard')}
+                </NavBtn>
+                <NavBtn
+                  icon={Briefcase}
+                  active={currentScreen === 'shramik_job'}
                   onClick={() => setCurrentScreen('shramik_job')}
-                  className={`flex items-center space-x-2 text-sm font-medium transition-colors ${currentScreen === 'shramik_job' ? 'text-emerald-700 font-bold border-b-2 border-emerald-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                  <Briefcase className="w-4 h-4" />
-                  <span>Active Job</span>
-                </button>
+                  {t('activeJob', 'Active Job')}
+                </NavBtn>
+
+                {/* Finance group */}
+                <NavDivider />
+                <NavBtn
+                  icon={Wallet}
+                  active={currentScreen === 'shramik_earnings'}
+                  onClick={() => setCurrentScreen('shramik_earnings')}
+                >
+                  {t('earningsNav', 'Earnings')}
+                </NavBtn>
+                <NavBtn
+                  icon={CirclePercent}
+                  active={currentScreen === 'shramik_cut_ratio'}
+                  onClick={() => setCurrentScreen('shramik_cut_ratio')}
+                >
+                  {t('cutRatioNav', 'Cut Ratio')}
+                </NavBtn>
+                <NavBtn
+                  icon={ReceiptIndianRupee}
+                  active={currentScreen === 'shramik_payment_history'}
+                  onClick={() => setCurrentScreen('shramik_payment_history')}
+                >
+                  {t('paymentsNav', 'Payments')}
+                </NavBtn>
+
+                {/* Support group */}
+                <NavDivider />
+                <NavBtn
+                  icon={LifeBuoy}
+                  active={currentScreen === 'shramik_grievance'}
+                  onClick={() => setCurrentScreen('shramik_grievance')}
+                >
+                  {t('supportNav', 'Support')}
+                </NavBtn>
               </>
             )}
 
             {/* ADMIN PORTAL LINKS ONLY */}
             {isLoggedIn && role === 'admin' && (
               <>
-                <button 
+                <NavBtn
+                  icon={Home}
+                  active={currentScreen === 'admin_dashboard'}
                   onClick={() => setCurrentScreen('admin_dashboard')}
-                  className={`flex items-center space-x-2 text-sm font-medium transition-colors ${currentScreen === 'admin_dashboard' ? 'text-emerald-700 font-bold border-b-2 border-emerald-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                  <Home className="w-4 h-4" />
-                  <span>Dashboard</span>
-                </button>
-                <button 
+                  {t('dashboard', 'Dashboard')}
+                </NavBtn>
+                <NavBtn
+                  icon={UserCheck}
+                  active={currentScreen === 'admin_approvals'}
                   onClick={() => setCurrentScreen('admin_approvals')}
-                  className={`flex items-center space-x-2 text-sm font-medium transition-colors ${currentScreen === 'admin_approvals' ? 'text-emerald-700 font-bold border-b-2 border-emerald-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                  <UserCheck className="w-4 h-4" />
-                  <span>Pending Approvals</span>
-                </button>
+                  {t('pendingApprovals', 'Pending Approvals')}
+                </NavBtn>
               </>
             )}
           </div>
@@ -245,22 +335,22 @@ export const Navbar = () => {
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-xs font-semibold shadow-xs transition-all duration-200 flex items-center space-x-1"
                 >
                   <span className="hidden sm:inline">{t('bookService', 'Book a Service')}</span>
-                  <span className="sm:hidden">Book</span>
+                  <span className="sm:hidden">{t('bookShort', 'Book')}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => { setIntendedLoginRole('customer'); setCurrentScreen('login'); }}
-                  className="hidden sm:inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-emerald-700  border border-emerald-300  hover:bg-emerald-50  px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
                 >
                   <span>{t('signIn', 'Sign In')}</span>
                 </button>
                 <button
                   onClick={openSettings}
-                  className="p-2 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200 flex items-center justify-center"
+                  className="p-2 text-slate-600  hover:text-emerald-700  border border-slate-200  hover:border-emerald-300  hover:bg-emerald-50  rounded-xl transition-all duration-200 flex items-center justify-center"
                   title={t('settingsTitle', 'Settings')}
                   aria-label="Settings"
                 >
-                  <Settings className="w-4 h-4 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400" />
+                  <Settings className="w-4 h-4 text-slate-600  hover:text-emerald-600 " />
                 </button>
               </>
             ) : (
@@ -269,21 +359,21 @@ export const Navbar = () => {
                 {role === 'customer' && (
                   <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90">
                     <User className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Customer Portal</span>
+                    <span>{t('customerPortal', 'Customer Portal')}</span>
                   </div>
                 )}
 
                 {role === 'shramik' && (
-                  <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200/90">
+                  <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200/90">
                     <Briefcase className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Shramik Portal</span>
+                    <span>{t('shramikPortal', 'Shramik Portal')}</span>
                   </div>
                 )}
 
                 {role === 'admin' && (
                   <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-white border border-slate-700">
                     <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Admin Portal</span>
+                    <span>{t('adminPortal', 'Admin Portal')}</span>
                   </div>
                 )}
 
@@ -292,17 +382,27 @@ export const Navbar = () => {
                   <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
                     {currentUser?.name ? currentUser.name[0].toUpperCase() : 'U'}
                   </div>
-                  <span className="hidden md:inline font-mono">{currentUser?.name || 'User'}</span>
+                  <span className="hidden xl:inline font-mono">{currentUser?.name || t('user', 'User')}</span>
                 </div>
+
+                {/* Settings Button - available on all logged-in portal pages */}
+                <button
+                  onClick={openSettings}
+                  className="p-2 text-slate-600 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 rounded-xl transition-all duration-200 flex items-center justify-center"
+                  title={t('settingsTitle', 'Settings')}
+                  aria-label="Settings"
+                >
+                  <Settings className="w-4 h-4 text-slate-600 hover:text-emerald-600" />
+                </button>
 
                 {/* Logout Button - desktop only (mobile has it in the menu) */}
                 <button
                   onClick={logout}
-                  className="hidden md:flex text-slate-600 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-xl border border-slate-200/90 transition-colors text-xs flex items-center gap-1.5"
-                  title="Log Out"
+                  className="hidden md:flex items-center space-x-1.5 text-xs text-slate-600 hover:text-red-600 py-1.5 px-2.5 rounded-lg border border-slate-200 hover:border-red-200 hover:bg-red-50/50 transition-colors"
+                  title={t('signOut', 'Logout')}
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span>Logout</span>
+                  <span className="hidden xl:inline">{t('signOut', 'Logout')}</span>
                 </button>
               </>
             )}
@@ -331,9 +431,9 @@ export const Navbar = () => {
                   {currentUser?.name ? currentUser.name[0].toUpperCase() : 'U'}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-bold text-sm text-slate-900 truncate">{currentUser?.name || 'User'}</p>
+                  <p className="font-bold text-sm text-slate-900 truncate">{currentUser?.name || t('user', 'User')}</p>
                   <p className="text-[11px] text-slate-500 capitalize">
-                    {role} {role === 'admin' ? 'Operations Console' : role === 'shramik' ? 'Partner Portal' : 'Portal'}
+                    {role === 'admin' ? t('adminPortal', 'Admin Operations Console') : role === 'shramik' ? t('shramikPortal', 'Shramik Partner Portal') : t('customerPortal', 'Customer Portal')}
                   </p>
                 </div>
               </div>
