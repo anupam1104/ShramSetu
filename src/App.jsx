@@ -21,6 +21,8 @@ import { ShramikJobScreen } from './pages/shramik/ShramikJobScreen';
 
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminPendingApprovals } from './pages/admin/AdminPendingApprovals';
+import { AdminSettings } from './pages/admin/AdminSettings';
+import { AdminBookings } from './pages/admin/AdminBookings';
 
 const MainContent = () => {
   const { currentScreen, role, isLoggedIn } = useApp();
@@ -68,6 +70,8 @@ const MainContent = () => {
     // STRICT ADMIN PORTAL
     if (role === 'admin') {
       if (currentScreen === 'admin_approvals') return <AdminPendingApprovals />;
+      if (currentScreen === 'admin_settings') return <AdminSettings />;
+      if (currentScreen === 'admin_bookings') return <AdminBookings />;
       return <AdminDashboard />;
     }
 

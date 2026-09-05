@@ -50,7 +50,7 @@ export const AdminLayout = ({ children }) => {
                 key={item.id}
                 onClick={() => setCurrentScreen(item.id)}
                 className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                  currentScreen === item.id || (item.id === 'admin_dashboard' && currentScreen === 'admin_dashboard')
+                  currentScreen === item.id
                     ? 'bg-emerald-600 text-white shadow-md'
                     : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                 }`}
@@ -79,10 +79,10 @@ export const AdminLayout = ({ children }) => {
 
           <button
             onClick={logout}
-            className="w-full flex items-center space-x-2 text-xs text-slate-400 hover:text-red-400 transition-colors py-1.5 px-2 rounded-lg hover:bg-slate-800"
+            className="w-full flex items-center space-x-2 text-xs text-slate-400 hover:text-slate-200 transition-colors py-1.5 px-2 rounded-lg hover:bg-slate-800"
           >
             <LogOut className="w-4 h-4" />
-            <span>Logout from Admin</span>
+            <span>Exit Admin View</span>
           </button>
         </div>
       </aside>

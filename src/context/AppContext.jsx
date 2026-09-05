@@ -76,10 +76,129 @@ const INITIAL_SHRAMIKS = [
     services: ['Wall Painting', 'Texture Design', 'Waterproofing', 'Primer Coat'],
     photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80',
     bio: 'Professional wall painting artist with expertise in weather-proof coatings and modern interior finishes.'
+  },
+  {
+    id: 'shr-5',
+    name: 'Mohammad Arif',
+    skill: 'Mason',
+    verified: true,
+    shramikId: 'SS-10105',
+    rating: 4.9,
+    jobsCount: 96,
+    distance: '2.8 km away',
+    hourlyRate: 350,
+    phone: '+91 98301 22334',
+    city: 'Kolkata',
+    area: 'Topsia',
+    experience: '10 years',
+    services: ['Wall Construction', 'Tile Laying', 'Plastering', 'Concrete Works'],
+    photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=250&auto=format&fit=crop&q=80',
+    bio: 'Master mason with 10 years experience in bricklaying, structural plastering and floor tiling.'
   }
 ];
 
-const INITIAL_BOOKINGS = [];
+const INITIAL_BOOKINGS = [
+  {
+    id: 'BK-10086',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikSkill: 'Electrician',
+    shramikArea: 'Salt Lake',
+    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'House Wiring',
+    jobLocation: 'Salt Lake, Kolkata',
+    bookingDate: '12 Sep 2025',
+    bookingTime: '10:30 AM',
+    scheduleDate: '15 Sep 2025',
+    scheduleTime: '09:00 AM',
+    status: 'Confirmed',
+    amount: 1200,
+    customerName: 'Ananya Mukherjee',
+    customerPhone: '+91 98311 02938',
+    customerAddress: 'Block CF-21, Sector 1, Salt Lake, Kolkata',
+    startCode: '4819'
+  },
+  {
+    id: 'BK-10085',
+    shramikId: 'shr-2',
+    shramikName: 'Deepak Singh',
+    shramikSkill: 'Plumber',
+    shramikArea: 'Park Street',
+    shramikPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Pipe Installation',
+    jobLocation: 'Park Street, Kolkata',
+    bookingDate: '11 Sep 2025',
+    bookingTime: '04:15 PM',
+    scheduleDate: '13 Sep 2025',
+    scheduleTime: '11:00 AM',
+    status: 'Pending',
+    amount: 900,
+    customerName: 'Rohit Sen',
+    customerPhone: '+91 98322 19283',
+    customerAddress: 'Flat 4B, 18 Park Street, Kolkata',
+    startCode: '6274'
+  },
+  {
+    id: 'BK-10084',
+    shramikId: 'shr-4',
+    shramikName: 'Sunita Devi',
+    shramikSkill: 'Painter',
+    shramikArea: 'Bhowanipore',
+    shramikPhoto: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'House Painting',
+    jobLocation: 'Bhowanipore, Kolkata',
+    bookingDate: '10 Sep 2025',
+    bookingTime: '02:45 PM',
+    scheduleDate: '12 Sep 2025',
+    scheduleTime: '10:00 AM',
+    status: 'Confirmed',
+    amount: 1500,
+    customerName: 'Pooja Bannerjee',
+    customerPhone: '+91 98305 44123',
+    customerAddress: '24B Harish Mukherjee Road, Bhowanipore',
+    startCode: '8912'
+  },
+  {
+    id: 'BK-10083',
+    shramikId: 'shr-3',
+    shramikName: 'Vikash Yadav',
+    shramikSkill: 'Carpenter',
+    shramikArea: 'New Town',
+    shramikPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Wooden Door Fitting',
+    jobLocation: 'New Town, Kolkata',
+    bookingDate: '09 Sep 2025',
+    bookingTime: '01:20 PM',
+    scheduleDate: '11 Sep 2025',
+    scheduleTime: '02:00 PM',
+    status: 'Completed',
+    amount: 1100,
+    customerName: 'Subhasish Roy',
+    customerPhone: '+91 98301 77219',
+    customerAddress: 'Action Area II, New Town, Kolkata',
+    startCode: '3108'
+  },
+  {
+    id: 'BK-10082',
+    shramikId: 'shr-5',
+    shramikName: 'Mohammad Arif',
+    shramikSkill: 'Mason',
+    shramikArea: 'Topsia',
+    shramikPhoto: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=250&auto=format&fit=crop&q=80',
+    jobTitle: 'Wall Construction',
+    jobLocation: 'Topsia, Kolkata',
+    bookingDate: '08 Sep 2025',
+    bookingTime: '11:00 AM',
+    scheduleDate: '10 Sep 2025',
+    scheduleTime: '09:00 AM',
+    status: 'Cancelled',
+    amount: 2000,
+    customerName: 'Tanveer Alam',
+    customerPhone: '+91 98319 88120',
+    customerAddress: '14/1 Topsia Road South, Kolkata',
+    startCode: '9045'
+  }
+];
 
 export const AppProvider = ({ children }) => {
   // Navigation & Role State
@@ -395,6 +514,23 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Admin Add Booking
+  const addAdminBooking = (bookingData) => {
+    setBookings(prev => [bookingData, ...prev]);
+  };
+
+  // Admin Update Booking Status
+  const updateBookingStatus = (bookingId, status) => {
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status } : b));
+    showToast(`Booking ${bookingId} status updated to ${status}.`, 'info');
+  };
+
+  // Admin Delete Booking
+  const deleteBooking = (bookingId) => {
+    setBookings(prev => prev.filter(b => b.id !== bookingId));
+    showToast(`Booking ${bookingId} deleted.`, 'info');
+  };
+
   return (
     <AppContext.Provider value={{
       role,
@@ -419,6 +555,9 @@ export const AppProvider = ({ children }) => {
       confirmWorkDone,
       processPayment,
       cancelBooking,
+      addAdminBooking,
+      updateBookingStatus,
+      deleteBooking,
       jumpToDemoStep,
       toast,
       showToast,
