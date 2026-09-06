@@ -55,9 +55,12 @@ export const pingDatabase = async () => {
 				Authorization: `Bearer ${env.supabaseServiceRoleKey || env.supabaseAnonKey}`,
 			},
 		});
-		if (!response.ok) return { ok: false, reason: 'unreachable' };
+		// Do not expose response bodies (they can contain provider details), but
+		// make the HTTP status available to the health route for deployment
+		// troubleshooting: 401/403 means key, 404 usually means schema/URL.
+		if (!response.ok) return { ok: false, reason: 'database_http_error', status: response.status };
 		return { ok: true };
-	} catch {
-		return { ok: false, reason: 'unreachable' };
+	} catch (error) {
+		return { ok: false, reason: 'network_error', detail: error?.cause?.code || error?.name || 'fetch_failed' };
 	}
 };

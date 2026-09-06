@@ -32,6 +32,9 @@ app.get('/health', async (req, res) => {
 		ok: true,
 		service: 'shram-setu-api',
 		database: env.isDatabaseConfigured ? (database.ok ? 'connected' : 'unreachable') : 'not_configured',
+		// Safe deployment diagnostics; no database URL, credentials, or provider
+		// response body is returned.
+		...(database.ok ? {} : { databaseReason: database.reason, databaseStatus: database.status || null }),
 	});
 });
 
