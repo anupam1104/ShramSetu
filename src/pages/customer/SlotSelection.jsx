@@ -4,7 +4,7 @@ import { Calendar, Clock, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-rea
 
 export const SlotSelection = () => {
   const { shramiks, selectedWorkerId, setBookingDraft, setCurrentScreen, t } = useApp();
-  const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
+  const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
 
   const dates = [
     { day: 'Mon', date: '10', full: '10 September 2026' },
@@ -25,7 +25,24 @@ export const SlotSelection = () => {
 
   const [selectedDate, setSelectedDate] = useState(dates[1].full);
   const [selectedTime, setSelectedTime] = useState('03:00 PM');
-  const [selectedService, setSelectedService] = useState(worker.services[0] || 'Electrical Repair');
+  const [selectedService, setSelectedService] = useState(worker?.services?.[0] || 'Electrical Repair');
+
+  if (!worker) {
+    return (
+      <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center space-y-3">
+          <p className="font-bold text-slate-900">{t('noWorkerSlot', 'No verified worker selected')}</p>
+          <p className="text-xs text-slate-500">{t('workerSlotEmpty', 'Pick a worker from search to book a slot.')}</p>
+          <button
+            onClick={() => setCurrentScreen('search')}
+            className="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all"
+          >
+            {t('backToSearch', 'Back to Search Results')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleConfirmSlot = () => {
     setBookingDraft({
@@ -50,7 +67,7 @@ export const SlotSelection = () => {
         
         <div className="space-y-1">
           <span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">
-            {t('step2of3', 'Step 2 of 3 â€¢ Select Slot')}
+            {t('step2of3', 'Step 2 of 3 • Select Slot')}
           </span>
           <h1 className="text-2xl font-bold font-heading text-slate-900 pt-2">
             {t('scheduleWith', { name: worker.name })}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { sameCity } from '../../lib/store';
 import { 
   Shield, 
   Home, 
@@ -13,8 +14,9 @@ import {
 } from 'lucide-react';
 
 export const AdminLayout = ({ children }) => {
-  const { currentScreen, setCurrentScreen, shramiks, logout, t, openSettings } = useApp();
-  const pendingCount = shramiks.filter(s => !s.verified).length;
+  const { currentScreen, setCurrentScreen, shramiks, currentUser, logout, t, openSettings } = useApp();
+  const adminCityLabel = currentUser?.city ? currentUser.city.split(' | ')[0] : 'Kolkata';
+  const pendingCount = shramiks.filter(s => !s.verified && (!s.city || sameCity(s.city, currentUser?.city || 'Kolkata'))).length;
 
   const menuItems = [
     { id: 'admin_dashboard', label: t('admin.dashboard', 'Dashboard'), icon: Home },
@@ -76,7 +78,7 @@ export const AdminLayout = ({ children }) => {
         <div className="pt-6 border-t border-slate-800 px-2 space-y-3">
           <div className="text-xs">
             <p className="font-bold text-white">{t('auth.admin', 'Administrator')}</p>
-            <p className="text-[11px] text-slate-500">Kolkata Operations</p>
+            <p className="text-[11px] text-slate-500">{adminCityLabel} Operations</p>
           </div>
 
           <button

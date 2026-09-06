@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { AdminLayout } from './AdminLayout';
+import { sameCity } from '../../lib/store';
 import { 
   Users, 
   UserCheck, 
@@ -13,10 +14,13 @@ import {
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const { shramiks, bookings, setCurrentScreen, approveShramik, t, tSkill } = useApp();
+  const { shramiks, bookings, setCurrentScreen, approveShramik, currentUser, t, tSkill } = useApp();
 
-  const pendingShramiks = shramiks.filter(s => !s.verified);
-  const verifiedShramiks = shramiks.filter(s => s.verified);
+  // Only this admin's city: registrations are routed to admins of the same
+  // locality, so the dashboard reflects the local queue only.
+  const cityScoped = (s) => !s.city || sameCity(s.city, currentUser?.city || 'Kolkata');
+  const pendingShramiks = shramiks.filter(s => !s.verified && cityScoped(s));
+  const verifiedShramiks = shramiks.filter(s => s.verified && cityScoped(s));
 
   return (
     <AdminLayout>
@@ -154,7 +158,7 @@ export const AdminDashboard = () => {
                   />
                   <div>
                     <p className="font-bold text-slate-900 text-sm">{worker.name}</p>
-                    <p className="text-xs text-slate-500">{tSkill(worker.skill)} â€¢ {worker.area}</p>
+                    <p className="text-xs text-slate-500">{tSkill(worker.skill)} • {worker.area}</p>
                   </div>
                 </div>
 

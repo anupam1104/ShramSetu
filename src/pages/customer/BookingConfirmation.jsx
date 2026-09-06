@@ -4,7 +4,24 @@ import { ShieldCheck, Calendar, Clock, User, ArrowLeft, CheckCircle2, IndianRupe
 
 export const BookingConfirmation = () => {
   const { shramiks, selectedWorkerId, bookingDraft, createBooking, setCurrentScreen, t, tSkill } = useApp();
-  const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
+  const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
+
+  if (!worker) {
+    return (
+      <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center space-y-3">
+          <p className="font-bold text-slate-900">{t('noWorkerBooking', 'No verified worker found')}</p>
+          <p className="text-xs text-slate-500">{t('workerBookingEmpty', 'Workers appear here once approved by an admin.')}</p>
+          <button
+            onClick={() => setCurrentScreen('search')}
+            className="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all"
+          >
+            {t('backToSearch', 'Back to Search Results')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const estimatedFee = worker.hourlyRate * 2;
 
@@ -25,7 +42,7 @@ export const BookingConfirmation = () => {
 
         <div className="text-center space-y-1">
           <span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">
-            {t('step3of3', 'Step 3 of 3 â€¢ Review & Confirm')}
+            {t('step3of3', 'Step 3 of 3 • Review & Confirm')}
           </span>
           <h1 className="text-2xl font-bold font-heading text-slate-900 pt-2">
             {t('bookingSummary', 'Booking Summary')}
@@ -46,7 +63,7 @@ export const BookingConfirmation = () => {
             />
             <div>
               <h3 className="font-bold text-slate-900 text-base">{worker.name}</h3>
-              <p className="text-xs text-emerald-700 font-semibold">{tSkill(worker.skill)} â€¢ {worker.shramikId || 'SS-10101'}</p>
+              <p className="text-xs text-emerald-700 font-semibold">{tSkill(worker.skill)} {worker.shramikId ? `• ${worker.shramikId}` : ' • SS-10101'}</p>
             </div>
           </div>
 
@@ -73,7 +90,7 @@ export const BookingConfirmation = () => {
             <div className="flex justify-between items-center pt-3 border-t border-slate-200">
               <span className="text-slate-500 font-medium">{t('estimatedServiceFee', 'Estimated Service Fee')}</span>
               <span className="text-lg font-bold font-mono text-emerald-800">
-                â‚¹{estimatedFee}
+                ₹{estimatedFee}
               </span>
             </div>
           </div>

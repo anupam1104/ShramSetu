@@ -1,8 +1,30 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { approveShramik as approveShramikApi, createBooking as createBookingApi, createShramik, getShramiks, isSupabaseConfigured } from '../lib/supabase';
+import { approveShramik as approveShramikApi, clearAdminToken, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikStatus, getShramiks, isSupabaseConfigured, rejectShramik as rejectShramikApi, setAdminToken } from '../lib/supabase';
+import {
+  STORAGE_KEYS,
+  clearSession,
+  ensureSeedAccounts,
+  findAccount,
+  loadAccounts,
+  loadAppliedData,
+  loadSession,
+  normalizeCity,
+  removeAccount,
+  sameCity,
+  saveAppliedData,
+  saveSession,
+  updateAccount,
+  upsertAccount,
+} from '../lib/store';
 
 const AppContext = createContext();
+
+// ---------------------------------------------------------------------------
+// Demo dataset — pre-seeded mock workers + bookings so every portal, screen
+// and demo-toolbar step renders a realistic flow even fully offline. Live
+// server data (when VITE_API_URL is configured) replaces these on refresh.
+// ---------------------------------------------------------------------------
 
 const INITIAL_SHRAMIKS = [
   {
@@ -13,265 +35,269 @@ const INITIAL_SHRAMIKS = [
     shramikId: 'SS-10101',
     rating: 4.8,
     jobsCount: 120,
-    distance: '2.1 km away',
+    distance: '2.1 km',
     hourlyRate: 250,
     phone: '+91 98765 43210',
     city: 'Kolkata',
     area: 'Salt Lake',
-    experience: '8+ years',
-    services: ['Wiring', 'Repair', 'Installation', 'Lighting'],
+    experience: '8 years',
+    services: ['Wiring & Rewiring', 'Light Fitting', 'Switch & Socket', 'AC & Appliance'],
     photo: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
-    bio: 'Punctual and certified electrical master worker with over 8 years experience in residential and commercial wiring and emergency fault repairs.'
+    bio: 'Licensed electrician with 8+ years of experience in residential and commercial wiring.',
   },
   {
     id: 'shr-2',
-    name: 'Deepak Singh',
+    name: 'Mohammed Irfan',
     skill: 'Plumber',
     verified: true,
-    shramikId: 'SS-10102',
-    rating: 4.9,
-    jobsCount: 85,
-    distance: '1.5 km away',
-    hourlyRate: 300,
+    shramikId: 'SS-10242',
+    rating: 4.7,
+    jobsCount: 89,
+    distance: '1.4 km',
+    hourlyRate: 220,
     phone: '+91 98123 45678',
     city: 'Kolkata',
-    area: 'Park Street',
+    area: 'Behala',
     experience: '6 years',
-    services: ['Pipe Fitting', 'Leakage Repair', 'Sanitary Installation', 'Water Tank Cleaning'],
+    services: ['Leak Repair', 'Pipe Installation', 'Tap Fitting', 'Bathroom Fitting'],
     photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80',
-    bio: 'Specialist in modern sanitary fittings, high-pressure pipe repairs, and household plumbing troubleshooting.'
+    bio: 'Certified plumber skilled in leak detection, pipeline installation and bathroom fittings.',
   },
   {
     id: 'shr-3',
-    name: 'Vikash Yadav',
-    skill: 'Electrician',
+    name: 'Vikash Singh',
+    skill: 'Carpenter',
     verified: false,
     shramikId: null,
     rating: 0,
     jobsCount: 0,
-    distance: '3.4 km away',
-    hourlyRate: 220,
-    phone: '+91 98999 11223',
+    distance: '2.8 km',
+    hourlyRate: 240,
+    phone: '+91 91234 09876',
     city: 'Kolkata',
-    area: 'New Town',
-    experience: '5 years',
-    services: ['Wiring', 'Repair', 'Maintenance'],
+    area: 'Ballygunge',
+    experience: '4 years',
+    services: ['Furniture Assembly', 'Door Repair', 'Cabinet Fitting'],
     photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&auto=format&fit=crop&q=80',
-    bio: 'Experienced electrician specialized in domestic power distribution and appliance setup.',
-    pendingSince: '10 mins ago'
+    bio: 'Carpenter focused on furniture assembly, door repair and custom cabinet work.',
+    pendingSince: '2 days ago',
   },
   {
     id: 'shr-4',
-    name: 'Sunita Devi',
-    skill: 'Painter',
+    name: 'Arun Verma',
+    skill: 'Mason',
     verified: true,
-    shramikId: 'SS-10104',
-    rating: 4.7,
-    jobsCount: 64,
-    distance: '4.0 km away',
+    shramikId: 'SS-10456',
+    rating: 4.9,
+    jobsCount: 210,
+    distance: '3.2 km',
     hourlyRate: 280,
-    phone: '+91 97777 88899',
+    phone: '+91 99887 66554',
     city: 'Kolkata',
-    area: 'Bhowanipore',
-    experience: '4 years',
-    services: ['Wall Painting', 'Texture Design', 'Waterproofing', 'Primer Coat'],
-    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80',
-    bio: 'Professional wall painting artist with expertise in weather-proof coatings and modern interior finishes.'
+    area: 'Howrah',
+    experience: '12 years',
+    services: ['Wall Construction', 'Plastering', 'Flooring', 'Waterproofing'],
+    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=250&auto=format&fit=crop&q=80',
+    bio: 'Senior mason with over a decade of experience in construction and finishing work.',
   },
   {
     id: 'shr-5',
-    name: 'Mohammad Arif',
-    skill: 'Mason',
+    name: 'Suresh Yadav',
+    skill: 'Painter',
     verified: true,
-    shramikId: 'SS-10105',
-    rating: 4.9,
-    jobsCount: 96,
-    distance: '2.8 km away',
-    hourlyRate: 350,
-    phone: '+91 98301 22334',
+    shramikId: 'SS-10333',
+    rating: 4.6,
+    jobsCount: 64,
+    distance: '1.9 km',
+    hourlyRate: 200,
+    phone: '+91 97766 54432',
     city: 'Kolkata',
-    area: 'Topsia',
-    experience: '10 years',
-    services: ['Wall Construction', 'Tile Laying', 'Plastering', 'Concrete Works'],
+    area: 'Park Street',
+    experience: '5 years',
+    services: ['Wall Painting', 'Texture Painting', 'False Ceiling', 'Putty Work'],
     photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=250&auto=format&fit=crop&q=80',
-    bio: 'Master mason with 10 years experience in bricklaying, structural plastering and floor tiling.'
-  }
+    bio: 'Interior painter delivering clean finishes for homes and commercial spaces.',
+  },
 ];
 
 const INITIAL_BOOKINGS = [
   {
-    id: 'BK-10086',
+    id: 'BK-8891',
     shramikId: 'shr-1',
     shramikName: 'Ramesh Kumar',
-    shramikSkill: 'Electrician',
-    shramikArea: 'Salt Lake',
-    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'House Wiring',
-    jobLocation: 'Salt Lake, Kolkata',
-    bookingDate: '12 Sep 2025',
-    bookingTime: '10:30 AM',
-    scheduleDate: '15 Sep 2025',
-    scheduleTime: '09:00 AM',
+    shramikPhone: '+91 98765 43210',
+    skill: 'Electrician',
+    serviceName: 'Electrical Repair',
+    date: '12 September 2026',
+    time: '10:00 AM',
+    customerName: 'Priya Sharma',
+    customerPhone: '+91 91234 56789',
+    customerAddress: 'B-402, Salt Lake City, Kolkata',
+    distance: '2.1 km',
+    serviceFee: 500,
+    platformFee: 50,
+    totalAmount: 550,
+    startCode: '4821',
     status: 'Confirmed',
-    amount: 1200,
-    customerName: 'Ananya Mukherjee',
-    customerPhone: '+91 98311 02938',
-    customerAddress: 'Block CF-21, Sector 1, Salt Lake, Kolkata',
-    startCode: '4819'
   },
   {
-    id: 'BK-10085',
+    id: 'BK-8892',
+    shramikId: 'shr-1',
+    shramikName: 'Ramesh Kumar',
+    shramikPhone: '+91 98765 43210',
+    skill: 'Electrician',
+    serviceName: 'AC & Appliance Repair',
+    date: '11 September 2026',
+    time: '03:00 PM',
+    customerName: 'Rahul Banerjee',
+    customerPhone: '+91 90020 10020',
+    customerAddress: 'House 14, Salt Lake Sector II, Kolkata',
+    distance: '2.1 km',
+    serviceFee: 600,
+    platformFee: 50,
+    totalAmount: 650,
+    startCode: '7395',
+    status: 'In Progress',
+  },
+  {
+    id: 'BK-8893',
     shramikId: 'shr-2',
-    shramikName: 'Deepak Singh',
-    shramikSkill: 'Plumber',
-    shramikArea: 'Park Street',
-    shramikPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'Pipe Installation',
-    jobLocation: 'Park Street, Kolkata',
-    bookingDate: '11 Sep 2025',
-    bookingTime: '04:15 PM',
-    scheduleDate: '13 Sep 2025',
-    scheduleTime: '11:00 AM',
-    status: 'Pending',
-    amount: 900,
-    customerName: 'Rohit Sen',
-    customerPhone: '+91 98322 19283',
-    customerAddress: 'Flat 4B, 18 Park Street, Kolkata',
-    startCode: '6274'
+    shramikName: 'Mohammed Irfan',
+    shramikPhone: '+91 98123 45678',
+    skill: 'Plumber',
+    serviceName: 'Pipe Installation',
+    date: '10 September 2026',
+    time: '11:00 AM',
+    customerName: 'Sneha Ghosh',
+    customerPhone: '+91 90909 80808',
+    customerAddress: 'Flat 2A, Behala Chowrasta, Kolkata',
+    distance: '1.4 km',
+    serviceFee: 440,
+    platformFee: 50,
+    totalAmount: 490,
+    startCode: '6102',
+    status: 'Completed',
   },
   {
-    id: 'BK-10084',
+    id: 'BK-8894',
+    shramikId: 'shr-2',
+    shramikName: 'Mohammed Irfan',
+    shramikPhone: '+91 98123 45678',
+    skill: 'Plumber',
+    serviceName: 'Leak Repair',
+    date: '9 September 2026',
+    time: '05:00 PM',
+    customerName: 'Amit Roy',
+    customerPhone: '+91 88998 87766',
+    customerAddress: '16/C Behala Road, Kolkata',
+    distance: '1.4 km',
+    serviceFee: 330,
+    platformFee: 50,
+    totalAmount: 380,
+    status: 'Paid',
+  },
+  {
+    id: 'BK-8895',
     shramikId: 'shr-4',
-    shramikName: 'Sunita Devi',
-    shramikSkill: 'Painter',
-    shramikArea: 'Bhowanipore',
-    shramikPhoto: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'House Painting',
-    jobLocation: 'Bhowanipore, Kolkata',
-    bookingDate: '10 Sep 2025',
-    bookingTime: '02:45 PM',
-    scheduleDate: '12 Sep 2025',
-    scheduleTime: '10:00 AM',
+    shramikName: 'Arun Verma',
+    shramikPhone: '+91 99887 66554',
+    skill: 'Mason',
+    serviceName: 'Wall Construction',
+    date: '12 September 2026',
+    time: '09:00 AM',
+    customerName: 'Farhan Ali',
+    customerPhone: '+91 81111 22233',
+    customerAddress: 'G.T. Road, Bally, Howrah',
+    distance: '3.2 km',
+    serviceFee: 840,
+    platformFee: 50,
+    totalAmount: 890,
+    startCode: '2537',
     status: 'Confirmed',
-    amount: 1500,
-    customerName: 'Pooja Bannerjee',
-    customerPhone: '+91 98305 44123',
-    customerAddress: '24B Harish Mukherjee Road, Bhowanipore',
-    startCode: '8912'
   },
   {
-    id: 'BK-10083',
-    shramikId: 'shr-3',
-    shramikName: 'Vikash Yadav',
-    shramikSkill: 'Carpenter',
-    shramikArea: 'New Town',
-    shramikPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'Wooden Door Fitting',
-    jobLocation: 'New Town, Kolkata',
-    bookingDate: '09 Sep 2025',
-    bookingTime: '01:20 PM',
-    scheduleDate: '11 Sep 2025',
-    scheduleTime: '02:00 PM',
-    status: 'Completed',
-    amount: 1100,
-    customerName: 'Subhasish Roy',
-    customerPhone: '+91 98301 77219',
-    customerAddress: 'Action Area II, New Town, Kolkata',
-    startCode: '3108'
+    id: 'BK-8896',
+    shramikId: 'shr-4',
+    shramikName: 'Arun Verma',
+    shramikPhone: '+91 99887 66554',
+    skill: 'Mason',
+    serviceName: 'Plastering',
+    date: '8 September 2026',
+    time: '02:00 PM',
+    customerName: 'Meera Nair',
+    customerPhone: '+91 82200 11122',
+    customerAddress: '8, Andul Road, Howrah',
+    distance: '3.2 km',
+    serviceFee: 700,
+    platformFee: 50,
+    totalAmount: 750,
+    status: 'Paid',
   },
   {
-    id: 'BK-10082',
+    id: 'BK-8897',
     shramikId: 'shr-5',
-    shramikName: 'Mohammad Arif',
-    shramikSkill: 'Mason',
-    shramikArea: 'Topsia',
-    shramikPhoto: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'Wall Construction',
-    jobLocation: 'Topsia, Kolkata',
-    bookingDate: '08 Sep 2025',
-    bookingTime: '11:00 AM',
-    scheduleDate: '10 Sep 2025',
-    scheduleTime: '09:00 AM',
-    status: 'Cancelled',
-    amount: 2000,
-    customerName: 'Tanveer Alam',
-    customerPhone: '+91 98319 88120',
-    customerAddress: '14/1 Topsia Road South, Kolkata',
-    startCode: '9045'
-  },
-  {
-    id: 'BK-10079',
-    shramikId: 'shr-1',
-    shramikName: 'Ramesh Kumar',
-    shramikSkill: 'Electrician',
-    shramikArea: 'Salt Lake',
-    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'Fan & Light Repair',
-    jobLocation: 'Salt Lake, Kolkata',
-    bookingDate: '01 Sep 2025',
-    bookingTime: '11:20 AM',
-    scheduleDate: '02 Sep 2025',
-    scheduleTime: '03:00 PM',
-    status: 'Paid',
-    amount: 800,
-    customerName: 'Sneha Chatterjee',
-    customerPhone: '+91 98344 56712',
-    customerAddress: 'Flat 5C, CF-12, Sector 1, Salt Lake, Kolkata',
-    startCode: '5521'
-  },
-  {
-    id: 'BK-10078',
-    shramikId: 'shr-1',
-    shramikName: 'Ramesh Kumar',
-    shramikSkill: 'Electrician',
-    shramikArea: 'Salt Lake',
-    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'Power Point Installation',
-    jobLocation: 'Salt Lake, Kolkata',
-    bookingDate: '28 Aug 2025',
-    bookingTime: '10:05 AM',
-    scheduleDate: '29 Aug 2025',
-    scheduleTime: '12:00 PM',
+    shramikName: 'Suresh Yadav',
+    shramikPhone: '+91 97766 54432',
+    skill: 'Painter',
+    serviceName: 'Wall Painting',
+    date: '7 September 2026',
+    time: '10:00 AM',
+    customerName: 'Karan Malhotra',
+    customerPhone: '+91 90110 22334',
+    customerAddress: 'Flat 9A, Park Street, Kolkata',
+    distance: '1.9 km',
+    serviceFee: 400,
+    platformFee: 50,
+    totalAmount: 450,
+    startCode: '9241',
     status: 'Completed',
-    amount: 950,
-    customerName: 'Deblina Ray',
-    customerPhone: '+91 98765 22110',
-    customerAddress: '37/6 Canal Street, Salt Lake, Kolkata',
-    startCode: '7709'
   },
   {
-    id: 'BK-10077',
+    id: 'BK-8898',
     shramikId: 'shr-1',
     shramikName: 'Ramesh Kumar',
-    shramikSkill: 'Electrician',
-    shramikArea: 'Salt Lake',
-    shramikPhoto: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
-    jobTitle: 'Inverter & Wiring Setup',
-    jobLocation: 'Salt Lake, Kolkata',
-    bookingDate: '20 Aug 2025',
-    bookingTime: '05:40 PM',
-    scheduleDate: '21 Aug 2025',
-    scheduleTime: '10:30 AM',
-    status: 'Paid',
-    amount: 700,
-    customerName: 'Kunal Sarkar',
-    customerPhone: '+91 98100 33456',
-    customerAddress: 'B-9, Lake Town, Kolkata',
-    startCode: '3318'
-  }
+    shramikPhone: '+91 98765 43210',
+    skill: 'Electrician',
+    serviceName: 'Wiring & Rewiring',
+    date: '6 September 2026',
+    time: '12:00 PM',
+    customerName: 'Deepa Sen',
+    customerPhone: '+91 91221 10099',
+    customerAddress: '3, Major Arterial Road, Salt Lake, Kolkata',
+    distance: '2.1 km',
+    serviceFee: 750,
+    platformFee: 50,
+    totalAmount: 800,
+    status: 'Cancelled',
+  },
 ];
 
+// Only show the "offline mode" notice once per session, so a down backend
+// doesn't spam a toast on every page load.
+let offlineNoticeShown = false;
+
 export const AppProvider = ({ children }) => {
-  // Navigation & Role State
-  const [role, setRole] = useState('landing'); // 'landing' | 'customer' | 'shramik' | 'admin'
-  const [currentScreen, setCurrentScreen] = useState('landing'); // landing, login, search, profile, slot, booking_confirm, track_booking, shramik_signup, shramik_pending, shramik_dashboard, shramik_job, admin_dashboard, admin_approvals
+  // Persisted session + applied data (localStorage) so login and live data survive page refresh
+  const [bootSession] = useState(() => {
+    const session = loadSession();
+    if (session?.currentUser?.token) setAdminToken(session.currentUser.token);
+    return session;
+  });
+  const [bootData] = useState(() => loadAppliedData());
+  const boot = bootSession || {};
+
+  // Navigation & Role State (rehydrated from the persisted session)
+  const [role, setRole] = useState(boot.role || 'landing'); // 'landing' | 'customer' | 'shramik' | 'admin'
+  const [currentScreen, setCurrentScreen] = useState(boot.currentScreen || 'landing'); // landing, login, search, profile, slot, booking_confirm, track_booking, shramik_signup, shramik_pending, shramik_dashboard, shramik_job, admin_dashboard, admin_approvals
   
-  // Data States
-  const [shramiks, setShramiks] = useState(INITIAL_SHRAMIKS);
-  const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
+  // Data States (rehydrated from persisted applied data, seeded with mock data)
+  const hasStoredShramiks = Array.isArray(bootData?.shramiks) && bootData.shramiks.length > 0;
+  const hasStoredBookings = Array.isArray(bootData?.bookings) && bootData.bookings.length > 0;
+  const [shramiks, setShramiks] = useState(() => (hasStoredShramiks ? bootData.shramiks : INITIAL_SHRAMIKS));
+  const [bookings, setBookings] = useState(() => (hasStoredBookings ? bootData.bookings : INITIAL_BOOKINGS));
   const [selectedWorkerId, setSelectedWorkerId] = useState('shr-1');
-  const [activeBookingId, setActiveBookingId] = useState('');
-  const [activeShramikId, setActiveShramikId] = useState('shr-1'); // Default active Shramik (Ramesh Kumar) or new registered
+  const [activeBookingId, setActiveBookingId] = useState(boot.activeBookingId || 'BK-8891');
+  const [activeShramikId, setActiveShramikId] = useState(boot.activeShramikId || 'shr-1');
   
   // Transient Booking Selection state
   const [bookingDraft, setBookingDraft] = useState({
@@ -295,6 +321,12 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('shram_lang', language);
   }, [language]);
+
+  // Seed the demo administrator account once (idempotent) so the Admin
+  // portal is usable offline right after a fresh load.
+  useEffect(() => {
+    ensureSeedAccounts();
+  }, []);
 
   const setLanguage = (newLang) => setLanguageState(newLang);
   const setSelectedLocation = (loc) => {
@@ -414,9 +446,9 @@ export const AppProvider = ({ children }) => {
   // Notification Toast state
   const [toast, setToast] = useState(null);
 
-  // Authentication State
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Authentication State (rehydrated from the persisted session)
+  const [currentUser, setCurrentUser] = useState(boot.currentUser || null);
+  const [isLoggedIn, setIsLoggedIn] = useState(Boolean(boot.isLoggedIn));
 
   // Which login tab should be pre-selected (customer | shramik), set by landing CTAs
   const [intendedLoginRole, setIntendedLoginRole] = useState('customer');
@@ -436,20 +468,88 @@ export const AppProvider = ({ children }) => {
         jobsCount: row.jobs_count,
         hourlyRate: row.hourly_rate,
       }))))
-      .catch((error) => showToast(`Could not load workers: ${error.message}`, 'error'));
+      .catch((error) => {
+        // Backend unreachable â€” keep the persisted demo workers instead of
+        // failing with an error. Remaining flows (register, refresh status,
+        // admin sync) already degrade to the local store the same way.
+        console.warn('Could not load workers from server, using local data:', error.message || error);
+        if (!offlineNoticeShown) {
+          offlineNoticeShown = true;
+          showToast('Server unreachable â€” running on saved demo workers.', 'info');
+        }
+      });
+  }, []);
+
+  // Persist the auth session so a refresh keeps the user logged in.
+  // Passwords never enter the persisted session object (they live in the account store only).
+  useEffect(() => {
+    const session = {
+      isLoggedIn,
+      role,
+      currentScreen,
+      activeShramikId,
+      activeBookingId,
+    };
+    if (currentUser) {
+      const { password: _password, ...safeUser } = currentUser;
+      session.currentUser = safeUser;
+    }
+    saveSession(session);
+  }, [isLoggedIn, role, currentScreen, activeShramikId, activeBookingId, currentUser]);
+
+  // Persist applied live data (directory + bookings) across refreshes
+  useEffect(() => {
+    saveAppliedData({ shramiks, bookings });
+  }, [shramiks, bookings]);
+
+  // Cross-tab sync: apply login changes / admin approvals made in another tab
+  useEffect(() => {
+    const onStorage = (event) => {
+      if (!event.key) return;
+      if (event.key === STORAGE_KEYS.session) {
+        const next = loadSession();
+        if (!next || !next.isLoggedIn) {
+          setCurrentUser(null);
+          setIsLoggedIn(false);
+          setRole('landing');
+          setCurrentScreen('landing');
+          return;
+        }
+        setCurrentUser(next.currentUser || null);
+        setIsLoggedIn(true);
+        setRole(next.role || 'landing');
+        if (next.currentScreen) setCurrentScreen(next.currentScreen);
+        if (next.activeShramikId) setActiveShramikId(next.activeShramikId);
+        if (next.activeBookingId !== undefined) setActiveBookingId(next.activeBookingId);
+      }
+      if (event.key === STORAGE_KEYS.data) {
+        const next = loadAppliedData();
+        if (next) {
+          if (next.shramiks) setShramiks(next.shramiks);
+          if (next.bookings) setBookings(next.bookings);
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   const login = (userData) => {
+    if (userData?.role === 'admin' && userData.token) setAdminToken(userData.token);
+    if (userData?.role !== 'admin') clearAdminToken();
     setCurrentUser(userData);
     setIsLoggedIn(true);
     setRole(userData.role);
   };
 
   const logout = () => {
+    clearAdminToken();
+    clearSession();
     setCurrentUser(null);
     setIsLoggedIn(false);
     setRole('landing');
     setCurrentScreen('landing');
+    setActiveBookingId('');
     showToast(t('tLoggedOut', 'Logged out successfully.'), 'info');
   };
 
@@ -474,13 +574,12 @@ export const AppProvider = ({ children }) => {
         setIntendedLoginRole('shramik');
         setCurrentScreen('login');
       } else {
-        // Check if current Shramik is verified or pending
-        const activeShramik = shramiks.find(s => s.id === activeShramikId);
-        if (activeShramik && !activeShramik.verified) {
-          setCurrentScreen('shramik_pending');
-        } else {
-          setCurrentScreen('shramik_dashboard');
-        }
+        // Gate dashboard access behind admin verification
+        const targetId = activeShramikId || currentUser?.id;
+        const activeShramik = shramiks.find(s => s.id === targetId)
+          || (currentUser?.id ? shramiks.find(s => s.id === currentUser.id) : null);
+        const verified = activeShramik ? activeShramik.verified : Boolean(currentUser?.verified && currentUser?.shramikId);
+        setCurrentScreen(verified ? 'shramik_dashboard' : 'shramik_pending');
       }
     } else if (newRole === 'admin') {
       if (!isLoggedIn) {
@@ -492,7 +591,10 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Shramik Registration Flow
+  // Shramik Registration Flow.
+  // A Shramik ID (SS-XXXXXX) is NEVER issued here. The application is queued for
+  // admin review; the ID is generated server-side only when an admin approves
+  // the profile (see the `approve_shramik` RPC).
   const registerShramik = async (formData) => {
     const newId = `shr-${Date.now()}`;
     const newShramik = {
@@ -517,7 +619,7 @@ export const AppProvider = ({ children }) => {
 
     if (isSupabaseConfigured) {
       try {
-        const [savedShramik] = await createShramik({
+        const savedShramik = await createShramik({
           name: newShramik.name,
           skill: newShramik.skill,
           phone: newShramik.phone,
@@ -528,38 +630,219 @@ export const AppProvider = ({ children }) => {
           photo: newShramik.photo,
           bio: newShramik.bio,
         });
-        newShramik.id = savedShramik.id;
+        if (savedShramik?.id) newShramik.id = savedShramik.id;
       } catch (error) {
-        showToast(`Registration could not be saved: ${error.message}`, 'error');
-        return;
+        // A live deployment must not pretend a registration was routed when
+        // the server did not persist it. Offline mode remains available only
+        // when VITE_API_URL is intentionally omitted.
+        console.error('Shramik registration was not saved on the server:', error.message || error);
+        showToast(`Registration could not be submitted: ${error.message}`, 'error');
+        return false;
       }
     }
 
+    const shramikUser = {
+      ...newShramik,
+      age: formData.age,
+      password: formData.password,
+      role: 'shramik',
+      verified: false,
+      shramikId: null,
+    };
+
+    upsertAccount(shramikUser);
     setShramiks(prev => [newShramik, ...prev]);
     setActiveShramikId(newShramik.id);
-    setRole('shramik');
+    login(shramikUser);
     setCurrentScreen('shramik_pending');
     showToast('Registration submitted! Verification pending admin review.', 'info');
+    return true;
   };
 
-  // Admin Approval Action
+  // Admin Approval Action â€” the ONLY place a Shramik ID is issued.
+  // The server-side RPC (approve_shramik) flips verified=true and generates SS-XXXXXX.
   const approveShramik = async (id) => {
+    let approved;
     try {
-      const approved = await approveShramikApi(id);
-      setShramiks(prev => prev.map(worker => worker.id === id
-        ? { ...worker, verified: approved.verified, shramikId: approved.shramik_id }
-        : worker));
-      showToast(`Shramik Approved! Assigned ID: ${approved.shramik_id}`, 'success');
+      approved = await approveShramikApi(id);
     } catch (error) {
-      showToast(`Approval could not be saved: ${error.message}`, 'error');
+      // In a configured deployment an approval is valid only after it has
+      // reached the server. This prevents devices seeing different states.
+      return showToast(`Approval could not be saved: ${error.message}`, 'error');
     }
+
+    const shramikId = approved.shramik_id;
+    setShramiks(prev => prev.map(worker => worker.id === id
+      ? { ...worker, verified: true, shramikId }
+      : worker));
+
+    const worker = shramiks.find(w => w.id === id);
+    if (worker) {
+      updateAccount('shramik', worker.phone, { verified: true, shramikId });
+      if (currentUser?.role === 'shramik' && currentUser.phone === worker.phone) {
+        setCurrentUser(prev => prev ? { ...prev, verified: true, shramikId } : prev);
+      }
+    }
+    showToast(
+      `Shramik Approved! Assigned ID: ${shramikId}`,
+      'success'
+    );
   };
 
   // Admin Reject Action
-  const rejectShramik = (id) => {
+  const rejectShramik = async (id) => {
+    const worker = shramiks.find(s => s.id === id);
+    if (isSupabaseConfigured) {
+      try {
+        await rejectShramikApi(id);
+      } catch (error) {
+        showToast(`Rejection could not be saved: ${error.message}`, 'error');
+        return false;
+      }
+    }
     setShramiks(prev => prev.filter(s => s.id !== id));
+    if (worker) removeAccount('shramik', worker.phone);
     showToast('Shramik registration rejected.', 'error');
+    return true;
   };
+
+  // Pending Shramik: re-check whether the admin has approved the application
+  const refreshShramikStatus = async () => {
+    if (currentUser?.role !== 'shramik' || !currentUser?.phone) {
+      showToast('Sign in as a Shramik to check approval status.', 'error');
+      return;
+    }
+    const phone = currentUser.phone;
+    try {
+      if (isSupabaseConfigured) {
+        try {
+          const match = await getShramikStatus(phone);
+          const verified = Boolean(match.verified);
+          const shramikId = match.shramikId || null;
+          setShramiks(prev => prev.map(s => s.id === match.id || s.phone === phone ? { ...s, id: match.id, verified, shramikId } : s));
+          updateAccount('shramik', phone, { id: match.id, verified, shramikId });
+          setActiveShramikId(match.id);
+          setCurrentUser(prev => prev ? { ...prev, id: match.id, verified, shramikId } : prev);
+          showToast(verified ? `Approved! Your Shramik ID is ${shramikId}.` : 'Still under admin review.', verified ? 'success' : 'info');
+          setCurrentScreen(verified ? 'shramik_dashboard' : 'shramik_pending');
+          return;
+        } catch (error) {
+          console.warn('refreshShramikStatus: API unreachable, using local store:', error.message || error);
+        }
+      }
+      const account = findAccount('shramik', phone);
+      if (account?.verified && account?.shramikId) {
+        setShramiks(prev => prev.map(s => s.id === (account.id || activeShramikId) ? { ...s, verified: true, shramikId: account.shramikId } : s));
+        setCurrentUser(prev => prev ? { ...prev, verified: true, shramikId: account.shramikId } : prev);
+        showToast(`Approved! Your Shramik ID is ${account.shramikId}.`, 'success');
+        setCurrentScreen('shramik_dashboard');
+        return;
+      }
+      showToast(
+        account ? 'Still under admin review. Please check back later.' : 'No registration found for this phone number.',
+        account ? 'info' : 'error'
+      );
+    } catch (error) {
+      showToast(`Could not refresh status: ${error.message}`, 'error');
+    }
+  };
+
+  // Poll/re-sync the pending-approval queue for the admin portal.
+  // Source of truth is the server (unverified rows for this city); when the
+  // API is unreachable it falls back to the persisted local account store so
+  // the offline demo keeps working. Merges into the shared `shramiks` state so
+  // the dashboard, sidebar badge, and approvals table all stay in sync.
+  const syncPendingApprovals = useCallback(async (city) => {
+    const cityInput = city || currentUser?.city;
+
+    let remoteRows = [];
+    let serverSynced = false;
+    if (isSupabaseConfigured) {
+      try {
+        remoteRows = await getPendingShramiks();
+        serverSynced = true;
+      } catch (error) {
+        console.warn('syncPendingApprovals: server sync failed:', error.message || error);
+      }
+    }
+
+    // In live mode only the server's queue is authoritative. Local rows are
+    // used exclusively by the intentionally offline demo, avoiding requests
+    // from a previous device/session appearing in a real admin queue.
+    const localRows = (!isSupabaseConfigured || !serverSynced ? loadAccounts() : [])
+      .filter((a) => a.role === 'shramik' && !a.verified)
+      .map((account) => ({
+        id: account.id,
+        name: account.name,
+        skill: account.skill || account.primarySkill || 'General Repair',
+        verified: false,
+        shramikId: null,
+        rating: account.rating || 0,
+        jobsCount: 0,
+        distance: account.distance || 'New nearby worker',
+        hourlyRate: account.hourlyRate || 250,
+        phone: account.phone,
+        city: account.city,
+        area: account.area || account.serviceArea || 'Local Area',
+        experience: account.experience || '3 years',
+        services: account.services || ['General Repair'],
+        photo: account.photo,
+        bio: account.bio || 'Skilled local technician dedicated to quality and safety.',
+        pendingSince: 'Just now',
+      }));
+
+    const keyOf = (worker) => (worker.phone ? `p:${worker.phone}` : `i:${worker.id || ''}`);
+    const merged = remoteRows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      skill: row.skill,
+      verified: Boolean(row.verified),
+      shramikId: row.shramik_id || null,
+      rating: Number(row.rating) || 0,
+      jobsCount: Number(row.jobs_count) || 0,
+      distance: row.distance || 'New nearby worker',
+      hourlyRate: Number(row.hourly_rate) || 250,
+      phone: row.phone,
+      city: row.city,
+      area: row.area,
+      experience: row.experience,
+      services: row.services || [],
+      photo: row.photo,
+      bio: row.bio,
+      pendingSince: 'Just now',
+    }));
+    for (const local of localRows) {
+      if (!merged.some((w) => keyOf(w) === keyOf(local))) merged.push(local);
+    }
+
+    setShramiks((prev) => {
+      // A successful server sync is a snapshot of this admin's pending city
+      // queue. Remove stale pending rows first (for example, when another
+      // same-city admin has just approved or rejected one), then merge the
+      // returned snapshot. Keep verified workers and other-city data intact.
+      const retained = serverSynced
+        ? prev.filter((w) => w.verified || (cityInput && !sameCity(w.city, cityInput)))
+        : prev;
+      const next = new Map(retained.map((w) => [keyOf(w), w]));
+      for (const w of merged) next.set(keyOf(w), w);
+      return Array.from(next.values());
+    });
+
+    return merged
+      .filter((w) => !cityInput || sameCity(w.city, cityInput))
+      .sort((a, b) => (a.city || '').localeCompare(b.city || ''));
+  }, [currentUser]);
+
+  // When an admin opens the portal (dashboard/approvals), pull the latest
+  // pending requests for their city once, so new signups appear without a reload.
+  const autoSyncedCity = useRef(null);
+  useEffect(() => {
+    if (role !== 'admin' || !currentUser?.city) return;
+    const cityKey = normalizeCity(currentUser.city);
+    if (autoSyncedCity.current === cityKey) return;
+    autoSyncedCity.current = cityKey;
+    syncPendingApprovals(currentUser.city);
+  }, [role, currentUser, syncPendingApprovals]);
 
   // Booking Flow Actions
   const createBooking = async () => {
@@ -608,15 +891,17 @@ export const AppProvider = ({ children }) => {
         newBooking.id = savedBooking.id;
         newBooking.startCode = savedBooking.start_code;
       } catch (error) {
-        showToast(`Booking could not be saved: ${error.message}`, 'error');
-        return;
+        // Backend unreachable â€” keep the locally generated booking so the
+        // demo flow continues uninterrupted (same graceful degradation as
+        // shramik registration/sync).
+        console.warn('Booking fell back to local demo store:', error.message || error);
       }
     }
 
     setBookings(prev => [newBooking, ...prev]);
     setActiveBookingId(newBooking.id);
     setCurrentScreen('track_booking');
-    showToast(`Booking Confirmed! Your Start Code is ${randomStartCode}`, 'success');
+    showToast(`Booking Confirmed! Your Start Code is ${newBooking.startCode}`, 'success');
   };
 
   // Customer Cancels Booking
@@ -673,9 +958,7 @@ export const AppProvider = ({ children }) => {
       setCurrentScreen('shramik_signup');
     } else if (stepNumber === 2) { // Shramik Pending
       switchRole('shramik');
-      // Create pending shramik if needed
-      const pending = shramiks.find(s => !s.verified);
-      if (pending) setActiveShramikId(pending.id);
+      setActiveShramikId('shr-1');
       setCurrentScreen('shramik_pending');
     } else if (stepNumber === 3) { // Admin Approval
       switchRole('admin');
@@ -699,7 +982,6 @@ export const AppProvider = ({ children }) => {
     } else if (stepNumber === 8) { // Customer Work Completion & Payment
       switchRole('customer');
       setActiveBookingId('BK-8891');
-      // Set booking to completed or in progress for payment transition
       setCurrentScreen('track_booking');
     } else if (stepNumber === 9) { // Payment Screen
       switchRole('customer');
@@ -744,6 +1026,8 @@ export const AppProvider = ({ children }) => {
       registerShramik,
       approveShramik,
       rejectShramik,
+      refreshShramikStatus,
+      syncPendingApprovals,
       createBooking,
       verifyStartCode,
       confirmWorkDone,

@@ -117,7 +117,7 @@ export const CustomerSearch = () => {
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-0.5 md:gap-1 bg-amber-100 text-amber-800 text-[10px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded-full border border-amber-300">
-                      â— {t('statusPending', 'Pending')}
+                      ● {t('statusPending', 'Pending')}
                     </span>
                   )}
 
@@ -143,7 +143,7 @@ export const CustomerSearch = () => {
               <div className="flex justify-between items-center">
                 <span className="text-slate-500 font-medium text-[11px] md:text-sm">{t('rate', 'Rate')}</span>
                 <span className="text-sm md:text-lg font-bold font-mono text-slate-900">
-                  â‚¹{worker.hourlyRate}<span className="text-[10px] md:text-xs font-normal text-slate-500">{t('perHr', '/hr')}</span>
+                  ₹{worker.hourlyRate}<span className="text-[10px] md:text-xs font-normal text-slate-500">{t('perHr', '/hr')}</span>
                 </span>
               </div>
             </div>

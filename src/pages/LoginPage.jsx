@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { LanguageSelectDropdown } from '../components/LanguageSelectDropdown';
-import { loginAdmin } from '../lib/supabase';
+import { loginAdmin, registerAdmin, isSupabaseConfigured } from '../lib/supabase';
+import { findAccount, upsertAccount } from '../lib/store';
 import {
   Shield, Phone, Lock, User, MapPin, Calendar,
   ArrowRight, Eye, EyeOff, CheckCircle2, UserPlus,
@@ -10,7 +11,7 @@ import {
 
 import { INDIA_LOCATIONS, INDIAN_STATES } from '../data/indiaLocations';
 
-/* â”€â”€â”€ Major Indian cities (urban) used to decide if town/village details are needed â”€â”€â”€ */
+/* ─── Major Indian cities (urban) used to decide if town/village details are needed ─── */
 const MAJOR_CITIES = new Set([
   'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune',
   'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad',
@@ -28,14 +29,11 @@ const MAJOR_CITIES = new Set([
 
 const isUrbanCity = (name) => MAJOR_CITIES.has(name);
 
-/* â”€â”€â”€ Shared in-memory stores â”€â”€â”€ */
-const registeredCustomers = [];
-const registeredShramiks = [];
-const registeredAdmins = [];
+/* ── Demo accounts are persisted in localStorage (see src/lib/store.js) ── */
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/* ─────────────────────────────────────────
    State + City/District/Village Dropdown
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+───────────────────────────────────────── */
 const LocationDropdown = ({ value, onChange, showLabel = true }) => {
   const { t } = useApp();
   const [selectedState, setSelectedState] = useState(() => {
@@ -175,9 +173,9 @@ const LocationDropdown = ({ value, onChange, showLabel = true }) => {
   );
 };
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/* ─────────────────────────────────────────
    Detect location buttons + GPS / manual
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+───────────────────────────────────────── */
 const useDetectLocation = () => {
   const [detecting, setDetecting] = useState(false);
   const [lat, setLat] = useState(null);
@@ -197,13 +195,13 @@ const useDetectLocation = () => {
   return { detecting, lat, lng, error, detect };
 };
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/* ─────────────────────────────────────────
    Address details section (customer only)
    Non-mandatory free-text inputs, shown
    conditionally based on selected location.
    - City (urban): street + house + flat only
    - District/Village (interior): also village + town
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+───────────────────────────────────────── */
 const AddressDetails = ({
   locationType, onHouse, onFlat, onStreet, onVillage, onTown,
   houseValue, flatValue, streetValue, villageValue, townValue
@@ -256,7 +254,7 @@ const AddressDetails = ({
         </div>
       </div>
 
-      {/* Street Name â€” free text */}
+      {/* Street Name — free text */}
       <div>
         <label className={LC}>{t('auth.streetName', 'Street Name / Landmark')} <span className="text-slate-300 normal-case font-normal">{t('auth.optional', '(optional)')}</span></label>
         <input type="text" placeholder="e.g. Park Street, near City Mall" value={streetValue}
@@ -290,13 +288,13 @@ const AddressDetails = ({
   );
 };
 
-/* â”€â”€â”€ Shared input/label styles â”€â”€â”€ */
+/* ─── Shared input/label styles ─── */
 const IC = 'w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all font-mono placeholder:font-sans placeholder:text-slate-400';
 const LC = 'block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5';
 
 const onlyDigits = (val) => /^\d*$/.test(val);
 
-/* â”€â”€ Password strength helper â”€â”€ */
+/* ── Password strength helper ── */
 const useStrength = (pw, t) => {
   const s = pw.length >= 8 ? 3 : pw.length >= 6 ? 2 : pw.length >= 4 ? 1 : 0;
   const colors = ['bg-slate-200', 'bg-red-400', 'bg-amber-400', 'bg-emerald-500'];
@@ -304,9 +302,9 @@ const useStrength = (pw, t) => {
   return { strength: s, color: colors[s], label: labels[s] };
 };
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ══════════════════════════════════════════════════════════════
    PasswordField helper
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+══════════════════════════════════════════════════════════════ */
 const PasswordField = ({ label, value, onChange, placeholder, show, onToggle, numeric = false, showStrength = false, confirmValue }) => {
   const { t } = useApp();
   const { strength, color, label: sLabel } = useStrength(value, t);
@@ -346,23 +344,23 @@ const PasswordField = ({ label, value, onChange, placeholder, show, onToggle, nu
   );
 };
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ══════════════════════════════════════════════════════════════
    MAIN LoginPage
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+══════════════════════════════════════════════════════════════ */
 export const LoginPage = () => {
-  const { switchRole, setCurrentScreen, showToast, setActiveShramikId, intendedLoginRole, login, shramiks, activeShramikId, openSettings, t, tSkill } = useApp();
+  const { switchRole, setCurrentScreen, showToast, setActiveShramikId, intendedLoginRole, login, registerShramik, openSettings, t, tSkill } = useApp();
 
   const [activeRoleTab, setActiveRoleTab] = useState(intendedLoginRole || 'customer');
   const [authMode, setAuthMode] = useState('signin'); // 'signin' | 'signup'
 
   useEffect(() => { setAuthMode('signin'); }, [activeRoleTab]);
 
-  /* â”€â”€â”€ Customer Sign-In â”€â”€â”€ */
+  /* ─── Customer Sign-In ─── */
   const [csiPhone, setCsiPhone] = useState('');
   const [csiPw, setCsiPw] = useState('');
   const [showCsiPw, setShowCsiPw] = useState(false);
 
-  /* â”€â”€â”€ Customer Sign-Up â”€â”€â”€ */
+  /* ─── Customer Sign-Up ─── */
   const [csuName, setCsuName] = useState('');
   const [csuAge, setCsuAge] = useState('');
   const [csuCity, setCsuCity] = useState('');
@@ -377,12 +375,12 @@ export const LoginPage = () => {
   const [showCsuPw, setShowCsuPw] = useState(false);
   const [showCsuCpw, setShowCsuCpw] = useState(false);
 
-  /* â”€â”€â”€ Shramik Sign-In â”€â”€â”€ */
+  /* ─── Shramik Sign-In ─── */
   const [ssiPhone, setSsiPhone] = useState('');
   const [ssiPw, setSsiPw] = useState('');
   const [showSsiPw, setShowSsiPw] = useState(false);
 
-  /* â”€â”€â”€ Shramik Sign-Up â”€â”€â”€ */
+  /* ─── Shramik Sign-Up ─── */
   const [ssuName, setSsuName] = useState('');
   const [ssuAge, setSsuAge] = useState('');
   const [ssuCity, setSsuCity] = useState('');
@@ -393,12 +391,12 @@ export const LoginPage = () => {
   const [showSsuPw, setShowSsuPw] = useState(false);
   const [showSsuCpw, setShowSsuCpw] = useState(false);
 
-  /* â”€â”€â”€ Admin Sign-In â”€â”€â”€ */
+  /* ─── Admin Sign-In ─── */
   const [asiPhone, setAsiPhone] = useState('');
   const [asiPw, setAsiPw] = useState('');
   const [showAsiPw, setShowAsiPw] = useState(false);
 
-  /* â”€â”€â”€ Admin Sign-Up â”€â”€â”€ */
+  /* ─── Admin Sign-Up ─── */
   const [asuName, setAsuName] = useState('');
   const [asuCity, setAsuCity] = useState('');
   const [asuPhone, setAsuPhone] = useState('');
@@ -408,15 +406,15 @@ export const LoginPage = () => {
   const [showAsuPw, setShowAsuPw] = useState(false);
   const [showAsuCpw, setShowAsuCpw] = useState(false);
 
-  /* â•â•â•â•â•â•â•â•â•â• HANDLERS â•â•â•â•â•â•â•â•â•â• */
+  /* ══════════ HANDLERS ══════════ */
 
   /* Customer Sign In */
   const handleCSignIn = (e) => {
     e.preventDefault();
     if (!csiPhone || csiPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!csiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
-    const found = registeredCustomers.find(c => c.phone === csiPhone && c.password === csiPw);
-    if (!found) return showToast(t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
+    const found = findAccount('customer', csiPhone);
+    if (!found || found.password !== csiPw) return showToast(t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
     login(found);
     showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
     setCurrentScreen('search');
@@ -426,20 +424,19 @@ export const LoginPage = () => {
   const handleCSignUp = (e) => {
     e.preventDefault();
     if (!csuName.trim()) return showToast(t('auth.enterNameErr', 'Please enter your full name.'), 'error');
-    if (!csuAge || parseInt(csuAge) < 18 || parseInt(csuAge) > 100) return showToast(t('auth.validAgeErr', 'Enter a valid age (18â€“100).'), 'error');
+    if (!csuAge || parseInt(csuAge) < 18 || parseInt(csuAge) > 100) return showToast(t('auth.validAgeErr', 'Enter a valid age (18–100).'), 'error');
     if (!csuCity) return showToast(t('auth.selectCityErr', 'Please select your city.'), 'error');
     if (!csuPhone || csuPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!csuPw || csuPw.length < 4 || !onlyDigits(csuPw)) return showToast(t('auth.validPasswordErr', 'Password must be at least 4 digits (numbers only).'), 'error');
     if (csuPw !== csuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
-    if (registeredCustomers.find(c => c.phone === csuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
+    if (findAccount('customer', csuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
     const fullAddress = [csuFlat, csuHouse, csuStreet, csuVillage, csuTown, csuCity].filter(Boolean).join(', ');
-    const user = {
+    const user = upsertAccount({
       name: csuName.trim(), age: csuAge, city: csuCity, phone: csuPhone,
       password: csuPw, role: 'customer',
       address: fullAddress,
       addressDetails: { house: csuHouse, flat: csuFlat, street: csuStreet, village: csuVillage, town: csuTown }
-    };
-    registeredCustomers.push(user);
+    });
     login(user);
     showToast(t('auth.accountCreatedToast', 'Account created! Welcome, {name}!', { name: user.name }), 'success');
     setCurrentScreen('search');
@@ -450,29 +447,39 @@ export const LoginPage = () => {
     e.preventDefault();
     if (!ssiPhone || ssiPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!ssiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
-    const found = registeredShramiks.find(s => s.phone === ssiPhone && s.password === ssiPw);
-    if (!found) return showToast(t('auth.noShramikAccountErr', 'No Shramik account found. Please sign up first.'), 'error');
+    const found = findAccount('shramik', ssiPhone);
+    if (!found || found.password !== ssiPw) return showToast(t('auth.noShramikAccountErr', 'No Shramik account found. Please sign up first.'), 'error');
+    setActiveShramikId(found.id);
     login(found);
     showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
-    setCurrentScreen('shramik_pending');
+    // Dashboard stays locked until an admin approves and issues the Shramik ID
+    setCurrentScreen(found.verified && found.shramikId ? 'shramik_dashboard' : 'shramik_pending');
   };
 
   /* Shramik Sign Up */
   const handleSSignUp = (e) => {
     e.preventDefault();
     if (!ssuName.trim()) return showToast(t('auth.enterNameErr', 'Please enter your full name.'), 'error');
-    if (!ssuAge || parseInt(ssuAge) < 18 || parseInt(ssuAge) > 70) return showToast(t('auth.validShramikAgeErr', 'Enter a valid age (18â€“70).'), 'error');
+    if (!ssuAge || parseInt(ssuAge) < 18 || parseInt(ssuAge) > 70) return showToast(t('auth.validShramikAgeErr', 'Enter a valid age (18–70).'), 'error');
     if (!ssuCity) return showToast(t('auth.selectCityErr', 'Please select your city.'), 'error');
     if (!ssuPhone || ssuPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!ssuSkill) return showToast(t('auth.selectSkillErr', 'Please select your primary skill.'), 'error');
     if (!ssuPw || ssuPw.length < 4 || !onlyDigits(ssuPw)) return showToast(t('auth.validPasswordErr', 'Password must be at least 4 digits (numbers only).'), 'error');
     if (ssuPw !== ssuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
-    if (registeredShramiks.find(s => s.phone === ssuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
-    const shramikUser = { name: ssuName.trim(), age: ssuAge, city: ssuCity, phone: ssuPhone, skill: ssuSkill, password: ssuPw, role: 'shramik', verified: false, shramikId: null };
-    registeredShramiks.push(shramikUser);
-    login(shramikUser);
-    showToast(t('auth.shramikReviewToast', 'Welcome, {name}! Your registration is under review.', { name: shramikUser.name }), 'info');
-    setCurrentScreen('shramik_pending');
+    if (findAccount('shramik', ssuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
+    // Submitted for admin approval — no Shramik ID is issued yet
+    registerShramik({
+      fullName: ssuName.trim(),
+      phone: ssuPhone,
+      password: ssuPw,
+      primarySkill: ssuSkill,
+      experience: '1-2 years',
+      city: ssuCity,
+      serviceArea: '',
+      selectedServices: [],
+      photo: '',
+      age: ssuAge
+    });
   };
 
   /* Admin Sign In */
@@ -480,18 +487,42 @@ export const LoginPage = () => {
     e.preventDefault();
     if (!asiPhone) return showToast(t('auth.enterAdminIdErr', 'Please enter your phone/ID.'), 'error');
     if (!asiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
-    try {
-      const found = await loginAdmin({ identifier: asiPhone, password: asiPw });
-      login(found);
-      showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
-      setCurrentScreen('admin_dashboard');
-    } catch (error) {
-      showToast(error.message || t('auth.noAdminAccountErr', 'Invalid admin credentials.'), 'error');
+    let found = null;
+
+    // Prefer the backend (authenticate_admin RPC) when Supabase is configured
+    if (isSupabaseConfigured) {
+      try {
+        const remote = await loginAdmin({ identifier: asiPhone, password: asiPw });
+        found = {
+          id: remote.id,
+          name: remote.name,
+          phone: remote.phone || asiPhone,
+          empId: remote.empId || remote.employee_id,
+          city: remote.city,
+          role: 'admin',
+          token: remote.token,
+        };
+      } catch {
+        found = null;
+      }
     }
+
+    // Offline/demo fallback: validated against the persisted account store
+    if (!found) {
+      const local = findAccount('admin', asiPhone);
+      if (local && local.password === asiPw) found = local;
+    }
+
+    if (!found) return showToast(t('auth.noAdminAccountErr', 'Invalid admin credentials.'), 'error');
+    const { token, ...account } = found;
+    upsertAccount(account);
+    login(found);
+    showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
+    setCurrentScreen('admin_dashboard');
   };
 
   /* Admin Sign Up */
-  const handleASignUp = (e) => {
+  const handleASignUp = async (e) => {
     e.preventDefault();
     if (!asuName.trim()) return showToast(t('auth.enterNameErr', 'Please enter your full name.'), 'error');
     if (!asuCity) return showToast(t('auth.selectCityErr', 'Please select your city.'), 'error');
@@ -499,9 +530,51 @@ export const LoginPage = () => {
     if (!asuEmpId.trim()) return showToast(t('auth.enterEmpIdErr', 'Please enter your Employee/Admin ID.'), 'error');
     if (!asuPw || asuPw.length < 4 || !onlyDigits(asuPw)) return showToast(t('auth.validPasswordErr', 'Password must be at least 4 digits (numbers only).'), 'error');
     if (asuPw !== asuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
-    if (registeredAdmins.find(a => a.phone === asuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
-    const adminUser = { name: asuName.trim(), city: asuCity, phone: asuPhone, empId: asuEmpId.trim(), password: asuPw, role: 'admin' };
-    registeredAdmins.push(adminUser);
+    if (findAccount('admin', asuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
+
+    let adminUser = null;
+
+    // Live mode: create the admin in Supabase (bcrypt hashed) via the backend,
+    // so they can sign in on any device and see their city's real queue.
+    if (isSupabaseConfigured) {
+      try {
+        const remote = await registerAdmin({
+          name: asuName.trim(),
+          phone: asuPhone,
+          empId: asuEmpId.trim(),
+          city: asuCity,
+          password: asuPw,
+        });
+        adminUser = {
+          id: remote.id,
+          name: remote.name,
+          phone: remote.phone || asuPhone,
+          empId: remote.empId || remote.employee_id,
+          city: remote.city,
+          role: 'admin',
+          token: remote.token,
+        };
+      } catch (error) {
+        const serverUnreachable = /failed to fetch|network|unreachable|load failed|not configured/i.test(error.message || '');
+        if (!serverUnreachable) {
+          // Real rejection from the server (e.g. duplicate phone / employee ID).
+          return showToast(`Admin could not be created: ${error.message}`, 'error');
+        }
+        // Server unreachable — fall back to a local demo admin so signup never
+        // blocks the user (same graceful degradation as login/register/sync).
+        console.warn('Server unreachable — admin saved locally:', error.message || error);
+      }
+    }
+
+    // Offline/demo fallback: persisted only in the local account store.
+    if (!adminUser) {
+      adminUser = upsertAccount({ name: asuName.trim(), city: asuCity, phone: asuPhone, empId: asuEmpId.trim(), password: asuPw, role: 'admin' });
+      showToast(t('auth.offlineAdminSaved', 'Server unreachable — admin saved locally (offline demo).'), 'info');
+    } else {
+      const { token, ...account } = adminUser;
+      upsertAccount(account);
+    }
+
     login(adminUser);
     showToast(t('auth.adminAccountCreatedToast', 'Admin account created! Welcome, {name}.', { name: adminUser.name }), 'success');
     setCurrentScreen('admin_dashboard');
@@ -517,7 +590,7 @@ export const LoginPage = () => {
       {/* Mobile-first header with centered Language option bar */}
       <div className="w-full max-w-5xl mb-4 md:mb-5 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
         <button onClick={() => { switchRole('landing'); setCurrentScreen('landing'); }} className="justify-self-start text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1.5 transition-colors">
-          {t('auth.backToHome', 'â† Back to Home')}
+          {t('auth.backToHome', '← Back to Home')}
         </button>
         {/* Language option bar - centered on the page */}
         <div className="mt-3 md:mt-0 flex justify-center">
@@ -529,7 +602,7 @@ export const LoginPage = () => {
 
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden grid grid-cols-1 md:grid-cols-5">
 
-        {/* â”€â”€ LEFT PANEL (desktop only â€” hidden on mobile for a clean single-column form) â”€â”€ */}
+        {/* ── LEFT PANEL (desktop only — hidden on mobile for a clean single-column form) ── */}
         <div className="md:col-span-2 bg-gradient-to-br from-emerald-800 via-emerald-700 to-slate-900 text-white p-8 sm:p-10 hidden md:flex flex-col justify-between relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#86efac_1px,transparent_1px)] [background-size:16px_16px]" />
           <div className="relative z-10 space-y-5">
@@ -580,7 +653,7 @@ export const LoginPage = () => {
           </div>
         </div>
 
-        {/* â”€â”€ RIGHT PANEL â”€â”€ */}
+        {/* ── RIGHT PANEL ── */}
         <div className="md:col-span-3 p-5 sm:p-10 flex flex-col justify-start md:max-h-screen md:overflow-y-auto">
 
           {/* Top Bar with Back Button (desktop only - mobile has it in the page header) */}
@@ -590,7 +663,7 @@ export const LoginPage = () => {
               onClick={() => setCurrentScreen('landing')}
               className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
             >
-              {t('auth.backToHome', 'â† Back to Home')}
+              {t('auth.backToHome', '← Back to Home')}
             </button>
           </div>
 
@@ -606,7 +679,7 @@ export const LoginPage = () => {
                     SHRAM SETU
                   </span>
                   <p className="text-[11px] text-slate-500 font-body leading-tight">
-                    {t('landing.trustedNetwork', 'Indiaâ€™s Unified Platform')}
+                    {t('landing.trustedNetwork', 'India’s Unified Platform')}
                   </p>
                 </div>
               </div>
@@ -633,12 +706,12 @@ export const LoginPage = () => {
             </div>
           </div>
 
-          {/* â•â•â•â•â•â•â•â•â•â• CUSTOMER â•â•â•â•â•â•â•â•â•â• */}
+          {/* ══════════ CUSTOMER ══════════ */}
           {activeRoleTab === 'customer' && (
             <div className="space-y-5">
               <div>
                 <h3 className="text-2xl font-bold font-heading text-slate-900">
-                  {authMode === 'signin' ? t('auth.welcomeBack', 'Welcome back ðŸ‘‹') : t('auth.createAccount', 'Create Account ðŸš€')}
+                  {authMode === 'signin' ? t('auth.welcomeBack', 'Welcome back 👋') : t('auth.createAccount', 'Create Account 🚀')}
                 </h3>
                 <p className="text-sm text-slate-500 mt-1">
                   {authMode === 'signin' ? t('auth.signInDesc', 'Sign in with your registered credentials.') : t('auth.signUpDesc', 'Fill in the details below to create your account.')}
@@ -746,12 +819,12 @@ export const LoginPage = () => {
             </div>
           )}
 
-          {/* â•â•â•â•â•â•â•â•â•â• SHRAMIK â•â•â•â•â•â•â•â•â•â• */}
+          {/* ══════════ SHRAMIK ══════════ */}
           {activeRoleTab === 'shramik' && (
             <div className="space-y-5">
               <div>
                 <h3 className="text-2xl font-bold font-heading text-slate-900">
-                  {authMode === 'signin' ? t('auth.shramikSignIn', 'Shramik Sign In ðŸ”¨') : t('auth.partnerRegistration', 'Partner Registration ðŸ“')}
+                  {authMode === 'signin' ? t('auth.shramikSignIn', 'Shramik Sign In 🔨') : t('auth.partnerRegistration', 'Partner Registration 📝')}
                 </h3>
                 <p className="text-sm text-slate-500 mt-1">
                   {authMode === 'signin' ? t('auth.shramikSignInDesc', 'Sign in to manage your jobs.') : t('auth.partnerRegistrationDesc', 'Register to start accepting jobs near you.')}
@@ -835,7 +908,7 @@ export const LoginPage = () => {
                       <Briefcase className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
                       <select value={ssuSkill} onChange={e => setSsuSkill(e.target.value)}
                         className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all appearance-none font-sans text-slate-700">
-                        <option value="">{t('shramik.selectSkill', 'Select your skillâ€¦')}</option>
+                        <option value="">{t('shramik.selectSkill', 'Select your skill…')}</option>
                         {SKILLS.map(s => <option key={s} value={s}>{tSkill(s)}</option>)}
                       </select>
                       <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -858,12 +931,12 @@ export const LoginPage = () => {
             </div>
           )}
 
-          {/* â•â•â•â•â•â•â•â•â•â• ADMIN â•â•â•â•â•â•â•â•â•â• */}
+          {/* ══════════ ADMIN ══════════ */}
           {activeRoleTab === 'admin' && (
             <div className="space-y-5">
               <div>
                 <h3 className="text-2xl font-bold font-heading text-slate-900">
-                  {authMode === 'signin' ? t('auth.adminLogin', 'Admin Login ðŸ›¡ï¸') : t('auth.adminRegistration', 'Admin Registration ðŸ›¡ï¸')}
+                  {authMode === 'signin' ? t('auth.adminLogin', 'Admin Login 🛡️') : t('auth.adminRegistration', 'Admin Registration 🛡️')}
                 </h3>
                 <p className="text-sm text-slate-500 mt-1">
                   {authMode === 'signin' ? t('auth.adminLoginDesc', 'Sign in to manage the platform.') : t('auth.adminRegDesc', 'Register your official admin account.')}

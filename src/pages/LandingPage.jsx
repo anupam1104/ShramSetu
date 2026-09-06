@@ -63,7 +63,8 @@ export const LandingPage = () => {
     }
   };
 
-  const handleOpenWorker = (workerId = 'shr-1') => {
+  const handleOpenWorker = (workerId = '') => {
+    if (!workerId) return;
     setSelectedWorkerId(workerId);
     if (!isLoggedIn) {
       setIntendedLoginRole('customer');
@@ -154,20 +155,19 @@ export const LandingPage = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-1.5">
-                          <h4 className="font-bold text-slate-900 text-sm">Ramesh Kumar</h4>
+                          <h4 className="font-bold text-slate-900 text-sm">{t('rameshKumar', 'Ramesh Kumar')}</h4>
                           <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full border border-emerald-300 flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {t('verified', 'Verified')}
                           </span>
                         </div>
-                        <span className="text-[10px] text-emerald-700 font-bold group-hover/card:translate-x-1 transition-transform">{t('bookNow', 'Book Now')} â†’</span>
+                        <span className="text-[10px] text-emerald-700 font-bold group-hover/card:translate-x-1 transition-transform">{t('bookNow', 'Book Now')} →</span>
                       </div>
-                      <p className="text-xs text-slate-600">{t('masterElectrician', 'Master Electrician')} â€¢ SS-10101</p>
+                      <p className="text-xs text-slate-600">{tSkill('Electrician')} • SS-10101</p>
                       <div className="flex items-center space-x-2 text-xs text-slate-500 mt-1">
                         <span className="flex items-center text-amber-500 font-semibold">
                           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-0.5" /> 4.8
                         </span>
-                        <span>â€¢ 120 {t('jobsDone', 'jobs done')}</span>
-                        <span>â€¢ 2.1 {t('kmAway', 'km away')}</span>
+                        <span>• 120 {t('jobsDone', 'jobs')} • 2.1 km</span>
                       </div>
                     </div>
                   </div>

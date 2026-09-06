@@ -56,7 +56,7 @@ export const AdminBookings = () => {
 
   // New Booking Form State
   const [newBookingForm, setNewBookingForm] = useState({
-    shramikId: shramiks[0]?.id || 'shr-1',
+    shramikId: shramiks[0]?.id || '',
     jobTitle: '',
     jobLocation: 'Salt Lake, Kolkata',
     scheduleDate: '2025-09-15',
@@ -183,7 +183,7 @@ export const AdminBookings = () => {
       shramikId: worker.id,
       shramikName: worker.name,
       shramikSkill: worker.skill,
-      shramikArea: worker.area || 'Kolkata',
+      shramikArea: worker.area || '',
       shramikPhoto: worker.photo,
       jobTitle: newBookingForm.jobTitle || `${worker.skill} Service`,
       jobLocation: newBookingForm.jobLocation,
@@ -852,7 +852,7 @@ export const AdminBookings = () => {
               <div className="flex-1">
                 <p className="font-bold text-slate-900 text-sm">{viewBooking.shramikName}</p>
                 <p className="text-xs text-emerald-700 font-semibold">{tSkill(viewBooking.shramikSkill)} • {viewBooking.shramikArea || 'Kolkata'}</p>
-                <p className="text-[11px] text-slate-500 font-mono">ID: SS-10101</p>
+                <p className="text-[11px] text-slate-500 font-mono">ID: {viewBooking.shramikId || 'SS-10101'}</p>
               </div>
             </div>
 

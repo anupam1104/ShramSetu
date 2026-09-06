@@ -13,9 +13,26 @@ import confetti from 'canvas-confetti';
 
 export const PaymentPage = () => {
   const { bookings, activeBookingId, processPayment, setCurrentScreen, t } = useApp();
-  const booking = bookings.find(b => b.id === activeBookingId) || bookings[0];
+  const booking = bookings.find(b => b.id === activeBookingId) || bookings[0] || null;
 
-  const [paymentSuccess, setPaymentSuccess] = useState(booking.status === 'Paid');
+  const [paymentSuccess, setPaymentSuccess] = useState(booking?.status === 'Paid');
+
+  if (!booking) {
+    return (
+      <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center space-y-3">
+          <p className="font-bold text-slate-900">{t('noBookingPayment', 'No booking found')}</p>
+          <p className="text-xs text-slate-500">{t('bookingPaymentEmpty', 'Create a booking before proceeding to payment.')}</p>
+          <button
+            onClick={() => setCurrentScreen('search')}
+            className="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all"
+          >
+            {t('backToSearch', 'Back to Search Results')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handlePayNow = () => {
     // Trigger confetti celebration
@@ -65,19 +82,19 @@ export const PaymentPage = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center text-slate-600">
                   <span>{t('serviceAmount', 'Service Amount')} ({booking.serviceName})</span>
-                  <span className="font-semibold font-mono text-slate-900">â‚¹{booking.serviceFee}</span>
+                  <span className="font-semibold font-mono text-slate-900">₹{booking.serviceFee}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-slate-600">
                   <span>{t('platformVerificationFee', 'Platform & Verification Fee')}</span>
-                  <span className="font-semibold font-mono text-slate-900">â‚¹{booking.platformFee}</span>
+                  <span className="font-semibold font-mono text-slate-900">₹{booking.platformFee}</span>
                 </div>
 
                 <hr className="border-slate-200 my-2" />
 
                 <div className="flex justify-between items-center text-base font-bold text-slate-900">
                   <span>{t('totalPayable', 'Total Payable')}</span>
-                  <span className="text-xl font-mono text-emerald-700">â‚¹{booking.totalAmount}</span>
+                  <span className="text-xl font-mono text-emerald-700">₹{booking.totalAmount}</span>
                 </div>
               </div>
 
@@ -89,11 +106,11 @@ export const PaymentPage = () => {
 
                 <div className="flex justify-between text-slate-700 font-mono">
                   <span>{t('shramikReceives', { name: booking.shramikName })}</span>
-                  <span className="font-bold text-emerald-800">â‚¹{booking.serviceFee}</span>
+                  <span className="font-bold text-emerald-800">₹{booking.serviceFee}</span>
                 </div>
                 <div className="flex justify-between text-slate-700 font-mono">
                   <span>{t('platformFee', 'Platform fee:')}</span>
-                  <span className="font-bold text-slate-800">â‚¹{booking.platformFee}</span>
+                  <span className="font-bold text-slate-800">₹{booking.platformFee}</span>
                 </div>
               </div>
 
@@ -127,7 +144,7 @@ export const PaymentPage = () => {
 
             <div className="space-y-2">
               <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-300">
-                {t('paidSuccessfully', 'âœ“ Paid Successfully')}
+                {t('paidSuccessfully', '✓ Paid Successfully')}
               </span>
               <h2 className="text-3xl font-extrabold font-heading text-slate-900">
                 {t('paymentConfirmed', 'Payment Confirmed!')}

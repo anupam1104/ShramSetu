@@ -125,7 +125,7 @@ export const TrackBooking = () => {
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20' 
                     : 'bg-slate-100 text-slate-400 border border-slate-300'
                 } ${isCurrent ? 'ring-4 ring-emerald-100 scale-110' : ''}`}>
-                  {isDone ? 'âœ“' : idx + 1}
+                  {isDone ? '✓' : idx + 1}
                 </div>
                 <span className={`text-[11px] font-bold mt-2 ${isCurrent ? 'text-emerald-700' : isDone ? 'text-slate-900' : 'text-slate-400'}`}>
                   {st.label}
@@ -174,7 +174,7 @@ export const TrackBooking = () => {
           </div>
           <div>
             <h3 className="font-bold text-slate-900 text-lg">{booking.shramikName}</h3>
-            <p className="text-xs text-emerald-700 font-semibold">{tSkill(booking.skill)} â€¢ {booking.shramikPhone}</p>
+            <p className="text-xs text-emerald-700 font-semibold">{tSkill(booking.skill)} • {booking.shramikPhone}</p>
           </div>
         </div>
 
@@ -185,7 +185,7 @@ export const TrackBooking = () => {
           </div>
           <div className="flex justify-between">
             <span className="text-slate-500">{t('scheduled', 'Scheduled:')}</span>
-            <span className="font-semibold font-mono text-slate-800">{booking.date} â€¢ {booking.time}</span>
+            <span className="font-semibold font-mono text-slate-800">{booking.date} • {booking.time}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-500">{t('serviceAddressLbl', 'Service Address:')}</span>
@@ -241,7 +241,7 @@ export const TrackBooking = () => {
 
           <div className="space-y-1">
             <h3 className="text-xl font-bold font-heading text-emerald-950">
-              {t('workCompleted', 'âœ“ Work Completed')}
+              {t('workCompleted', '✓ Work Completed')}
             </h3>
             <p className="text-xs text-emerald-800">
               {t('workCompletedDesc', 'Your service has been completed successfully. Please proceed to payment.')}
@@ -262,7 +262,7 @@ export const TrackBooking = () => {
       {booking.status === 'Paid' && (
         <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-3xl text-center space-y-4">
           <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-          <h3 className="text-xl font-bold font-heading text-emerald-950">{t('paymentReceived', 'âœ“ Payment Received')}</h3>
+          <h3 className="text-xl font-bold font-heading text-emerald-950">{t('paymentReceived', '✓ Payment Received')}</h3>
           <p className="text-xs text-slate-600">
             {t('paymentReceivedDesc', 'Thank you! Service is complete and paid.')}
           </p>

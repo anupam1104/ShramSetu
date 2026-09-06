@@ -222,7 +222,7 @@ export const ShramikSignup = () => {
         {/* Step Forms */}
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
           
-          {/* STEP 1 â€” Personal Information */}
+          {/* STEP 1 — Personal Information */}
           {step === 1 && (
             <div className="space-y-4 animate-fade-in">
               <div>
@@ -287,7 +287,7 @@ export const ShramikSignup = () => {
             </div>
           )}
 
-          {/* STEP 2 â€” Professional Information */}
+          {/* STEP 2 — Professional Information */}
           {step === 2 && (
             <div className="space-y-5 animate-fade-in">
               <div>
@@ -375,7 +375,7 @@ export const ShramikSignup = () => {
             </div>
           )}
 
-          {/* STEP 3 â€” Location & Final Submission */}
+          {/* STEP 3 — Location & Final Submission */}
           {step === 3 && (
             <div className="space-y-5 animate-fade-in">
               <div>

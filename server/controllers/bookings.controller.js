@@ -1,7 +1,7 @@
+import crypto from 'crypto';
 import { supabaseRequest } from '../db/connection.js';
 
-const createBookingId = () => `BK-${Math.floor(1000 + Math.random() * 9000)}`;
-const createStartCode = () => String(Math.floor(1000 + Math.random() * 9000));
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const createBooking = async (req, res) => {
 	const {
@@ -20,11 +20,15 @@ export const createBooking = async (req, res) => {
 		return res.status(400).json({ error: 'shramikId, serviceName, date, time, customerName, customerPhone, and serviceFee are required.' });
 	}
 
+	if (!UUID_RE.test(String(shramikId))) {
+		return res.status(400).json({ error: 'That worker is not saved on the server yet. Book a verified worker from the directory.' });
+	}
+
 	const [booking] = await supabaseRequest('bookings', {
 		method: 'POST',
 		headers: { Prefer: 'return=representation' },
 		body: JSON.stringify({
-			id: createBookingId(),
+			id: `BK-${crypto.randomUUID()}`,
 			shramik_id: shramikId,
 			service_name: serviceName,
 			scheduled_date: date,
@@ -34,8 +38,8 @@ export const createBooking = async (req, res) => {
 			customer_address: customerAddress,
 			service_fee: serviceFee,
 			platform_fee: platformFee,
-			total_amount: serviceFee + platformFee,
-			start_code: createStartCode(),
+			total_amount: Number(serviceFee) + Number(platformFee),
+			start_code: String(Math.floor(1000 + Math.random() * 9000)),
 			status: 'Confirmed',
 		}),
 	});

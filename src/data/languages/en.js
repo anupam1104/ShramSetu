@@ -208,6 +208,7 @@ const en = {
   employeeAdminId: 'Employee / Admin ID',
   empIdPh: 'e.g. GOV-ADM-2024',
   registerAdminAccount: 'Register Admin Account',
+  offlineAdminSaved: 'Server unreachable — admin saved locally (offline demo).',
 
   /* Toast messages (Login) */
   tValidPhone: 'Enter a valid 10-digit phone number.',

@@ -15,7 +15,24 @@ import {
 
 export const WorkerProfile = () => {
   const { shramiks, selectedWorkerId, setCurrentScreen, t, tSkill } = useApp();
-  const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
+  const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
+
+  if (!worker) {
+    return (
+      <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center space-y-3">
+          <p className="font-bold text-slate-900">{t('noWorkerProfile', 'No verified worker found')}</p>
+          <p className="text-xs text-slate-500">{t('workerProfileEmpty', 'Workers appear here once approved by an admin.')}</p>
+          <button
+            onClick={() => setCurrentScreen('search')}
+            className="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all"
+          >
+            {t('backToSearch', 'Back to Search Results')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleBookNow = () => {
     setCurrentScreen('slot');
@@ -32,7 +49,7 @@ export const WorkerProfile = () => {
         <ArrowLeft className="w-4 h-4" /> {t('backToSearch', 'Back to Search Results')}
       </button>
 
-      {/* Top Section â€” Worker Hero Card */}
+      {/* Top Section — Worker Hero Card */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-lg space-y-6">
         
         <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
@@ -54,7 +71,7 @@ export const WorkerProfile = () => {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-300">
-                  â— {t('pendingVerification', 'Pending Verification')}
+                  ● {t('pendingVerification', 'Pending Verification')}
                 </span>
               )}
             </div>
@@ -112,7 +129,7 @@ export const WorkerProfile = () => {
           <div>
             <p className="text-xs text-slate-500 font-semibold uppercase">{t('pricingRate', 'Pricing Rate')}</p>
             <p className="text-2xl font-extrabold font-mono text-slate-900">
-              â‚¹{worker.hourlyRate} <span className="text-xs font-normal text-slate-500">{t('perHour', '/ hour')}</span>
+              ₹{worker.hourlyRate} <span className="text-xs font-normal text-slate-500">{t('perHour', '/ hour')}</span>
             </p>
           </div>
 
@@ -131,7 +148,7 @@ export const WorkerProfile = () => {
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-4 shadow-2xl flex items-center justify-between">
         <div>
           <p className="text-[10px] text-slate-500 font-bold uppercase">{t('rate', 'Rate')}</p>
-          <p className="text-xl font-bold font-mono text-slate-900">â‚¹{worker.hourlyRate}{t('perHr', '/hr')}</p>
+          <p className="text-xl font-bold font-mono text-slate-900">₹{worker.hourlyRate}{t('perHr', '/hr')}</p>
         </div>
 
         <button

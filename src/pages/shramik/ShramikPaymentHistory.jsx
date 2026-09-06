@@ -6,9 +6,9 @@ import { ShramikFinanceNav } from '../../components/ShramikFinanceNav';
 
 export const ShramikPaymentHistory = () => {
   const { shramiks, activeShramikId, bookings, t, tStatus } = useApp();
-  const currentShramik = shramiks.find(s => s.id === activeShramikId) || shramiks[0];
+  const currentShramik = shramiks.find(s => s.id === activeShramikId) || shramiks[0] || null;
 
-  const { earningBookings } = computeShramikFinance(bookings, currentShramik.id);
+  const { earningBookings } = computeShramikFinance(bookings, currentShramik?.id);
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6 pb-20">

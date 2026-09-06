@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AdminLayout } from './AdminLayout';
+import { sameCity } from '../../lib/store';
 import { 
   UserCheck, 
   CheckCircle2, 
@@ -11,15 +12,61 @@ import {
   Wrench, 
   MapPin, 
   Sparkles,
-  Search
+  Search,
+  RefreshCw
 } from 'lucide-react';
 
 export const AdminPendingApprovals = () => {
-  const { shramiks, approveShramik, rejectShramik, switchRole, setSelectedWorkerId, setCurrentScreen, t, tSkill, tStatus } = useApp();
+  const { shramiks, approveShramik, rejectShramik, switchRole, setSelectedWorkerId, setCurrentScreen, currentUser, syncPendingApprovals, t, tSkill, tStatus } = useApp();
   const [selectedModalWorker, setSelectedModalWorker] = useState(null);
+  const [syncing, setSyncing] = useState(false);
 
-  const pendingList = shramiks.filter(s => !s.verified);
-  const verifiedList = shramiks.filter(s => s.verified);
+  // Admin city drives which queue is shown. The shramik's city is stored at
+  // signup and persisted server-side, so each admin only sees their locality.
+  const adminCity = currentUser?.city || 'Kolkata';
+  const isOtherCity = (worker) => worker.city && !sameCity(worker.city, adminCity);
+
+  // Pull the latest city-sorted queue from the server (or the local account
+  // store offline) whenever the approvals screen opens or admin city changes.
+  useEffect(() => {
+    let active = true;
+    setSyncing(true);
+    syncPendingApprovals(currentUser?.city)
+      .catch(() => {})
+      .finally(() => { if (active) setSyncing(false); });
+    return () => { active = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.city]);
+
+  // Live polling so that when one admin of the city approves/rejects, every
+  // other admin for the same city sees the queue update automatically.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      syncPendingApprovals(currentUser?.city)
+        .catch(() => {})
+        .finally(() => setSyncing(false));
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [currentUser?.city, syncPendingApprovals]);
+
+  const handleRefresh = async () => {
+    setSyncing(true);
+    try {
+      await syncPendingApprovals(currentUser?.city);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Pending queue scoped to THIS admin's city, sorted by city then name.
+  const pendingList = shramiks
+    .filter(s => !s.verified && (!s.city || sameCity(s.city, adminCity)))
+    .sort((a, b) => (a.city || '').localeCompare(b.city || '') || (a.name || '').localeCompare(b.name || ''));
+  const verifiedList = shramiks
+    .filter(s => s.verified && (!s.city || sameCity(s.city, adminCity)))
+    .sort((a, b) => (a.city || '').localeCompare(b.city || ''));
+  const otherCitiesPending = shramiks.filter(s => !s.verified && isOtherCity(s));
+  const otherCityNames = [...new Set(otherCitiesPending.map(s => s.city))].slice(0, 3).join(', ');
 
   return (
     <AdminLayout>
@@ -34,12 +81,28 @@ export const AdminPendingApprovals = () => {
             <p className="text-sm text-slate-500 mt-1">
               {t('admin.verificationQueueSubtitle', 'Review candidate background and issue official Shramik IDs (SS-XXXXXX).')}
             </p>
+            <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+              {t('admin.queueForCity', 'Queue for {city} — registrations from this city only.', { city: adminCity.split(' | ')[0] })}
+            </p>
           </div>
 
-          <span className="bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1.5">
-            <UserCheck className="w-4 h-4 text-amber-700" />
-            {t('admin.pendingCount', '{count} Pending Approval(s)', { count: pendingList.length })}
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleRefresh}
+              disabled={syncing}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-bold text-xs transition-all disabled:opacity-50"
+              title={t('admin.syncQueue', 'Sync queue with server')}
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? t('admin.syncing', 'Syncing…') : t('admin.sync', 'Sync')}
+            </button>
+
+            <span className="bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1.5">
+              <UserCheck className="w-4 h-4 text-amber-700" />
+              {t('admin.pendingCount', '{count} Pending Approval(s)', { count: pendingList.length })}
+            </span>
+          </div>
         </div>
 
         {/* Verification Queue Table */}
@@ -49,7 +112,7 @@ export const AdminPendingApprovals = () => {
             <h3 className="font-bold text-slate-900 text-sm font-heading uppercase tracking-wider">
               {t('admin.pendingRegistrations', 'Pending Registrations')}
             </h3>
-            <span className="text-xs text-slate-500">{t('admin.liveManagement', 'Live Management')}</span>
+            <span className="text-xs text-slate-500">{t('admin.sortedByCity', 'Sorted by City · Live')}</span>
           </div>
 
           <div className="overflow-x-auto">
@@ -60,6 +123,7 @@ export const AdminPendingApprovals = () => {
                   <th className="py-3.5 px-4">{t('common.skill', 'Skill')}</th>
                   <th className="py-3.5 px-4">{t('common.experience', 'Experience')}</th>
                   <th className="py-3.5 px-4">{t('auth.phone', 'Phone')}</th>
+                  <th className="py-3.5 px-4">{t('common.cityArea', 'City & Area')}</th>
                   <th className="py-3.5 px-4">{t('booking.status', 'Status')}</th>
                   <th className="py-3.5 px-4 sm:px-6 text-right">{t('common.action', 'Action')}</th>
                 </tr>
@@ -98,6 +162,14 @@ export const AdminPendingApprovals = () => {
                       {/* Phone */}
                       <td className="py-4 px-4 text-slate-600 font-mono text-xs">
                         {worker.phone}
+                      </td>
+
+                      {/* City & Area */}
+                      <td className="py-4 px-4">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700">
+                          <MapPin className="w-3 h-3 text-emerald-600" />
+                          {worker.city}, {worker.area}
+                        </span>
                       </td>
 
                       {/* Status Badge */}
@@ -143,10 +215,14 @@ export const AdminPendingApprovals = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-500 space-y-2">
+                    <td colSpan={7} className="py-12 text-center text-slate-500 space-y-2">
                       <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
                       <p className="font-bold text-slate-900 text-base">{t('admin.noPendingApprovals', 'No pending approvals in queue.')}</p>
-                      <p className="text-xs text-slate-400">{t('admin.allShramiksVerified', 'All registered Shramiks are verified!')}</p>
+                      <p className="text-xs text-slate-400">
+                        {otherCitiesPending.length > 0
+                          ? t('admin.otherCityQueueHint', '{count} registration(s) awaiting review in other cities: {cities}. These are assigned to admins for those cities.', { count: otherCitiesPending.length, cities: otherCityNames })
+                          : t('admin.allShramiksVerified', 'All registered Shramiks are verified!')}
+                      </p>
                     </td>
                   </tr>
                 )}
@@ -172,7 +248,7 @@ export const AdminPendingApprovals = () => {
                   <img src={worker.photo} alt={worker.name} className="w-10 h-10 rounded-xl object-cover" />
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-slate-900 text-sm truncate group-hover:text-emerald-700 transition-colors">{worker.name}</p>
-                    <p className="text-xs text-emerald-700 font-semibold font-mono">{worker.shramikId || 'SS-10101'}</p>
+                    <p className="text-xs text-emerald-700 font-semibold font-mono">{worker.shramikId || '—'}</p>
                   </div>
                 </div>
                 <div className="flex justify-between text-xs text-slate-600 pt-1 border-t border-slate-200">
@@ -198,7 +274,7 @@ export const AdminPendingApprovals = () => {
                 onClick={() => setSelectedModalWorker(null)}
                 className="text-slate-400 hover:text-slate-600 text-xl font-bold"
               >
-                âœ•
+                ✕
               </button>
             </div>
 

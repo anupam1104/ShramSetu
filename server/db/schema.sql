@@ -30,6 +30,35 @@ $$;
 revoke all on function public.authenticate_admin(text, text) from public;
 grant execute on function public.authenticate_admin(text, text) to anon;
 
+-- Create a new admin account (city-tagged). City drives the pending-approval
+-- queue: every admin whose login city matches the shramik's city sees the
+-- registration. Passwords are bcrypt-hashed with pgcrypto.
+create or replace function public.create_admin(
+  admin_name text,
+  admin_phone text,
+  admin_employee_id text,
+  admin_city text,
+  admin_password text
+)
+returns table (id uuid, name text, phone text, employee_id text, city text)
+language sql
+security definer
+set search_path = public
+as $$
+  insert into public.admins (name, phone, employee_id, city, password_hash)
+  values (
+    admin_name,
+    admin_phone,
+    admin_employee_id,
+    admin_city,
+    extensions.crypt(admin_password, extensions.gen_salt('bf'))
+  )
+  returning id, name, phone, employee_id, city;
+$$;
+
+revoke all on function public.create_admin(text, text, text, text, text) from public;
+grant execute on function public.create_admin(text, text, text, text, text) to anon;
+
 create or replace function public.approve_shramik(shramik_uuid uuid)
 returns table (id uuid, verified boolean, shramik_id text)
 language plpgsql
@@ -47,8 +76,11 @@ begin
 end;
 $$;
 
+-- This procedure is invoked by the API using SUPABASE_SERVICE_ROLE_KEY after
+-- it validates the admin token and city. Do not expose approval directly to
+-- browser clients through the public anon role.
 revoke all on function public.approve_shramik(uuid) from public;
-grant execute on function public.approve_shramik(uuid) to anon;
+revoke execute on function public.approve_shramik(uuid) from anon;
 
 create table if not exists public.shramiks (
   id uuid primary key default gen_random_uuid(),
@@ -62,6 +94,7 @@ create table if not exists public.shramiks (
   hourly_rate integer not null default 250,
   phone text not null,
   city text not null,
+  location_key text not null,
   area text not null,
   experience text not null,
   services text[] not null default '{}',
@@ -69,6 +102,19 @@ create table if not exists public.shramiks (
   bio text,
   created_at timestamptz not null default now()
 );
+
+-- Safe to run on an existing project as well as a fresh one. The display city
+-- stays untouched; location_key is the canonical routing key used by the
+-- server to match a shramik with admins from the same city.
+alter table public.shramiks add column if not exists location_key text;
+update public.shramiks
+set location_key = lower(trim(split_part(city, '|', 1)))
+where location_key is null or location_key = '';
+alter table public.shramiks alter column location_key set not null;
+create unique index if not exists shramiks_phone_unique on public.shramiks (phone);
+create index if not exists shramiks_pending_location_idx
+  on public.shramiks (location_key, created_at desc)
+  where verified = false;
 
 alter table public.shramiks enable row level security;
 
@@ -82,7 +128,7 @@ create policy "Public can read shramiks"
 drop policy if exists "Public can submit shramiks" on public.shramiks;
 create policy "Public can submit shramiks"
   on public.shramiks for insert
-  with check (verified = false);
+  with check (verified = false and location_key = lower(trim(split_part(city, '|', 1))));
 
 create table if not exists public.bookings (
   id text primary key,

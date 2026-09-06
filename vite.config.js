@@ -7,4 +7,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   // Relative base so the built app (and bundled backdrop) works from file:// in the Electron shell
   base: './',
+  server: {
+    proxy: {
+      '/api': 'http://localhost:4000',
+      '/health': 'http://localhost:4000',
+    },
+  },
 })

@@ -29,7 +29,7 @@ import { AdminSettings } from './pages/admin/AdminSettings';
 import { AdminBookings } from './pages/admin/AdminBookings';
 
 const MainContent = () => {
-  const { currentScreen, role, isLoggedIn } = useApp();
+  const { currentScreen, role, isLoggedIn, activeShramikId, shramiks, currentUser } = useApp();
 
   // Smooth scroll to top whenever screen changes
   useEffect(() => {
@@ -65,6 +65,17 @@ const MainContent = () => {
 
     // STRICT SHRAMIK PORTAL
     if (role === 'shramik') {
+      // Dashboard and job screens stay LOCKED until an admin
+      // approves the profile and issues the Shramik ID.
+      const activeShramik = shramiks.find(s => s.id === activeShramikId)
+        || (currentUser?.id ? shramiks.find(s => s.id === currentUser.id) : null);
+      const isVerified = activeShramik ? activeShramik.verified : Boolean(currentUser?.verified && currentUser?.shramikId);
+
+      if (!isVerified) {
+        if (currentScreen === 'shramik_signup') return <ShramikSignup />;
+        return <ShramikPending />;
+      }
+
       if (currentScreen === 'shramik_job') return <ShramikJobScreen />;
       if (currentScreen === 'shramik_earnings') return <ShramikEarnings />;
       if (currentScreen === 'shramik_cut_ratio') return <ShramikCutRatio />;

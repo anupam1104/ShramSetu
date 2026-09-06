@@ -37,16 +37,20 @@ export const ShramikDashboard = () => {
     return () => clearTimeout(timer);
   }, [greetingKey]);
 
-  const currentShramik = shramiks.find(s => s.id === activeShramikId) || shramiks[0];
-  const activeBooking = bookings.find(b => (b.shramikId === currentShramik.id || b.id === 'BK-8891') && !['Cancelled','Completed','Paid'].includes(b.status)) || null;
+  const currentShramik = shramiks.find(s => s.id === activeShramikId) || null;
+  const activeBooking = currentShramik
+    ? bookings.find(b => b.shramikId === currentShramik.id && !['Cancelled','Completed','Paid'].includes(b.status))
+      || bookings.find(b => b.id === 'BK-8891')
+      || null
+    : null;
 
   // Prefer the actual logged-in Shramik identity for display
-  const displayName = currentUser?.name || currentShramik.name;
-  const displaySkill = currentUser?.skill || currentShramik.skill;
-  const displayId = currentUser?.shramikId || currentShramik.shramikId || 'SS-10101';
-  const displayCity = currentUser?.city || currentShramik.city;
+  const displayName = currentUser?.name || currentShramik?.name || t('shramikLabel', 'Shramik');
+  const displaySkill = currentUser?.skill || currentShramik?.skill || '';
+  const displayId = currentUser?.shramikId || currentShramik?.shramikId || '';
+  const displayCity = currentUser?.city || currentShramik?.city || '';
 
-  const finance = computeShramikFinance(bookings, currentShramik.id);
+  const finance = computeShramikFinance(bookings, currentShramik?.id);
   const confirmedJobs = finance.shramikBookings.filter(b => b.status === 'Confirmed' || b.status === 'In Progress');
   const completedCount = finance.shramikBookings.filter(b => b.status === 'Completed' || b.status === 'Paid').length;
 
@@ -78,7 +82,7 @@ export const ShramikDashboard = () => {
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-6">
           <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
             {/* Avatar */}
-            {currentShramik.photo ? (
+            {currentShramik?.photo ? (
               <img
                 src={currentShramik.photo}
                 alt={displayName}
@@ -102,7 +106,7 @@ export const ShramikDashboard = () => {
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-white tracking-tight truncate">
-                {t(greetingKey, 'Good morning')}, {displayName.split(' ')[0]} ðŸ‘‹
+                {t(greetingKey, 'Good morning')}, {displayName.split(' ')[0]} 👋
               </h1>
 
               <p className="text-sm text-emerald-100/85 flex items-center gap-2 flex-wrap">
@@ -118,12 +122,12 @@ export const ShramikDashboard = () => {
           <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-1 shrink-0">
             <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/20 px-3.5 py-2 rounded-2xl">
               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-              <span className="font-extrabold text-base">{Number(currentShramik.rating || 0).toFixed(1)}</span>
+              <span className="font-extrabold text-base">{Number(currentShramik?.rating || 0).toFixed(1)}</span>
               <span className="text-[10px] text-emerald-100/70 font-medium capitalize">{t('averageRating', 'Average Rating')}</span>
             </span>
             <span className="text-[11px] text-emerald-100/60">
-              {t('jobsDoneCount', { n: currentShramik.jobsCount || completedCount })}
-            </span>
+{t('jobsDoneCount', { n: currentShramik?.jobsCount || completedCount })}
+              </span>
           </div>
         </div>
       </div>
@@ -180,10 +184,10 @@ export const ShramikDashboard = () => {
             </span>
           </div>
           <p className="mt-2 text-2xl font-extrabold font-mono text-slate-900 flex items-center gap-1">
-            {Number(currentShramik.rating || 0).toFixed(1)}
+            {Number(currentShramik?.rating || 0).toFixed(1)}
             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
           </p>
-          <p className="text-[11px] text-slate-500 mt-1">{t('jobsDoneCount', { n: currentShramik.jobsCount || completedCount })}</p>
+          <p className="text-[11px] text-slate-500 mt-1">{t('jobsDoneCount', { n: currentShramik?.jobsCount || completedCount })}</p>
         </div>
       </div>
 
@@ -245,7 +249,7 @@ export const ShramikDashboard = () => {
                 activeBooking.status === 'Completed' ? 'badge-completed' :
                 activeBooking.status === 'Paid' ? 'badge-paid' : 'badge-confirmed'
               }`}>
-                â— {tStatus(activeBooking.status)}
+                ● {tStatus(activeBooking.status)}
               </span>
             </div>
 

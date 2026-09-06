@@ -1,9 +1,9 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { ShieldCheck, CheckCircle2, Clock, Sparkles, ArrowRight, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Clock, RefreshCw, ArrowRight } from 'lucide-react';
 
 export const ShramikPending = () => {
-  const { activeShramikId, shramiks, approveShramik, setCurrentScreen, switchRole, t, tSkill } = useApp();
+  const { activeShramikId, shramiks, refreshShramikStatus, setCurrentScreen, t, tSkill } = useApp();
   
   const currentShramik = shramiks.find(s => s.id === activeShramikId) || shramiks[2]; // fallback to Vikash (pending)
   const isVerified = currentShramik?.verified;
@@ -24,7 +24,7 @@ export const ShramikPending = () => {
 
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-300">
-                â— {t('registrationSubmitted', 'Registration Submitted')}
+                ● {t('registrationSubmitted', 'Registration Submitted')}
               </span>
               <h2 className="text-2xl font-bold font-heading text-slate-900">
                 {t('reviewInProgress', 'Your profile is being reviewed')}
@@ -45,7 +45,7 @@ export const ShramikPending = () => {
 
                 <div className="flex items-center space-x-3 relative z-10">
                   <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                    âœ“
+                    ✓
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-900">{t('registrationSubmitted', 'Registration Submitted')}</p>
@@ -55,7 +55,7 @@ export const ShramikPending = () => {
 
                 <div className="flex items-center space-x-3 relative z-10">
                   <div className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold animate-pulse">
-                    â—
+                    ●
                   </div>
                   <div>
                     <p className="text-xs font-bold text-amber-900">{t('adminReview', 'Admin Review')}</p>
@@ -65,7 +65,7 @@ export const ShramikPending = () => {
 
                 <div className="flex items-center space-x-3 relative z-10 opacity-50">
                   <div className="w-5 h-5 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs font-bold">
-                    â—‹
+                    ○
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-600">{t('verifiedBadgeIssued', 'Verified Badge Issued')}</p>
@@ -81,12 +81,15 @@ export const ShramikPending = () => {
 
             <div className="pt-2 border-t border-slate-100 space-y-2">
               <button
-                onClick={() => approveShramik(currentShramik.id)}
+                onClick={() => refreshShramikStatus()}
                 className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all flex items-center justify-center space-x-2"
               >
-                <Sparkles className="w-4 h-4 text-emerald-200" />
-                <span>{t('simulateApproval', 'Simulate Verification Approval')}</span>
+                <RefreshCw className="w-4 h-4 text-emerald-200" />
+                <span>{t('checkApprovalStatus', 'Check Approval Status')}</span>
               </button>
+              <p className="text-[11px] text-slate-400">
+                {t('noSelfApproval', 'Only a Shram Setu administrator can approve your registration and issue your Shramik ID.')}
+              </p>
             </div>
           </div>
         ) : (
@@ -114,7 +117,7 @@ export const ShramikPending = () => {
                 <div>
                   <p className="text-[10px] text-emerald-200 uppercase font-semibold">{t('officialShramikId', 'Official Shramik ID')}</p>
                   <p className="text-2xl font-mono font-bold text-white tracking-wider mt-0.5">
-                    {currentShramik.shramikId || 'SS-10234'}
+                    {currentShramik.shramikId || '—'}
                   </p>
                 </div>
                 <ShieldCheck className="w-8 h-8 text-emerald-400 opacity-80" />

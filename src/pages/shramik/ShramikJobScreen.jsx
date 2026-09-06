@@ -15,9 +15,26 @@ import {
 
 export const ShramikJobScreen = () => {
   const { bookings, activeBookingId, verifyStartCode, setCurrentScreen, t, tStatus, tSkill } = useApp();
-  const currentBooking = bookings.find(b => b.id === activeBookingId) || bookings[0];
+  const currentBooking = bookings.find(b => b.id === activeBookingId) || bookings[0] || null;
 
   const [pinDigits, setPinDigits] = useState(['', '', '', '']);
+
+  if (!currentBooking) {
+    return (
+      <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center space-y-3">
+          <p className="font-bold text-slate-900">{t('noActiveJob', 'No active job')}</p>
+          <p className="text-xs text-slate-500">{t('activeJobEmpty', 'Booked jobs appear here once a customer books your service.')}</p>
+          <button
+            onClick={() => setCurrentScreen('shramik_dashboard')}
+            className="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all"
+          >
+            {t('backToJobs', 'Back to Dashboard')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleDigitChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
@@ -68,7 +85,7 @@ export const ShramikJobScreen = () => {
             currentBooking.status === 'Completed' ? 'badge-completed' :
             currentBooking.status === 'Paid' ? 'badge-paid' : 'badge-confirmed'
           }`}>
-            â— {tStatus(currentBooking.status)}
+            ● {tStatus(currentBooking.status)}
           </span>
         </div>
 
@@ -90,7 +107,7 @@ export const ShramikJobScreen = () => {
             <div className="flex justify-between items-center">
               <span className="text-slate-500 font-medium">{t('booking.dateTime', 'Date & Time')}:</span>
               <span className="font-semibold text-slate-800 font-mono">
-                {currentBooking.date} â€¢ {currentBooking.time}
+                {currentBooking.date} • {currentBooking.time}
               </span>
             </div>
 
@@ -154,9 +171,9 @@ export const ShramikJobScreen = () => {
 
               <div className="space-y-1">
                 <h3 className="text-xl font-bold text-emerald-950 font-heading">
-                  {currentBooking.status === 'In Progress' && t('shramik.codeVerifiedInProgress', 'âœ“ Code Verified! Job In Progress')}
-                  {currentBooking.status === 'Completed' && t('shramik.workDoneConfirmed', 'âœ“ Work Done Confirmed by Customer')}
-                  {currentBooking.status === 'Paid' && t('shramik.jobPaid', 'âœ“ Job Completed & Paid')}
+                  {currentBooking.status === 'In Progress' && t('shramik.codeVerifiedInProgress', '✓ Code Verified! Job In Progress')}
+                  {currentBooking.status === 'Completed' && t('shramik.workDoneConfirmed', '✓ Work Done Confirmed by Customer')}
+                  {currentBooking.status === 'Paid' && t('shramik.jobPaid', '✓ Job Completed & Paid')}
                 </h3>
                 <p className="text-xs text-emerald-800">
                   {t('booking.service', 'Service')}: <strong>{tSkill(currentBooking.serviceName)}</strong> {t('common.for', 'for')} {currentBooking.customerName}
@@ -171,7 +188,7 @@ export const ShramikJobScreen = () => {
 
               {currentBooking.status === 'Paid' && (
                 <p className="text-xs text-emerald-900 bg-emerald-200/60 p-3 rounded-xl border border-emerald-300 font-bold">
-                  {t('shramik.creditedNotice', 'â‚¹{amount} credited to your daily earnings.', { amount: currentBooking.serviceFee })}
+                  {t('shramik.creditedNotice', '₹{amount} credited to your daily earnings.', { amount: currentBooking.serviceFee })}
                 </p>
               )}
             </div>
