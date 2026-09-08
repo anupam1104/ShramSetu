@@ -969,7 +969,7 @@ export const AppProvider = ({ children }) => {
         // server did not persist it. Offline mode remains available only when
         // VITE_API_URL is intentionally omitted.
         console.error('Booking was not saved on the server:', error.message || error);
-        showToast(t('bookingSendFailed', 'Booking could not be sent: {reason}', { reason: error.message || 'server error' }), 'error');
+        showToast(`Booking could not be sent: ${error.message || 'server error'}`, 'error');
         return;
       }
     }
