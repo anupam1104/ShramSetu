@@ -92,6 +92,28 @@ export const listShramikBookings = async (req, res) => {
 	return res.json(await supabaseRequest(`bookings?${query.toString()}`));
 };
 
+export const listCustomerBookings = async (req, res) => {
+	// Accept either a customer UUID (login) or any phone format (booking flow
+	// stores "+91 XXXXX XXXXX" while signup stores raw digits), so the customer
+	// reliably sees their own bookings — and the start code once the Shramik
+	// has accepted and the status becomes Confirmed.
+	const identifier = String(req.params.customerId || '').trim();
+	const conditions = [];
+	if (UUID_RE.test(identifier)) conditions.push(`customer_id.eq.${identifier}`);
+	const digits = identifier.replace(/\D/g, '').slice(-10);
+	if (digits.length === 10) {
+		conditions.push(`customer_phone.eq.${encodeURIComponent(digits)}`);
+		conditions.push(`customer_phone.eq.${encodeURIComponent(`+91 ${digits}`)}`);
+	}
+	if (conditions.length === 0) return res.json([]);
+	const query = new URLSearchParams({
+		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',
+		order: 'created_at.desc',
+	});
+	query.set('or', `(${conditions.join(',')})`);
+	return res.json(await supabaseRequest(`bookings?${query.toString()}`));
+};
+
 const bookingUpdate = async (id, updates, expectedStatus) => {
 	const query = new URLSearchParams({ id: `eq.${id}`, status: `eq.${expectedStatus}` });
 	const [booking] = await supabaseRequest(`bookings?${query.toString()}`, {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
+import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getCustomerBookings, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -462,6 +462,35 @@ export const AppProvider = ({ children }) => {
             const mapped = remoteBookings.map((b) => ({
               id: b.id,
               shramikId: b.shramik_id || targetId,
+              shramikName: b.shramiks?.name || 'Assigned Worker',
+              shramikPhone: b.shramiks?.phone || '',
+              skill: b.shramiks?.skill || '',
+              serviceName: b.service_name,
+              date: b.scheduled_date,
+              time: b.scheduled_time,
+              customerId: b.customer_id,
+              customerName: b.customers?.name || b.customer_name || 'Customer',
+              customerPhone: b.customers?.phone || b.customer_phone || '',
+              customerAddress: b.customers?.address || b.customer_address || '',
+              serviceFee: b.service_fee,
+              platformFee: b.platform_fee,
+              totalAmount: b.total_amount,
+              startCode: b.start_code,
+              status: b.status,
+              startedAt: b.started_at,
+              completedAt: b.completed_at,
+              durationMinutes: b.duration_minutes,
+              serverBacked: true,
+            }));
+            setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
+          }
+        } else if (role === 'customer' && (currentUser?.id || currentUser?.phone)) {
+          const targetId = currentUser?.id || currentUser?.phone;
+          const remoteCustomer = await getCustomerBookings(targetId);
+          if (Array.isArray(remoteCustomer)) {
+            const mapped = remoteCustomer.map((b) => ({
+              id: b.id,
+              shramikId: b.shramik_id,
               shramikName: b.shramiks?.name || 'Assigned Worker',
               shramikPhone: b.shramiks?.phone || '',
               skill: b.shramiks?.skill || '',
