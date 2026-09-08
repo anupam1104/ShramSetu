@@ -451,9 +451,13 @@ export const AppProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(boot.currentUser || null);
 
   useEffect(() => {
-    const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value));
-    if (!isSupabaseConfigured || role !== 'shramik' || !isUuid(currentUser?.id)) return;
-    getShramikBookings(currentUser.id).then((remoteBookings) => {
+    const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value));
+    if (!isSupabaseConfigured || role !== 'shramik' || !isUuid(currentUser?.id)) return undefined;
+
+    // A booking can be submitted while the Shramik dashboard is already open.
+    // Refresh the assigned queue so the request appears without requiring a
+    // logout, refresh, or a new Shramik sign-in.
+    const syncBookings = () => getShramikBookings(currentUser.id).then((remoteBookings) => {
       const mapped = remoteBookings.map((booking) => ({
         id: booking.id,
         shramikId: booking.shramik_id,
@@ -477,6 +481,10 @@ export const AppProvider = ({ children }) => {
       }));
       setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
     }).catch((error) => console.warn('Could not load Shramik bookings:', error.message || error));
+
+    syncBookings();
+    const refreshTimer = window.setInterval(syncBookings, 10000);
+    return () => window.clearInterval(refreshTimer);
   }, [currentUser?.id, role]);
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(boot.isLoggedIn));
 

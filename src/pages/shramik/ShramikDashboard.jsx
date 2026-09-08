@@ -37,7 +37,11 @@ export const ShramikDashboard = () => {
     return () => clearTimeout(timer);
   }, [greetingKey]);
 
-  const currentShramik = shramiks.find(s => s.id === activeShramikId) || null;
+  // `activeShramikId` is persisted for navigation. Prefer the authenticated
+  // account so a stale ID cannot make this worker see another worker's queue.
+  const currentShramik = shramiks.find(s => s.id === currentUser?.id)
+    || shramiks.find(s => s.id === activeShramikId)
+    || null;
   // Only real bookings assigned to this Shramik appear here. No mock/demo jobs.
   const activeBooking = currentShramik
     ? bookings.find(b => b.shramikId === currentShramik.id && !['Cancelled','Completed','Paid'].includes(b.status))
