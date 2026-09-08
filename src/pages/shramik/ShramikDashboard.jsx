@@ -38,9 +38,9 @@ export const ShramikDashboard = () => {
   }, [greetingKey]);
 
   const currentShramik = shramiks.find(s => s.id === activeShramikId) || null;
+  // Only real bookings assigned to this Shramik appear here. No mock/demo jobs.
   const activeBooking = currentShramik
     ? bookings.find(b => b.shramikId === currentShramik.id && !['Cancelled','Completed','Paid'].includes(b.status))
-      || bookings.find(b => b.id === 'BK-8891')
       || null
     : null;
 
@@ -51,7 +51,7 @@ export const ShramikDashboard = () => {
   const displayCity = currentUser?.city || currentShramik?.city || '';
 
   const finance = computeShramikFinance(bookings, currentShramik?.id);
-  const confirmedJobs = finance.shramikBookings.filter(b => b.status === 'Confirmed' || b.status === 'In Progress');
+  const confirmedJobs = finance.shramikBookings.filter(b => ['Pending', 'Confirmed', 'In Progress'].includes(b.status));
   const completedCount = finance.shramikBookings.filter(b => b.status === 'Completed' || b.status === 'Paid').length;
 
   const navigate = (screen) => setCurrentScreen(screen);
@@ -279,7 +279,7 @@ export const ShramikDashboard = () => {
                 onClick={() => handleOpenJob(activeBooking.id)}
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
               >
-                <span>{t('viewJobEnterCode', 'View Job & Enter Start Code')}</span>
+                <span>{activeBooking.status === 'Pending' ? 'Review & Accept Request' : t('viewJobEnterCode', 'View Job & Enter Start Code')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

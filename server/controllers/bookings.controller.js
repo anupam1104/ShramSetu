@@ -47,12 +47,22 @@ export const createBooking = async (req, res) => {
 			service_fee: serviceFee,
 			platform_fee: platformFee,
 			total_amount: Number(serviceFee) + Number(platformFee),
-			start_code: String(Math.floor(1000 + Math.random() * 9000)),
-			status: 'Confirmed',
+			status: 'Pending',
 		}),
 	});
 
 	return res.status(201).json(booking);
+};
+
+// A start code is deliberately created only after the assigned Shramik accepts
+// the customer's request. It is never available for an unaccepted request.
+export const acceptBooking = async (req, res) => {
+	const booking = await bookingUpdate(req.params.id, {
+		status: 'Confirmed',
+		start_code: String(Math.floor(1000 + Math.random() * 9000)),
+	}, 'Pending');
+	if (!booking) return res.status(409).json({ error: 'This booking request is no longer pending.' });
+	return res.json(booking);
 };
 
 export const listShramikBookings = async (req, res) => {
@@ -104,17 +114,29 @@ export const completeBooking = async (req, res) => {
 	const durationMinutes = Number.isNaN(startedAt.getTime())
 		? null
 		: Math.max(0, Math.round((completedAt.getTime() - startedAt.getTime()) / 60000));
+	const finalServiceFee = Number(req.body?.serviceFee);
+	if (!Number.isInteger(finalServiceFee) || finalServiceFee <= 0) {
+		return res.status(400).json({ error: 'A valid final job amount is required.' });
+	}
+	const [currentBooking] = await supabaseRequest(`bookings?id=eq.${encodeURIComponent(req.params.id)}&select=platform_fee`);
+	const platformFee = Number(currentBooking?.platform_fee || 0);
 	const booking = await bookingUpdate(req.params.id, {
 		status: 'Completed',
 		completed_at: completedAt.toISOString(),
 		duration_minutes: durationMinutes,
+		service_fee: finalServiceFee,
+		total_amount: finalServiceFee + platformFee,
 	}, 'In Progress');
 	if (!booking) return res.status(409).json({ error: 'Booking is not currently in progress.' });
 	return res.json(booking);
 };
 
 export const payBooking = async (req, res) => {
-	const booking = await bookingUpdate(req.params.id, { status: 'Paid' }, 'Completed');
-	if (!booking) return res.status(409).json({ error: 'Booking must be customer-confirmed before payment.' });
+	const paymentMethod = req.body?.paymentMethod;
+	if (!['cash', 'online'].includes(paymentMethod)) {
+		return res.status(400).json({ error: 'Choose cash or online payment.' });
+	}
+	const booking = await bookingUpdate(req.params.id, { status: 'Paid', payment_method: paymentMethod, paid_at: new Date().toISOString() }, 'Completed');
+	if (!booking) return res.status(409).json({ error: 'Booking must be completed before payment.' });
 	return res.json(booking);
 };

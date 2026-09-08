@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
+import {
   CheckCircle2, 
   Key, 
   MapPin, 
@@ -14,10 +14,12 @@ import {
 } from 'lucide-react';
 
 export const ShramikJobScreen = () => {
-  const { bookings, activeBookingId, verifyStartCode, setCurrentScreen, t, tStatus, tSkill } = useApp();
-  const currentBooking = bookings.find(b => b.id === activeBookingId) || bookings[0] || null;
+  const { bookings, activeBookingId, acceptBooking, confirmWorkDone, verifyStartCode, setCurrentScreen, t, tStatus, tSkill } = useApp();
+  // Only the actual selected booking is shown. No mock fallback job.
+  const currentBooking = bookings.find(b => b.id === activeBookingId) || null;
 
   const [pinDigits, setPinDigits] = useState(['', '', '', '']);
+  const [finalAmount, setFinalAmount] = useState('');
 
   if (!currentBooking) {
     return (
@@ -65,6 +67,10 @@ export const ShramikJobScreen = () => {
     if (success) {
       setPinDigits(['', '', '', '']);
     }
+  };
+
+  const handleFinishJob = async () => {
+    await confirmWorkDone(currentBooking.id, finalAmount);
   };
 
   return (
@@ -120,8 +126,16 @@ export const ShramikJobScreen = () => {
           </div>
         </div>
 
-        {/* 4-Digit Code Entry Box */}
-        {currentBooking.status === 'Confirmed' ? (
+        {/* Incoming customer request: the Shramik must accept before a code exists. */}
+        {currentBooking.status === 'Pending' ? (
+          <div className="bg-amber-50 border-2 border-amber-200 p-6 rounded-3xl text-center space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">New booking request</h3>
+            <p className="text-xs text-slate-600">Review the customer, address and schedule above. Accepting creates a secure start code for the customer.</p>
+            <button onClick={() => acceptBooking(currentBooking.id)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm">
+              Accept Request
+            </button>
+          </div>
+        ) : currentBooking.status === 'Confirmed' ? (
           <form onSubmit={handleVerifyCodeSubmit} className="bg-emerald-50/70 border-2 border-emerald-200 p-6 rounded-3xl text-center space-y-5">
             <div className="space-y-1">
               <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
@@ -181,9 +195,12 @@ export const ShramikJobScreen = () => {
               </div>
 
               {currentBooking.status === 'In Progress' && (
-                <p className="text-xs text-slate-600 bg-white/80 p-3 rounded-xl border border-emerald-200">
-                  {t('shramik.finishInstruction', 'Once you finish the task, ask the customer to click "Confirm Work Done" on their screen to proceed to payment.')}
-                </p>
+                <div className="space-y-3 bg-white/80 p-4 rounded-xl border border-emerald-200 text-left">
+                  <label className="block text-xs font-bold text-slate-700">Final amount for the whole job (₹)</label>
+                  <input type="number" min="1" value={finalAmount} onChange={(e) => setFinalAmount(e.target.value)} placeholder={String(currentBooking.serviceFee)} className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-mono focus:ring-2 focus:ring-emerald-400 outline-none" />
+                  <button type="button" onClick={handleFinishJob} className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl text-sm">Finish Job & Send Payment Request</button>
+                  <p className="text-[11px] text-slate-600">The customer will see the final total and choose cash or online payment.</p>
+                </div>
               )}
 
               {currentBooking.status === 'Paid' && (

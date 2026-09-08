@@ -101,12 +101,18 @@ export const startBooking = (bookingId, code) => request(`bookings/${encodeURICo
   body: JSON.stringify({ code }),
 });
 
-export const completeBooking = (bookingId) => request(`bookings/${encodeURIComponent(bookingId)}/complete`, {
+export const acceptBooking = (bookingId) => request(`bookings/${encodeURIComponent(bookingId)}/accept`, {
   method: 'POST',
 });
 
-export const payBooking = (bookingId) => request(`bookings/${encodeURIComponent(bookingId)}/pay`, {
+export const completeBooking = (bookingId, serviceFee) => request(`bookings/${encodeURIComponent(bookingId)}/complete`, {
   method: 'POST',
+  body: JSON.stringify({ serviceFee }),
+});
+
+export const payBooking = (bookingId, paymentMethod) => request(`bookings/${encodeURIComponent(bookingId)}/pay`, {
+  method: 'POST',
+  body: JSON.stringify({ paymentMethod }),
 });
 
 export const loginAdmin = async (credentials) => {

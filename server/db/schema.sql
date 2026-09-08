@@ -164,11 +164,13 @@ create table if not exists public.bookings (
   service_fee integer not null,
   platform_fee integer not null default 50,
   total_amount integer not null,
-  start_code text not null,
+  start_code text,
   status text not null default 'Confirmed' check (status in ('Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'Paid')),
   started_at timestamptz,
   completed_at timestamptz,
   duration_minutes integer,
+  payment_method text check (payment_method in ('cash', 'online')),
+  paid_at timestamptz,
   created_at timestamptz not null default now(),
   unique (shramik_id, scheduled_date, scheduled_time)
 );
@@ -177,6 +179,9 @@ alter table public.bookings add column if not exists started_at timestamptz;
 alter table public.bookings add column if not exists completed_at timestamptz;
 alter table public.bookings add column if not exists duration_minutes integer;
 alter table public.bookings add column if not exists customer_id uuid references public.customers(id);
+alter table public.bookings alter column start_code drop not null;
+alter table public.bookings add column if not exists payment_method text check (payment_method in ('cash', 'online'));
+alter table public.bookings add column if not exists paid_at timestamptz;
 
 -- Backfill the normalized customer table and connect existing bookings without
 -- deleting the legacy customer columns used by older deployed clients.
@@ -217,7 +222,7 @@ create policy "Public can read bookings"
 drop policy if exists "Public can create bookings" on public.bookings;
 create policy "Public can create bookings"
   on public.bookings for insert
-  with check (status = 'Confirmed');
+  with check (status = 'Pending');
 
 grant update on table public.bookings to anon;
 
@@ -225,4 +230,4 @@ drop policy if exists "Booking state transitions are server controlled" on publi
 create policy "Booking state transitions are server controlled"
   on public.bookings for update
   using (true)
-  with check (status in ('In Progress', 'Completed', 'Paid'));
+  with check (status in ('Confirmed', 'In Progress', 'Completed', 'Paid'));

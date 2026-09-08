@@ -1,6 +1,6 @@
 ﻿import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi } from '../lib/supabase';
+import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -297,7 +297,7 @@ export const AppProvider = ({ children }) => {
   const [bookings, setBookings] = useState(() => (hasStoredBookings ? bootData.bookings : INITIAL_BOOKINGS));
 
   const [selectedWorkerId, setSelectedWorkerId] = useState('shr-1');
-  const [activeBookingId, setActiveBookingId] = useState(boot.activeBookingId || 'BK-8891');
+  const [activeBookingId, setActiveBookingId] = useState(boot.activeBookingId || '');
   const [activeShramikId, setActiveShramikId] = useState(boot.activeShramikId || 'shr-1');
   
   // Transient Booking Selection state
@@ -472,6 +472,7 @@ export const AppProvider = ({ children }) => {
         startedAt: booking.started_at,
         completedAt: booking.completed_at,
         durationMinutes: booking.duration_minutes,
+        paymentMethod: booking.payment_method,
         serverBacked: true,
       }));
       setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
@@ -877,7 +878,6 @@ export const AppProvider = ({ children }) => {
   const createBooking = async () => {
     const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
     const newBookingId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
-    const randomStartCode = Math.floor(1000 + Math.random() * 9000).toString();
 
     const customerName = currentUser?.name || 'Customer';
     const customerPhone = currentUser?.phone ? (currentUser.phone.startsWith('+91') ? currentUser.phone : `+91 ${currentUser.phone}`) : '+91 00000 00000';
@@ -899,8 +899,8 @@ export const AppProvider = ({ children }) => {
       serviceFee: worker.hourlyRate * 2,
       platformFee: 50,
       totalAmount: (worker.hourlyRate * 2) + 50,
-      startCode: randomStartCode,
-      status: 'Confirmed',
+      startCode: null,
+      status: 'Pending',
       createdAt: new Date().toISOString()
     };
 
@@ -918,7 +918,7 @@ export const AppProvider = ({ children }) => {
           platformFee: newBooking.platformFee,
         });
         newBooking.id = savedBooking.id;
-        newBooking.startCode = savedBooking.start_code;
+        newBooking.startCode = savedBooking.start_code || null;
         newBooking.serverBacked = true;
       } catch (error) {
         // Backend unreachable â€” keep the locally generated booking so the
@@ -931,7 +931,27 @@ export const AppProvider = ({ children }) => {
     setBookings(prev => [newBooking, ...prev]);
     setActiveBookingId(newBooking.id);
     setCurrentScreen('track_booking');
-    showToast(`Booking Confirmed! Your Start Code is ${newBooking.startCode}`, 'success');
+    showToast('Booking request sent. The Shramik will review and accept it.', 'success');
+  };
+
+  // The Shramik accepts the request. Only then is the one-time start code made
+  // visible to the customer for the arrival verification step.
+  const acceptBooking = async (bookingId) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking || booking.status !== 'Pending') return false;
+    let accepted = null;
+    if (booking.serverBacked) {
+      try {
+        accepted = await acceptBookingApi(bookingId);
+      } catch (error) {
+        showToast(error.message || 'Could not accept this request.', 'error');
+        return false;
+      }
+    }
+    const startCode = accepted?.start_code || Math.floor(1000 + Math.random() * 9000).toString();
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Confirmed', startCode } : b));
+    showToast('Booking accepted. The customer can now share the start code on arrival.', 'success');
+    return true;
   };
 
   // Customer Cancels Booking
@@ -964,33 +984,38 @@ export const AppProvider = ({ children }) => {
   };
 
   // Customer Confirms Work Completion
-  const confirmWorkDone = async (bookingId) => {
+  const confirmWorkDone = async (bookingId, finalServiceFee) => {
     const booking = bookings.find(b => b.id === bookingId);
+    const serviceFee = Number(finalServiceFee || booking?.serviceFee);
+    if (!Number.isInteger(serviceFee) || serviceFee <= 0) {
+      showToast('Enter a valid final job amount.', 'error');
+      return false;
+    }
     if (booking?.serverBacked) {
       try {
-        await completeBookingApi(bookingId);
+        await completeBookingApi(bookingId, serviceFee);
       } catch (error) {
         showToast(error.message || 'Could not confirm work completion.', 'error');
         return false;
       }
     }
-    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Completed' } : b));
-    showToast('Work completed confirmed! Please proceed to payment.', 'success');
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Completed', serviceFee, totalAmount: serviceFee + Number(b.platformFee || 0) } : b));
+    showToast('Work completed. The customer can now choose cash or online payment.', 'success');
     return true;
   };
 
   // Customer Payment
-  const processPayment = async (bookingId) => {
+  const processPayment = async (bookingId, paymentMethod) => {
     const booking = bookings.find(b => b.id === bookingId);
     if (booking?.serverBacked) {
       try {
-        await payBookingApi(bookingId);
+        await payBookingApi(bookingId, paymentMethod);
       } catch (error) {
         showToast(error.message || 'Could not process payment.', 'error');
         return false;
       }
     }
-    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Paid' } : b));
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Paid', paymentMethod } : b));
     
     // Update Shramik earnings and completed job count
     if (booking) {
@@ -1086,6 +1111,7 @@ export const AppProvider = ({ children }) => {
       refreshShramikStatus,
       syncPendingApprovals,
       createBooking,
+      acceptBooking,
       verifyStartCode,
       confirmWorkDone,
       processPayment,
