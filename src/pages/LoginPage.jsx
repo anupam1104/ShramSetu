@@ -413,19 +413,17 @@ export const LoginPage = () => {
     e.preventDefault();
     if (!csiPhone || csiPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!csiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
-    let found = null;
+    let found;
     if (isSupabaseConfigured) {
       try {
         found = await loginCustomer({ phone: csiPhone, password: csiPw });
-      } catch (err) {
-        console.warn('Customer login API warning:', err.message);
+      } catch (error) {
+        return showToast(error.message || t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
       }
-    }
-    if (!found) {
+    } else {
       found = findAccount('customer', csiPhone);
-      if (found && found.password !== csiPw) found = null;
+      if (!found || found.password !== csiPw) return showToast(t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
     }
-    if (!found) return showToast(t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
     login(found);
     showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
     setCurrentScreen('search');
@@ -440,28 +438,28 @@ export const LoginPage = () => {
     if (!csuPhone || csuPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!csuPw || csuPw.length < 4 || !onlyDigits(csuPw)) return showToast(t('auth.validPasswordErr', 'Password must be at least 4 digits (numbers only).'), 'error');
     if (csuPw !== csuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
-    if (findAccount('customer', csuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
     const fullAddress = [csuFlat, csuHouse, csuStreet, csuVillage, csuTown, csuCity].filter(Boolean).join(', ');
-    let remoteUser = null;
+    let user;
     if (isSupabaseConfigured) {
       try {
-        remoteUser = await registerCustomer({
+        user = await registerCustomer({
           name: csuName.trim(),
           phone: csuPhone,
           address: fullAddress,
           password: csuPw,
         });
-      } catch (err) {
-        console.warn('Customer registration API warning:', err.message);
+      } catch (error) {
+        return showToast(error.message || 'Customer account could not be created.', 'error');
       }
+    } else {
+      if (findAccount('customer', csuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
+      user = upsertAccount({
+        name: csuName.trim(), age: csuAge, city: csuCity, phone: csuPhone,
+        password: csuPw, role: 'customer',
+        address: fullAddress,
+        addressDetails: { house: csuHouse, flat: csuFlat, street: csuStreet, village: csuVillage, town: csuTown }
+      });
     }
-    const user = upsertAccount({
-      id: remoteUser?.id,
-      name: csuName.trim(), age: csuAge, city: csuCity, phone: csuPhone,
-      password: csuPw, role: 'customer',
-      address: fullAddress,
-      addressDetails: { house: csuHouse, flat: csuFlat, street: csuStreet, village: csuVillage, town: csuTown }
-    });
     login(user);
     showToast(t('auth.accountCreatedToast', 'Account created! Welcome, {name}!', { name: user.name }), 'success');
     setCurrentScreen('search');

@@ -4,6 +4,7 @@ import { pingDatabase } from './db/connection.js';
 import { requireDatabase } from './middleware/requireDatabase.js';
 import shramiksRoutes from './routes/shramiks.routes.js';
 import bookingsRoutes from './routes/bookings.routes.js';
+import customersAuthRoutes from './routes/customersAuth.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 
@@ -41,6 +42,7 @@ app.get('/health', async (req, res) => {
 app.use('/api', requireDatabase);
 app.use('/api/shramiks', shramiksRoutes);
 app.use('/api/bookings', bookingsRoutes);
+app.use('/api/customers', customersAuthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
