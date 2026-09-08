@@ -92,27 +92,56 @@ export const listShramikBookings = async (req, res) => {
 	return res.json(await supabaseRequest(`bookings?${query.toString()}`));
 };
 
+const phoneDigitsOf = (value) => String(value || '').replace(/\D/g, '').slice(-10);
+
 export const listCustomerBookings = async (req, res) => {
-	// Accept either a customer UUID (login) or any phone format (booking flow
-	// stores "+91 XXXXX XXXXX" while signup stores raw digits), so the customer
-	// reliably sees their own bookings — and the start code once the Shramik
-	// has accepted and the status becomes Confirmed. Phone matching is used
-	// because a customer can have two rows (signup row + booking row).
+	// Accept either a customer UUID (login) or any phone format, and resolve
+	// bookings even when the booking's customer_phone format does not exactly
+	// match (e.g. "1234567890" vs "+91 1234567890" vs "+911234567890").
 	const identifier = String(req.params.customerId || '').trim();
 	const isUuid = UUID_RE.test(identifier);
 	const conditions = new Set();
-	let digits = isUuid ? '' : identifier.replace(/\D/g, '').slice(-10);
 
-	if (isUuid) {
-		conditions.add(`customer_id.eq.${identifier}`);
-		const [customer] = await supabaseRequest(`customers?select=phone&id=eq.${identifier}&limit=1`);
-		if (customer?.phone) digits = String(customer.phone).replace(/\D/g, '').slice(-10);
-	}
+	if (isUuid) conditions.add(`customer_id.eq.${identifier}`);
+	const digits = isUuid ? '' : phoneDigitsOf(identifier);
 
+	// Every common way this phone could be stored, so the customers table can
+	// be matched regardless of +91/space formatting.
+	const variants = new Set();
 	if (digits.length === 10) {
-		conditions.add(`customer_phone.eq.${encodeURIComponent(digits)}`);
-		conditions.add(`customer_phone.eq.${encodeURIComponent(`+91 ${digits}`)}`);
+		variants.add(digits);
+		variants.add(`+91${digits}`);
+		variants.add(`+91 ${digits}`);
+		variants.add(`91${digits}`);
 	}
+	if (isUuid) {
+		const [customer] = await supabaseRequest(`customers?select=id,phone&id=eq.${identifier}&limit=1`);
+		if (customer?.phone) {
+			variants.add(String(customer.phone));
+			const customerDigits = phoneDigitsOf(customer.phone);
+			if (customerDigits.length === 10) {
+				variants.add(customerDigits);
+				variants.add(`+91${customerDigits}`);
+				variants.add(`+91 ${customerDigits}`);
+			}
+		}
+	}
+
+	// The booking always carries a customer_id (set by createBooking), so find
+	// every customers row for this phone and match those FKs directly.
+	if (variants.size > 0) {
+		const phoneQuery = new URLSearchParams({
+			select: 'id',
+			or: `(${Array.from(variants).filter(Boolean).map((phone) => `phone.eq.${encodeURIComponent(phone)}`).join(',')})`,
+		});
+		const matched = await supabaseRequest(`customers?${phoneQuery.toString()}`);
+		const ids = (Array.isArray(matched) ? matched : []).map((customer) => customer.id).filter(Boolean);
+		if (ids.length > 0) conditions.add(`customer_id.in.(${ids.join(',')})`);
+	}
+
+	// Suffix match on customer_phone covers bookings whose FK is null or whose
+	// stored phone simply tacks a country code on the same 10 digits.
+	if (digits.length === 10) conditions.add(`customer_phone.like.*${digits}`);
 
 	if (conditions.size === 0) return res.json([]);
 
