@@ -1,6 +1,6 @@
-﻿import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi } from '../lib/supabase';
+import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -451,41 +451,77 @@ export const AppProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(boot.currentUser || null);
 
   useEffect(() => {
-    const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value));
-    if (!isSupabaseConfigured || role !== 'shramik' || !isUuid(currentUser?.id)) return undefined;
+    if (!isSupabaseConfigured) return;
 
-    // A booking can be submitted while the Shramik dashboard is already open.
-    // Refresh the assigned queue so the request appears without requiring a
-    // logout, refresh, or a new Shramik sign-in.
-    const syncBookings = () => getShramikBookings(currentUser.id).then((remoteBookings) => {
-      const mapped = remoteBookings.map((booking) => ({
-        id: booking.id,
-        shramikId: booking.shramik_id,
-        serviceName: booking.service_name,
-        date: booking.scheduled_date,
-        time: booking.scheduled_time,
-        customerId: booking.customer_id,
-        customerName: booking.customers?.name || booking.customer_name,
-        customerPhone: booking.customers?.phone || booking.customer_phone,
-        customerAddress: booking.customers?.address || booking.customer_address,
-        serviceFee: booking.service_fee,
-        platformFee: booking.platform_fee,
-        totalAmount: booking.total_amount,
-        startCode: booking.start_code,
-        status: booking.status,
-        startedAt: booking.started_at,
-        completedAt: booking.completed_at,
-        durationMinutes: booking.duration_minutes,
-        paymentMethod: booking.payment_method,
-        serverBacked: true,
-      }));
-      setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
-    }).catch((error) => console.warn('Could not load Shramik bookings:', error.message || error));
+    const fetchBookings = async () => {
+      try {
+        if (role === 'shramik' && (currentUser?.id || activeShramikId || currentUser?.phone)) {
+          const targetId = currentUser?.id || activeShramikId || currentUser?.phone;
+          const remoteBookings = await getShramikBookings(targetId);
+          if (Array.isArray(remoteBookings)) {
+            const mapped = remoteBookings.map((b) => ({
+              id: b.id,
+              shramikId: b.shramik_id || targetId,
+              shramikName: b.shramiks?.name || 'Assigned Worker',
+              shramikPhone: b.shramiks?.phone || '',
+              skill: b.shramiks?.skill || '',
+              serviceName: b.service_name,
+              date: b.scheduled_date,
+              time: b.scheduled_time,
+              customerId: b.customer_id,
+              customerName: b.customers?.name || b.customer_name || 'Customer',
+              customerPhone: b.customers?.phone || b.customer_phone || '',
+              customerAddress: b.customers?.address || b.customer_address || '',
+              serviceFee: b.service_fee,
+              platformFee: b.platform_fee,
+              totalAmount: b.total_amount,
+              startCode: b.start_code,
+              status: b.status,
+              startedAt: b.started_at,
+              completedAt: b.completed_at,
+              durationMinutes: b.duration_minutes,
+              serverBacked: true,
+            }));
+            setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
+          }
+        } else if (role === 'admin') {
+          const allRemote = await getAllBookings();
+          if (Array.isArray(allRemote)) {
+            const mappedAll = allRemote.map((b) => ({
+              id: b.id,
+              shramikId: b.shramik_id,
+              shramikName: b.shramiks?.name || b.shramik_name || 'Shramik',
+              shramikPhone: b.shramiks?.phone || '',
+              skill: b.shramiks?.skill || '',
+              serviceName: b.service_name,
+              date: b.scheduled_date,
+              time: b.scheduled_time,
+              customerId: b.customer_id,
+              customerName: b.customers?.name || b.customer_name || 'Customer',
+              customerPhone: b.customers?.phone || b.customer_phone || '',
+              customerAddress: b.customers?.address || b.customer_address || '',
+              serviceFee: b.service_fee,
+              platformFee: b.platform_fee,
+              totalAmount: b.total_amount,
+              startCode: b.start_code,
+              status: b.status,
+              startedAt: b.started_at,
+              completedAt: b.completed_at,
+              durationMinutes: b.duration_minutes,
+              serverBacked: true,
+            }));
+            setBookings((current) => [...mappedAll, ...current.filter((booking) => !mappedAll.some((remote) => remote.id === booking.id))]);
+          }
+        }
+      } catch (err) {
+        console.warn('Booking sync warning:', err.message || err);
+      }
+    };
 
-    syncBookings();
-    const refreshTimer = window.setInterval(syncBookings, 10000);
-    return () => window.clearInterval(refreshTimer);
-  }, [currentUser?.id, role]);
+    fetchBookings();
+    const interval = setInterval(fetchBookings, 8000);
+    return () => clearInterval(interval);
+  }, [currentUser?.id, currentUser?.phone, activeShramikId, role]);
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(boot.isLoggedIn));
 
   // Which login tab should be pre-selected (customer | shramik), set by landing CTAs

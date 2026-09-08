@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { LanguageSelectDropdown } from '../components/LanguageSelectDropdown';
-import { loginAdmin, registerAdmin, isSupabaseConfigured } from '../lib/supabase';
+import { loginAdmin, registerAdmin, loginShramik, loginCustomer, registerCustomer, isSupabaseConfigured } from '../lib/supabase';
 import { findAccount, upsertAccount } from '../lib/store';
 import {
   Shield, Phone, Lock, User, MapPin, Calendar,
@@ -409,19 +409,30 @@ export const LoginPage = () => {
   /* ══════════ HANDLERS ══════════ */
 
   /* Customer Sign In */
-  const handleCSignIn = (e) => {
+  const handleCSignIn = async (e) => {
     e.preventDefault();
     if (!csiPhone || csiPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!csiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
-    const found = findAccount('customer', csiPhone);
-    if (!found || found.password !== csiPw) return showToast(t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
+    let found = null;
+    if (isSupabaseConfigured) {
+      try {
+        found = await loginCustomer({ phone: csiPhone, password: csiPw });
+      } catch (err) {
+        console.warn('Customer login API warning:', err.message);
+      }
+    }
+    if (!found) {
+      found = findAccount('customer', csiPhone);
+      if (found && found.password !== csiPw) found = null;
+    }
+    if (!found) return showToast(t('auth.noAccountErr', 'No account found. Please sign up first, or check your credentials.'), 'error');
     login(found);
     showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
     setCurrentScreen('search');
   };
 
   /* Customer Sign Up */
-  const handleCSignUp = (e) => {
+  const handleCSignUp = async (e) => {
     e.preventDefault();
     if (!csuName.trim()) return showToast(t('auth.enterNameErr', 'Please enter your full name.'), 'error');
     if (!csuAge || parseInt(csuAge) < 18 || parseInt(csuAge) > 100) return showToast(t('auth.validAgeErr', 'Enter a valid age (18–100).'), 'error');
@@ -431,7 +442,21 @@ export const LoginPage = () => {
     if (csuPw !== csuCpw) return showToast(t('auth.passwordsDoNotMatch', 'Passwords do not match.'), 'error');
     if (findAccount('customer', csuPhone)) return showToast(t('auth.phoneRegisteredErr', 'Phone already registered. Please sign in.'), 'error');
     const fullAddress = [csuFlat, csuHouse, csuStreet, csuVillage, csuTown, csuCity].filter(Boolean).join(', ');
+    let remoteUser = null;
+    if (isSupabaseConfigured) {
+      try {
+        remoteUser = await registerCustomer({
+          name: csuName.trim(),
+          phone: csuPhone,
+          address: fullAddress,
+          password: csuPw,
+        });
+      } catch (err) {
+        console.warn('Customer registration API warning:', err.message);
+      }
+    }
     const user = upsertAccount({
+      id: remoteUser?.id,
       name: csuName.trim(), age: csuAge, city: csuCity, phone: csuPhone,
       password: csuPw, role: 'customer',
       address: fullAddress,
@@ -443,17 +468,28 @@ export const LoginPage = () => {
   };
 
   /* Shramik Sign In */
-  const handleSSignIn = (e) => {
+  const handleSSignIn = async (e) => {
     e.preventDefault();
     if (!ssiPhone || ssiPhone.length !== 10) return showToast(t('auth.validPhoneErr', 'Enter a valid 10-digit phone number.'), 'error');
     if (!ssiPw) return showToast(t('auth.enterPasswordErr', 'Please enter your password.'), 'error');
-    const found = findAccount('shramik', ssiPhone);
-    if (!found || found.password !== ssiPw) return showToast(t('auth.noShramikAccountErr', 'No Shramik account found. Please sign up first.'), 'error');
+    let found = null;
+    if (isSupabaseConfigured) {
+      try {
+        found = await loginShramik({ identifier: ssiPhone, password: ssiPw });
+      } catch (err) {
+        console.warn('Shramik login API warning:', err.message);
+      }
+    }
+    if (!found) {
+      found = findAccount('shramik', ssiPhone);
+      if (found && found.password !== ssiPw) found = null;
+    }
+    if (!found) return showToast(t('auth.noShramikAccountErr', 'No Shramik account found. Please sign up first, or check your credentials.'), 'error');
     setActiveShramikId(found.id);
     login(found);
     showToast(t('auth.welcomeBackToast', 'Welcome back, {name}!', { name: found.name }), 'success');
     // Dashboard stays locked until an admin approves and issues the Shramik ID
-    setCurrentScreen(found.verified && found.shramikId ? 'shramik_dashboard' : 'shramik_pending');
+    setCurrentScreen(found.verified && (found.shramikId || found.shramik_id) ? 'shramik_dashboard' : 'shramik_pending');
   };
 
   /* Shramik Sign Up */

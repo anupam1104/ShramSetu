@@ -124,6 +124,25 @@ export const loginAdmin = async (credentials) => {
   return result;
 };
 
+export const loginShramik = (credentials) => request('auth/shramik/login', {
+  method: 'POST',
+  body: JSON.stringify(credentials),
+});
+
+export const loginCustomer = (credentials) => request('auth/customer/login', {
+  method: 'POST',
+  body: JSON.stringify(credentials),
+});
+
+export const registerCustomer = (payload) => request('auth/customer/register', {
+  method: 'POST',
+  body: JSON.stringify(payload),
+});
+
+export const getAllBookings = () => request('bookings/all');
+
+export const getAllCustomers = () => request('admin/customers');
+
 export const approveShramik = (id) => request(`admin/shramiks/${id}/approve`, {
   method: 'POST',
 });
@@ -133,3 +152,4 @@ export const rejectShramik = (id) => request(`admin/shramiks/${id}`, {
 });
 
 export { isApiConfigured as isSupabaseConfigured };
+

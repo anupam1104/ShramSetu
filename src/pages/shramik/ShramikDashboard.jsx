@@ -37,16 +37,17 @@ export const ShramikDashboard = () => {
     return () => clearTimeout(timer);
   }, [greetingKey]);
 
-  // `activeShramikId` is persisted for navigation. Prefer the authenticated
-  // account so a stale ID cannot make this worker see another worker's queue.
-  const currentShramik = shramiks.find(s => s.id === currentUser?.id)
-    || shramiks.find(s => s.id === activeShramikId)
-    || null;
-  // Only real bookings assigned to this Shramik appear here. No mock/demo jobs.
-  const activeBooking = currentShramik
-    ? bookings.find(b => b.shramikId === currentShramik.id && !['Cancelled','Completed','Paid'].includes(b.status))
-      || null
-    : null;
+  const currentShramik = shramiks.find(s => s.id === currentUser?.id || s.id === activeShramikId || s.phone === currentUser?.phone) || null;
+  const currentShramikId = currentShramik?.id || currentUser?.id;
+
+  const myBookings = bookings.filter(b => 
+    b.shramikId === currentShramikId || 
+    (currentShramik?.shramikId && b.shramikId === currentShramik.shramikId) ||
+    (currentUser?.phone && b.shramikPhone === currentUser.phone)
+  );
+
+  const confirmedJobs = myBookings.filter(b => ['Pending', 'Confirmed', 'In Progress'].includes(b.status));
+  const completedCount = myBookings.filter(b => ['Completed', 'Paid'].includes(b.status)).length;
 
   // Prefer the actual logged-in Shramik identity for display
   const displayName = currentUser?.name || currentShramik?.name || t('shramikLabel', 'Shramik');
@@ -54,9 +55,7 @@ export const ShramikDashboard = () => {
   const displayId = currentUser?.shramikId || currentShramik?.shramikId || '';
   const displayCity = currentUser?.city || currentShramik?.city || '';
 
-  const finance = computeShramikFinance(bookings, currentShramik?.id);
-  const confirmedJobs = finance.shramikBookings.filter(b => ['Pending', 'Confirmed', 'In Progress'].includes(b.status));
-  const completedCount = finance.shramikBookings.filter(b => b.status === 'Completed' || b.status === 'Paid').length;
+  const finance = computeShramikFinance(myBookings, currentShramikId);
 
   const navigate = (screen) => setCurrentScreen(screen);
 
@@ -230,77 +229,79 @@ export const ShramikDashboard = () => {
           </span>
         </div>
 
-        {/* Active Job Card */}
-        {activeBooking ? (
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-md hover:shadow-lg transition-all space-y-4">
+        {/* Active Job Cards */}
+        {confirmedJobs.length > 0 ? (
+          <div className="space-y-4">
+            {confirmedJobs.map((booking) => (
+              <div key={booking.id} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-md hover:shadow-lg transition-all space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm font-mono shadow-inner">
+                      {booking.time || 'Today'}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-lg">{jobLabel(booking)}</h3>
+                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                        <User className="w-3.5 h-3.5 text-slate-400" />
+                        {t('customer', 'Customer:')} <strong>{booking.customerName}</strong> {booking.customerPhone ? `(${booking.customerPhone})` : ''}
+                      </p>
+                    </div>
+                  </div>
 
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm font-mono shadow-inner">
-                  {activeBooking.time}
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                    booking.status === 'In Progress' ? 'badge-in-progress' :
+                    booking.status === 'Completed' ? 'badge-completed' :
+                    booking.status === 'Paid' ? 'badge-paid' : 'badge-confirmed'
+                  }`}>
+                    ● {tStatus(booking.status)}
+                  </span>
                 </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-lg">{jobLabel(activeBooking)}</h3>
-                  <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
-                    {t('customer', 'Customer:')} <strong>{activeBooking.customerName}</strong>
-                  </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-600">
+                  <div className="flex items-start space-x-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-slate-900">{t('serviceAddress', 'Service Address')}</p>
+                      <p className="text-slate-600 mt-0.5">{booking.customerAddress || 'Local Address'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 text-emerald-950 font-medium">
+                    <div>
+                      <p className="text-[10px] text-emerald-800 uppercase font-bold">{t('estimatedPayout', 'Estimated Payout')}</p>
+                      <p className="text-lg font-bold font-mono text-emerald-900">{formatINR(booking.serviceFee ?? booking.totalAmount ?? booking.amount)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-slate-500">{t('distance', 'Distance')}</p>
+                      <p className="text-xs font-bold text-slate-800">{booking.distance || '2.1 km'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => handleOpenJob(booking.id)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
+                  >
+                    <span>{booking.status === 'Pending' ? 'Review & Accept Request' : t('viewJobEnterCode', 'View Job & Enter Start Code')}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-
-              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                activeBooking.status === 'In Progress' ? 'badge-in-progress' :
-                activeBooking.status === 'Completed' ? 'badge-completed' :
-                activeBooking.status === 'Paid' ? 'badge-paid' : 'badge-confirmed'
-              }`}>
-                ● {tStatus(activeBooking.status)}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-600">
-              <div className="flex items-start space-x-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-slate-900">{t('serviceAddress', 'Service Address')}</p>
-                  <p className="text-slate-600 mt-0.5">{activeBooking.customerAddress}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 text-emerald-950 font-medium">
-                <div>
-                  <p className="text-[10px] text-emerald-800 uppercase font-bold">{t('estimatedPayout', 'Estimated Payout')}</p>
-                  <p className="text-lg font-bold font-mono text-emerald-900">{formatINR(activeBooking.serviceFee ?? activeBooking.amount)}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-slate-500">{t('distance', 'Distance')}</p>
-                  <p className="text-xs font-bold text-slate-800">{activeBooking.distance || '2.1 km'}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                onClick={() => handleOpenJob(activeBooking.id)}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
-              >
-                <span>{activeBooking.status === 'Pending' ? 'Review & Accept Request' : t('viewJobEnterCode', 'View Job & Enter Start Code')}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
+            ))}
           </div>
         ) : (
           <div className="bg-white rounded-3xl border border-slate-200 p-10 text-center shadow-sm">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
               <Calendar className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-slate-800 text-lg">{t('noBookingsYet', 'No bookings done yet')}</h3>
+            <h3 className="font-bold text-slate-800 text-lg">{t('noBookingsYet', 'No active work requests right now')}</h3>
             <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              {t('waitingDesc', 'Once a customer books your service, the job details will appear here.')}
+              {t('waitingDesc', 'Once a customer books your service, new work requests will pop up here in real-time.')}
             </p>
             <span className="inline-flex items-center gap-1.5 mt-4 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-emerald-200">
               <Clock className="w-3.5 h-3.5" />
-              {t('waitingForBookings', 'Waiting for incoming bookings')}
+              {t('waitingForBookings', 'Waiting for new incoming requests...')}
             </span>
           </div>
         )}

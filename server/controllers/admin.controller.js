@@ -54,3 +54,9 @@ export const rejectShramik = async (req, res) => {
   if (!rejected) return res.status(409).json({ error: 'This registration has already been processed.' });
   return res.json({ id: rejected.id });
 };
+
+export const listCustomers = async (req, res) => {
+  const rows = await supabaseRequest('customers?select=*&order=created_at.desc');
+  res.json(rows || []);
+};
+

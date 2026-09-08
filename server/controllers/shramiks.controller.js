@@ -24,7 +24,7 @@ export const getShramikStatus = async (req, res) => {
 };
 
 export const createShramik = async (req, res) => {
-	const { name, skill, phone, city, area, experience, services, photo, bio } = req.body;
+	const { name, skill, phone, city, area, experience, services, photo, bio, password } = req.body;
 
 	if (!name || !skill || !phone || !city || !area || !experience) {
 		return res.status(400).json({ error: 'name, skill, phone, city, area, and experience are required.' });
@@ -33,6 +33,26 @@ export const createShramik = async (req, res) => {
 	const existing = await supabaseRequest(`shramiks?select=id&phone=eq.${encodeURIComponent(normalizedPhone)}&limit=1`);
 	if (Array.isArray(existing) && existing[0]) {
 		return res.status(409).json({ error: 'A Shramik registration already exists for this phone number.' });
+	}
+
+	if (password) {
+		const rows = await supabaseRequest('rpc/register_shramik', {
+			method: 'POST',
+			body: JSON.stringify({
+				s_name: name,
+				s_skill: skill,
+				s_phone: normalizedPhone,
+				s_city: city,
+				s_area: area,
+				s_experience: experience,
+				s_services: services || [],
+				s_photo: photo || '',
+				s_bio: bio || '',
+				s_password: String(password),
+			}),
+		});
+		const row = Array.isArray(rows) ? rows[0] : rows;
+		return res.status(201).json(row);
 	}
 
 	const [row] = await supabaseRequest('shramiks', {

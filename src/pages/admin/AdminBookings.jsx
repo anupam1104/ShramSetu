@@ -69,10 +69,10 @@ export const AdminBookings = () => {
   });
 
   // Calculate dynamic metric counts
-  const totalBookingsCount = bookings.length >= 86 ? bookings.length : 86;
-  const confirmedCount = bookings.filter(b => b.status === 'Confirmed').length || 62;
-  const pendingCount = bookings.filter(b => b.status === 'Pending').length || 14;
-  const cancelledCount = bookings.filter(b => b.status === 'Cancelled').length || 10;
+  const totalBookingsCount = bookings.length;
+  const confirmedCount = bookings.filter(b => b.status === 'Confirmed' || b.status === 'In Progress').length;
+  const pendingCount = bookings.filter(b => b.status === 'Pending').length;
+  const cancelledCount = bookings.filter(b => b.status === 'Cancelled').length;
 
   // Available locations based on the admin's signup city & state
   const locationOptions = useMemo(() => {

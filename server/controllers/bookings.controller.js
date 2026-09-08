@@ -65,13 +65,28 @@ export const acceptBooking = async (req, res) => {
 	return res.json(booking);
 };
 
+export const listAllBookings = async (req, res) => {
+	const query = new URLSearchParams({
+		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',
+		order: 'created_at.desc',
+	});
+	const rows = await supabaseRequest(`bookings?${query.toString()}`);
+	return res.json(rows || []);
+};
+
 export const listShramikBookings = async (req, res) => {
-	if (!UUID_RE.test(String(req.params.shramikId))) {
-		return res.status(400).json({ error: 'Invalid Shramik ID.' });
+	let targetId = req.params.shramikId;
+	if (!UUID_RE.test(String(targetId))) {
+		const rows = await supabaseRequest(`shramiks?select=id&or=(shramik_id.eq.${encodeURIComponent(targetId)},phone.eq.${encodeURIComponent(targetId)})&limit=1`);
+		if (Array.isArray(rows) && rows[0]?.id) {
+			targetId = rows[0].id;
+		} else {
+			return res.json([]);
+		}
 	}
 	const query = new URLSearchParams({
-		shramik_id: `eq.${req.params.shramikId}`,
-		select: '*,customers(id,name,phone,address)',
+		shramik_id: `eq.${targetId}`,
+		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',
 		order: 'created_at.desc',
 	});
 	return res.json(await supabaseRequest(`bookings?${query.toString()}`));
