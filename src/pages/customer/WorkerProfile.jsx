@@ -17,6 +17,13 @@ export const WorkerProfile = () => {
   const { shramiks, selectedWorkerId, setCurrentScreen, t, tSkill } = useApp();
   const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
 
+  // Anonymized display label — customer never sees the shramik's real name.
+  const workerLabel = worker
+    ? (worker.verified && worker.shramikId
+        ? `${t('verifiedShramikLabel', 'Verified Shramik')} • ${worker.shramikId}`
+        : t('newShramikLabel', 'New Shramik'))
+    : '';
+
   if (!worker) {
     return (
       <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
@@ -55,14 +62,14 @@ export const WorkerProfile = () => {
         <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
           <img
             src={worker.photo}
-            alt={worker.name}
+            alt={workerLabel}
             className="w-28 h-28 rounded-3xl object-cover border-4 border-emerald-500 shadow-md shrink-0"
           />
 
           <div className="space-y-2 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">
-                {worker.name}
+                {workerLabel}
               </h1>
 
               {worker.verified ? (
@@ -104,7 +111,7 @@ export const WorkerProfile = () => {
         <div className="space-y-2">
           <h2 className="text-lg font-bold font-heading text-slate-900">{t('about', 'About')}</h2>
           <p className="text-sm text-slate-600 leading-relaxed font-normal">
-            {worker.bio || t('bioFallback', { name: worker.name, skill: tSkill(worker.skill) })}
+            {worker.bio || t('bioFallback', { name: workerLabel, skill: tSkill(worker.skill) })}
           </p>
         </div>
 

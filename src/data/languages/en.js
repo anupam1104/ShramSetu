@@ -390,6 +390,23 @@ const en = {
   viewProfile: 'View Profile',
   bookProfileEtc: 'Profile',
 
+  /* ─── Customer Services List ─── */
+  findServiceTitle: 'Choose a Service',
+  findServiceSub: 'Browse services offered on Shram Setu. Pick one to see available experts.',
+  workersFor: '{service} Experts',
+  workersForDesc: 'Our verified experts for this service. Names are kept private until you book.',
+  backToServices: 'Back to All Services',
+  verifiedShramikLabel: 'Verified Shramik',
+  newShramikLabel: 'New Shramik',
+  noWorkersFound: 'No experts found for this service yet.',
+  noWorkersDesc: 'Experts will appear here once registered and approved.',
+  serviceElectricianDesc: 'Wiring, fittings, repairs & appliances',
+  servicePlumberDesc: 'Leaks, pipes, taps & sanitary work',
+  serviceCarpenterDesc: 'Furniture, doors & custom woodwork',
+  servicePainterDesc: 'Wall & texture painting, putty work',
+  serviceMasonDesc: 'Construction, plastering & flooring',
+  serviceAcRepairDesc: 'AC servicing, installation & repair',
+
   /* ─── Worker Profile ─── */
   backToSearch: 'Back to Search Results',
   verifiedShramikBadge: 'Verified Shramik',

@@ -7,15 +7,25 @@ import {
   CheckCircle2, 
   AlertCircle, 
   ArrowLeft,
-  Sparkles
+  Sparkles,
+  Banknote
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const PaymentPage = () => {
-  const { bookings, activeBookingId, processPayment, setCurrentScreen, t } = useApp();
+  const { bookings, activeBookingId, processPayment, setCurrentScreen, t, shramiks } = useApp();
   const booking = bookings.find(b => b.id === activeBookingId) || bookings[0] || null;
 
   const [paymentSuccess, setPaymentSuccess] = useState(booking?.status === 'Paid');
+  const [paymentMethod, setPaymentMethod] = useState('online');
+
+  // Anonymized label for the assigned shramik — customer never sees the real name.
+  const bookingWorker = booking ? shramiks.find(s => s.id === booking.shramikId) || null : null;
+  const bookingLabel = booking
+    ? (bookingWorker && bookingWorker.shramikId
+        ? `${t('verifiedShramikLabel', 'Verified Shramik')} • ${bookingWorker.shramikId}`
+        : t('newShramikLabel', 'New Shramik'))
+    : '';
 
   if (!booking) {
     return (
@@ -46,7 +56,7 @@ export const PaymentPage = () => {
       console.log('Confetti triggered');
     }
 
-    const paid = await processPayment(booking.id);
+    const paid = await processPayment(booking.id, paymentMethod);
     if (paid !== false) setPaymentSuccess(true);
   };
 
@@ -105,7 +115,7 @@ export const PaymentPage = () => {
                 </p>
 
                 <div className="flex justify-between text-slate-700 font-mono">
-                  <span>{t('shramikReceives', { name: booking.shramikName })}</span>
+                  <span>{t('shramikReceives', { name: bookingLabel })}</span>
                   <span className="font-bold text-emerald-800">₹{booking.serviceFee}</span>
                 </div>
                 <div className="flex justify-between text-slate-700 font-mono">
@@ -126,12 +136,21 @@ export const PaymentPage = () => {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setPaymentMethod('online')} className={`p-4 rounded-2xl border-2 text-left transition-all ${paymentMethod === 'online' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'}`}>
+                <CreditCard className="w-5 h-5 text-emerald-700 mb-2" /><p className="font-bold text-sm">Online payment</p><p className="text-[11px] text-slate-500 mt-1">UPI, card or net banking</p>
+              </button>
+              <button onClick={() => setPaymentMethod('cash')} className={`p-4 rounded-2xl border-2 text-left transition-all ${paymentMethod === 'cash' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'}`}>
+                <Banknote className="w-5 h-5 text-emerald-700 mb-2" /><p className="font-bold text-sm">Pay by cash</p><p className="text-[11px] text-slate-500 mt-1">Hand cash to the Shramik</p>
+              </button>
+            </div>
+
             <button
               onClick={handlePayNow}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-4 rounded-xl shadow-xl shadow-emerald-600/20 transition-all text-base flex items-center justify-center space-x-2"
             >
               <CreditCard className="w-5 h-5" />
-              <span>{t('payAmount', { amount: booking.totalAmount })}</span>
+              <span>{paymentMethod === 'cash' ? `Confirm cash payment of ₹${booking.totalAmount}` : t('payAmount', { amount: booking.totalAmount })}</span>
             </button>
 
           </div>
@@ -156,7 +175,8 @@ export const PaymentPage = () => {
 
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-600 space-y-1">
               <p>{t('bookingId', 'Booking ID:')} <strong>{booking.id}</strong></p>
-              <p>{t('shramik', 'Shramik:')} <strong>{booking.shramikName}</strong> ({t('receivedAmount', { amount: booking.serviceFee })})</p>
+              <p>Payment method: <strong>{paymentMethod === 'cash' ? 'Cash' : 'Online'}</strong></p>
+              <p>{t('shramik', 'Shramik:')} <strong>{bookingLabel}</strong> ({t('receivedAmount', { amount: booking.serviceFee })})</p>
             </div>
 
             <button

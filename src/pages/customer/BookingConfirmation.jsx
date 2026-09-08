@@ -6,6 +6,12 @@ export const BookingConfirmation = () => {
   const { shramiks, selectedWorkerId, bookingDraft, createBooking, setCurrentScreen, t, tSkill } = useApp();
   const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
 
+  const workerLabel = worker
+    ? (worker.verified && worker.shramikId
+        ? `${t('verifiedShramikLabel', 'Verified Shramik')} • ${worker.shramikId}`
+        : t('newShramikLabel', 'New Shramik'))
+    : '';
+
   if (!worker) {
     return (
       <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
@@ -58,12 +64,12 @@ export const BookingConfirmation = () => {
           <div className="flex items-center space-x-3 pb-3 border-b border-slate-200">
             <img
               src={worker.photo}
-              alt={worker.name}
+              alt={workerLabel}
               className="w-12 h-12 rounded-xl object-cover border-2 border-emerald-500"
             />
             <div>
-              <h3 className="font-bold text-slate-900 text-base">{worker.name}</h3>
-              <p className="text-xs text-emerald-700 font-semibold">{tSkill(worker.skill)} {worker.shramikId ? `• ${worker.shramikId}` : ' • SS-10101'}</p>
+              <h3 className="font-bold text-slate-900 text-base">{workerLabel}</h3>
+              <p className="text-xs text-emerald-700 font-semibold">{tSkill(worker.skill)} {worker.shramikId ? `• ${worker.shramikId}` : ''}</p>
             </div>
           </div>
 

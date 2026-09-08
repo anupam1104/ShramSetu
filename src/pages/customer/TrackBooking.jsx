@@ -17,16 +17,21 @@ import {
 } from 'lucide-react';
 
 export const TrackBooking = () => {
-  const { bookings, activeBookingId, confirmWorkDone, cancelBooking, setCurrentScreen, switchRole, setActiveShramikId, t, tStatus, tSkill } = useApp();
+  const { bookings, activeBookingId, cancelBooking, setCurrentScreen, t, tStatus, tSkill, shramiks } = useApp();
   const booking = bookings.find(b => b.id === activeBookingId) || bookings[0];
+
+  // Anonymized label for the assigned shramik — customer never sees the real name.
+  const bookingWorker = booking ? shramiks.find(s => s.id === booking.shramikId) || null : null;
+  const bookingLabel = booking
+    ? (bookingWorker && bookingWorker.shramikId
+        ? `${t('verifiedShramikLabel', 'Verified Shramik')} • ${bookingWorker.shramikId}`
+        : t('newShramikLabel', 'New Shramik'))
+    : '';
 
   const handleProceedToPayment = () => {
     setCurrentScreen('payment');
   };
 
-  const handleConfirmWorkDone = async () => {
-    await confirmWorkDone(booking.id);
-  };
 
   if (!booking) {
     return (
@@ -102,20 +107,22 @@ export const TrackBooking = () => {
           <div 
             className="absolute top-1/2 left-6 h-1 bg-emerald-600 -translate-y-1/2 transition-all duration-500 -z-0"
             style={{
-              width: booking.status === 'Confirmed' ? '0%' :
-                     booking.status === 'In Progress' ? '33%' :
-                     booking.status === 'Completed' ? '66%' : '100%'
+              width: booking.status === 'Pending' ? '0%' : booking.status === 'Confirmed' ? '25%' :
+                     booking.status === 'In Progress' ? '50%' :
+                     booking.status === 'Completed' ? '75%' : '100%'
             }}
           ></div>
 
           {[
+            { step: 'Pending', label: 'Requested' },
             { step: 'Confirmed', label: tStatus('Confirmed') },
             { step: 'In Progress', label: tStatus('In Progress') },
             { step: 'Completed', label: tStatus('Completed') },
             { step: 'Paid', label: tStatus('Paid') }
           ].map((st, idx) => {
             const isDone = 
-              st.step === 'Confirmed' ||
+              (st.step === 'Pending') ||
+              (st.step === 'Confirmed' && ['Confirmed', 'In Progress', 'Completed', 'Paid'].includes(booking.status)) ||
               (st.step === 'In Progress' && ['In Progress', 'Completed', 'Paid'].includes(booking.status)) ||
               (st.step === 'Completed' && ['Completed', 'Paid'].includes(booking.status)) ||
               (st.step === 'Paid' && booking.status === 'Paid');
@@ -143,7 +150,15 @@ export const TrackBooking = () => {
       )}
 
       {/* PROMINENT START-CODE CARD (Key SIH UX Requirement) */}
-      {booking.status === 'Confirmed' && (
+      {booking.status === 'Pending' && (
+        <div className="bg-amber-50 border-2 border-amber-200 p-6 rounded-3xl text-center space-y-2">
+          <Clock className="w-8 h-8 text-amber-600 mx-auto" />
+          <h3 className="font-bold text-amber-950">Request sent to {bookingLabel}</h3>
+          <p className="text-xs text-amber-800">The start code will appear here as soon as the Shramik accepts your booking.</p>
+        </div>
+      )}
+
+      {booking.status === 'Confirmed' && booking.startCode && (
         <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl text-center space-y-4 relative overflow-hidden border-2 border-emerald-500">
           <div className="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-emerald-200 text-xs font-bold border border-emerald-400/30">
             <Key className="w-3.5 h-3.5 text-emerald-400" />
@@ -165,7 +180,7 @@ export const TrackBooking = () => {
           </div>
 
           <p className="text-xs text-emerald-100/80 max-w-sm mx-auto font-light">
-            {t('shareCodeDesc', { shramik: booking.shramikName })}
+            {t('shareCodeDesc', { shramik: bookingLabel })}
           </p>
         </div>
       )}
@@ -177,8 +192,8 @@ export const TrackBooking = () => {
             <User className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 text-lg">{booking.shramikName}</h3>
-            <p className="text-xs text-emerald-700 font-semibold">{tSkill(booking.skill)} • {booking.shramikPhone}</p>
+            <h3 className="font-bold text-slate-900 text-lg">{bookingLabel}</h3>
+            <p className="text-xs text-emerald-700 font-semibold">{tSkill(booking.skill)}</p>
           </div>
         </div>
 
@@ -198,7 +213,7 @@ export const TrackBooking = () => {
         </div>
 
         {/* Cancel Booking option (below service address) */}
-        {['Confirmed', 'In Progress'].includes(booking.status) && (
+        {['Pending', 'Confirmed', 'In Progress'].includes(booking.status) && (
           <div className="pt-2 border-t border-slate-100">
             <button
               type="button"
@@ -216,23 +231,16 @@ export const TrackBooking = () => {
         )}
       </div>
 
-      {/* Customer Work Completion Box */}
+      {/* Shramik finishes the job and sets the final whole-job amount. */}
       {booking.status === 'In Progress' && (
         <div className="bg-emerald-50 border-2 border-emerald-300 p-6 rounded-3xl text-center space-y-4 shadow-md">
           <h3 className="text-lg font-bold font-heading text-slate-900">
-            {t('isWorkCompleted', 'Is the work completed?')}
+            {t('jobInProgress', 'Job in progress')}
           </h3>
           <p className="text-xs text-slate-600">
-            {t('serviceBy', { service: booking.serviceName, shramik: booking.shramikName })}
+            {bookingLabel} will record the final whole-job amount when the work is finished.
           </p>
 
-          <button
-            onClick={handleConfirmWorkDone}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm flex items-center justify-center space-x-2"
-          >
-            <CheckCircle2 className="w-5 h-5" />
-            <span>{t('confirmWorkDone', 'Confirm Work Done')}</span>
-          </button>
         </div>
       )}
 

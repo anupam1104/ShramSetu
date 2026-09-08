@@ -6,6 +6,12 @@ export const SlotSelection = () => {
   const { shramiks, selectedWorkerId, setBookingDraft, setCurrentScreen, t } = useApp();
   const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
 
+  const workerLabel = worker
+    ? (worker.verified && worker.shramikId
+        ? `${t('verifiedShramikLabel', 'Verified Shramik')} ${worker.shramikId}`
+        : t('newShramikLabel', 'New Shramik'))
+    : '';
+
   const dates = [
     { day: 'Mon', date: '10', full: '10 September 2026' },
     { day: 'Tue', date: '11', full: '11 September 2026' },
@@ -70,7 +76,7 @@ export const SlotSelection = () => {
             {t('step2of3', 'Step 2 of 3 • Select Slot')}
           </span>
           <h1 className="text-2xl font-bold font-heading text-slate-900 pt-2">
-            {t('scheduleWith', { name: worker.name })}
+            {t('scheduleWith', { name: workerLabel })}
           </h1>
           <p className="text-xs text-slate-500">
             {t('choosePrefSlot', 'Choose your preferred date and available time slot.')}
