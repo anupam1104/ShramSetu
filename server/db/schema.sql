@@ -14,6 +14,7 @@ alter table public.admins enable row level security;
 
 revoke all on table public.admins from anon;
 revoke all on table public.admins from public;
+grant select, insert, update, delete on table public.admins to service_role;
 
 drop function if exists public.authenticate_admin(text, text);
 
@@ -128,6 +129,7 @@ create index if not exists shramiks_pending_location_idx
 alter table public.shramiks enable row level security;
 
 grant select, insert on table public.shramiks to anon;
+grant select, insert, update, delete on table public.shramiks to service_role;
 
 drop policy if exists "Public can read shramiks" on public.shramiks;
 create policy "Public can read shramiks"
@@ -257,7 +259,8 @@ create table if not exists public.customers (
 );
 
 alter table public.customers enable row level security;
-grant select, insert on table public.customers to anon;
+grant select, insert, update on table public.customers to anon;
+grant select, insert, update, delete on table public.customers to service_role;
 
 drop policy if exists "Public can read customers" on public.customers;
 create policy "Public can read customers"
@@ -268,6 +271,11 @@ drop policy if exists "Public can create customers" on public.customers;
 create policy "Public can create customers"
   on public.customers for insert
   with check (true);
+
+drop policy if exists "Public can update customers" on public.customers;
+create policy "Public can update customers"
+  on public.customers for update
+  using (true);
 
 create table if not exists public.bookings (
   id text primary key,
@@ -331,6 +339,7 @@ alter table public.bookings add constraint bookings_status_check
 alter table public.bookings enable row level security;
 
 grant select, insert on table public.bookings to anon;
+grant select, insert, update, delete on table public.bookings to service_role;
 
 drop policy if exists "Public can read bookings" on public.bookings;
 create policy "Public can read bookings"

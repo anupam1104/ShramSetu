@@ -37,6 +37,7 @@ export const supabaseRequest = async (path, options = {}) => {
 
 	if (!response.ok) {
 		const body = await response.text();
+		console.error(`[Supabase ${response.status}] ${path}: ${body.slice(0, 500)}`);
 		const error = new Error(publicMessageFor(response.status, body));
 		error.status = response.status === 409 ? 409 : (response.status >= 400 && response.status < 500 ? response.status : 502);
 		throw error;
