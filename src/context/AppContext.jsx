@@ -1,6 +1,6 @@
 ﻿import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { approveShramik as approveShramikApi, clearAdminToken, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikStatus, getShramiks, isSupabaseConfigured, rejectShramik as rejectShramikApi, setAdminToken } from '../lib/supabase';
+import { approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -890,6 +890,7 @@ export const AppProvider = ({ children }) => {
         });
         newBooking.id = savedBooking.id;
         newBooking.startCode = savedBooking.start_code;
+        newBooking.serverBacked = true;
       } catch (error) {
         // Backend unreachable â€” keep the locally generated booking so the
         // demo flow continues uninterrupted (same graceful degradation as
@@ -911,11 +912,19 @@ export const AppProvider = ({ children }) => {
   };
 
   // 4-Digit Code Verification by Shramik
-  const verifyStartCode = (code) => {
+  const verifyStartCode = async (code) => {
     const currentBooking = bookings.find(b => b.id === activeBookingId);
     if (!currentBooking) return false;
 
     if (currentBooking.startCode === code) {
+      if (currentBooking.serverBacked) {
+        try {
+          await startBookingApi(currentBooking.id, code);
+        } catch (error) {
+          showToast(error.message || 'Could not start this job.', 'error');
+          return false;
+        }
+      }
       setBookings(prev => prev.map(b => b.id === activeBookingId ? { ...b, status: 'In Progress' } : b));
       showToast('âœ“ Code verified! Job started successfully.', 'success');
       return true;
@@ -926,14 +935,32 @@ export const AppProvider = ({ children }) => {
   };
 
   // Customer Confirms Work Completion
-  const confirmWorkDone = (bookingId) => {
+  const confirmWorkDone = async (bookingId) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking?.serverBacked) {
+      try {
+        await completeBookingApi(bookingId);
+      } catch (error) {
+        showToast(error.message || 'Could not confirm work completion.', 'error');
+        return false;
+      }
+    }
     setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Completed' } : b));
     showToast('Work completed confirmed! Please proceed to payment.', 'success');
+    return true;
   };
 
   // Customer Payment
-  const processPayment = (bookingId) => {
+  const processPayment = async (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
+    if (booking?.serverBacked) {
+      try {
+        await payBookingApi(bookingId);
+      } catch (error) {
+        showToast(error.message || 'Could not process payment.', 'error');
+        return false;
+      }
+    }
     setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Paid' } : b));
     
     // Update Shramik earnings and completed job count
@@ -949,6 +976,7 @@ export const AppProvider = ({ children }) => {
       }));
     }
     showToast(`â‚¹${booking?.totalAmount || 550} Paid Successfully! Thank you for using Shram Setu.`, 'success');
+    return true;
   };
 
   // Quick Demo Step Launcher (Backbone Flow Preset)

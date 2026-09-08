@@ -29,3 +29,6 @@ src/data/indiaAddresses.js
 *.njsproj
 *.sln
 *.sw?
+
+
+.env

@@ -1,8 +1,11 @@
 import { Router } from 'express';
-import { createBooking } from '../controllers/bookings.controller.js';
+import { completeBooking, createBooking, payBooking, startBooking } from '../controllers/bookings.controller.js';
 
 const router = Router();
 
 router.post('/', createBooking);
+router.post('/:id/start', startBooking);
+router.post('/:id/complete', completeBooking);
+router.post('/:id/pay', payBooking);
 
 export default router;

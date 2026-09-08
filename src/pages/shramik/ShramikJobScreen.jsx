@@ -56,12 +56,12 @@ export const ShramikJobScreen = () => {
     }
   };
 
-  const handleVerifyCodeSubmit = (e) => {
+  const handleVerifyCodeSubmit = async (e) => {
     e.preventDefault();
     const enteredCode = pinDigits.join('');
     if (enteredCode.length !== 4) return;
     
-    const success = verifyStartCode(enteredCode);
+    const success = await verifyStartCode(enteredCode);
     if (success) {
       setPinDigits(['', '', '', '']);
     }

@@ -143,10 +143,20 @@ create table if not exists public.bookings (
   platform_fee integer not null default 50,
   total_amount integer not null,
   start_code text not null,
-  status text not null default 'Confirmed' check (status in ('Pending', 'Confirmed', 'Completed', 'Cancelled', 'Paid')),
+  status text not null default 'Confirmed' check (status in ('Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'Paid')),
+  started_at timestamptz,
+  completed_at timestamptz,
+  duration_minutes integer,
   created_at timestamptz not null default now(),
   unique (shramik_id, scheduled_date, scheduled_time)
 );
+
+alter table public.bookings add column if not exists started_at timestamptz;
+alter table public.bookings add column if not exists completed_at timestamptz;
+alter table public.bookings add column if not exists duration_minutes integer;
+alter table public.bookings drop constraint if exists bookings_status_check;
+alter table public.bookings add constraint bookings_status_check
+  check (status in ('Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'Paid'));
 
 alter table public.bookings enable row level security;
 
@@ -161,3 +171,11 @@ drop policy if exists "Public can create bookings" on public.bookings;
 create policy "Public can create bookings"
   on public.bookings for insert
   with check (status = 'Confirmed');
+
+grant update on table public.bookings to anon;
+
+drop policy if exists "Booking state transitions are server controlled" on public.bookings;
+create policy "Booking state transitions are server controlled"
+  on public.bookings for update
+  using (true)
+  with check (status in ('In Progress', 'Completed', 'Paid'));

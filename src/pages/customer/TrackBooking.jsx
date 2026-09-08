@@ -24,6 +24,10 @@ export const TrackBooking = () => {
     setCurrentScreen('payment');
   };
 
+  const handleConfirmWorkDone = async () => {
+    await confirmWorkDone(booking.id);
+  };
+
   if (!booking) {
     return (
       <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto space-y-6">
@@ -223,7 +227,7 @@ export const TrackBooking = () => {
           </p>
 
           <button
-            onClick={() => confirmWorkDone(booking.id)}
+            onClick={handleConfirmWorkDone}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm flex items-center justify-center space-x-2"
           >
             <CheckCircle2 className="w-5 h-5" />

@@ -93,6 +93,19 @@ export const createBooking = (booking) => request('bookings', {
   body: JSON.stringify(booking),
 });
 
+export const startBooking = (bookingId, code) => request(`bookings/${encodeURIComponent(bookingId)}/start`, {
+  method: 'POST',
+  body: JSON.stringify({ code }),
+});
+
+export const completeBooking = (bookingId) => request(`bookings/${encodeURIComponent(bookingId)}/complete`, {
+  method: 'POST',
+});
+
+export const payBooking = (bookingId) => request(`bookings/${encodeURIComponent(bookingId)}/pay`, {
+  method: 'POST',
+});
+
 export const loginAdmin = async (credentials) => {
   const result = await request('auth/admin/login', {
     method: 'POST',

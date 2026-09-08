@@ -34,7 +34,7 @@ export const PaymentPage = () => {
     );
   }
 
-  const handlePayNow = () => {
+  const handlePayNow = async () => {
     // Trigger confetti celebration
     try {
       confetti({
@@ -46,8 +46,8 @@ export const PaymentPage = () => {
       console.log('Confetti triggered');
     }
 
-    processPayment(booking.id);
-    setPaymentSuccess(true);
+    const paid = await processPayment(booking.id);
+    if (paid !== false) setPaymentSuccess(true);
   };
 
   return (
