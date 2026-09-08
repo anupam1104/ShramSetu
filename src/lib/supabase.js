@@ -93,6 +93,9 @@ export const createBooking = (booking) => request('bookings', {
   body: JSON.stringify(booking),
 });
 
+export const getShramikBookings = (shramikId) =>
+  request(`bookings/shramik/${encodeURIComponent(shramikId)}`);
+
 export const startBooking = (bookingId, code) => request(`bookings/${encodeURIComponent(bookingId)}/start`, {
   method: 'POST',
   body: JSON.stringify({ code }),

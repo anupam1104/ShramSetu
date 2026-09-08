@@ -24,12 +24,20 @@ export const createBooking = async (req, res) => {
 		return res.status(400).json({ error: 'That worker is not saved on the server yet. Book a verified worker from the directory.' });
 	}
 
+	const [customer] = await supabaseRequest('customers?on_conflict=phone', {
+		method: 'POST',
+		headers: { Prefer: 'return=representation,resolution=merge-duplicates' },
+		body: JSON.stringify({ name: customerName, phone: customerPhone, address: customerAddress }),
+	});
+	if (!customer?.id) return res.status(502).json({ error: 'Customer could not be saved.' });
+
 	const [booking] = await supabaseRequest('bookings', {
 		method: 'POST',
 		headers: { Prefer: 'return=representation' },
 		body: JSON.stringify({
 			id: `BK-${crypto.randomUUID()}`,
 			shramik_id: shramikId,
+			customer_id: customer.id,
 			service_name: serviceName,
 			scheduled_date: date,
 			scheduled_time: time,
@@ -45,6 +53,18 @@ export const createBooking = async (req, res) => {
 	});
 
 	return res.status(201).json(booking);
+};
+
+export const listShramikBookings = async (req, res) => {
+	if (!UUID_RE.test(String(req.params.shramikId))) {
+		return res.status(400).json({ error: 'Invalid Shramik ID.' });
+	}
+	const query = new URLSearchParams({
+		shramik_id: `eq.${req.params.shramikId}`,
+		select: '*,customers(id,name,phone,address)',
+		order: 'created_at.desc',
+	});
+	return res.json(await supabaseRequest(`bookings?${query.toString()}`));
 };
 
 const bookingUpdate = async (id, updates, expectedStatus) => {

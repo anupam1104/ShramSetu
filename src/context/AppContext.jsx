@@ -1,6 +1,6 @@
 ﻿import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi } from '../lib/supabase';
+import { approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -295,6 +295,7 @@ export const AppProvider = ({ children }) => {
   const hasStoredBookings = Array.isArray(bootData?.bookings) && bootData.bookings.length > 0;
   const [shramiks, setShramiks] = useState(() => (hasStoredShramiks ? bootData.shramiks : INITIAL_SHRAMIKS));
   const [bookings, setBookings] = useState(() => (hasStoredBookings ? bootData.bookings : INITIAL_BOOKINGS));
+
   const [selectedWorkerId, setSelectedWorkerId] = useState('shr-1');
   const [activeBookingId, setActiveBookingId] = useState(boot.activeBookingId || 'BK-8891');
   const [activeShramikId, setActiveShramikId] = useState(boot.activeShramikId || 'shr-1');
@@ -448,6 +449,34 @@ export const AppProvider = ({ children }) => {
 
   // Authentication State (rehydrated from the persisted session)
   const [currentUser, setCurrentUser] = useState(boot.currentUser || null);
+
+  useEffect(() => {
+    const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value));
+    if (!isSupabaseConfigured || role !== 'shramik' || !isUuid(currentUser?.id)) return;
+    getShramikBookings(currentUser.id).then((remoteBookings) => {
+      const mapped = remoteBookings.map((booking) => ({
+        id: booking.id,
+        shramikId: booking.shramik_id,
+        serviceName: booking.service_name,
+        date: booking.scheduled_date,
+        time: booking.scheduled_time,
+        customerId: booking.customer_id,
+        customerName: booking.customers?.name || booking.customer_name,
+        customerPhone: booking.customers?.phone || booking.customer_phone,
+        customerAddress: booking.customers?.address || booking.customer_address,
+        serviceFee: booking.service_fee,
+        platformFee: booking.platform_fee,
+        totalAmount: booking.total_amount,
+        startCode: booking.start_code,
+        status: booking.status,
+        startedAt: booking.started_at,
+        completedAt: booking.completed_at,
+        durationMinutes: booking.duration_minutes,
+        serverBacked: true,
+      }));
+      setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
+    }).catch((error) => console.warn('Could not load Shramik bookings:', error.message || error));
+  }, [currentUser?.id, role]);
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(boot.isLoggedIn));
 
   // Which login tab should be pre-selected (customer | shramik), set by landing CTAs

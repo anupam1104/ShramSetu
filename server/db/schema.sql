@@ -130,9 +130,31 @@ create policy "Public can submit shramiks"
   on public.shramiks for insert
   with check (verified = false and location_key = lower(trim(split_part(city, '|', 1))));
 
+create table if not exists public.customers (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text not null unique,
+  address text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.customers enable row level security;
+grant select, insert on table public.customers to anon;
+
+drop policy if exists "Public can read customers" on public.customers;
+create policy "Public can read customers"
+  on public.customers for select
+  using (true);
+
+drop policy if exists "Public can create customers" on public.customers;
+create policy "Public can create customers"
+  on public.customers for insert
+  with check (true);
+
 create table if not exists public.bookings (
   id text primary key,
   shramik_id uuid not null references public.shramiks(id),
+  customer_id uuid references public.customers(id),
   service_name text not null,
   scheduled_date text not null,
   scheduled_time text not null,
@@ -154,6 +176,31 @@ create table if not exists public.bookings (
 alter table public.bookings add column if not exists started_at timestamptz;
 alter table public.bookings add column if not exists completed_at timestamptz;
 alter table public.bookings add column if not exists duration_minutes integer;
+alter table public.bookings add column if not exists customer_id uuid references public.customers(id);
+
+-- Backfill the normalized customer table and connect existing bookings without
+-- deleting the legacy customer columns used by older deployed clients.
+insert into public.customers (name, phone, address)
+select distinct on (customer_phone)
+  customer_name,
+  customer_phone,
+  customer_address
+from public.bookings
+where customer_phone is not null
+  and customer_name is not null
+order by customer_phone, created_at desc
+on conflict (phone) do update
+set name = excluded.name,
+    address = coalesce(excluded.address, public.customers.address);
+
+update public.bookings b
+set customer_id = c.id
+from public.customers c
+where b.customer_id is null
+  and b.customer_phone = c.phone;
+
+create index if not exists bookings_customer_idx on public.bookings (customer_id);
+create index if not exists bookings_shramik_idx on public.bookings (shramik_id);
 alter table public.bookings drop constraint if exists bookings_status_check;
 alter table public.bookings add constraint bookings_status_check
   check (status in ('Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'Paid'));
