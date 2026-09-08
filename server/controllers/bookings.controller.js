@@ -96,21 +96,31 @@ export const listCustomerBookings = async (req, res) => {
 	// Accept either a customer UUID (login) or any phone format (booking flow
 	// stores "+91 XXXXX XXXXX" while signup stores raw digits), so the customer
 	// reliably sees their own bookings — and the start code once the Shramik
-	// has accepted and the status becomes Confirmed.
+	// has accepted and the status becomes Confirmed. Phone matching is used
+	// because a customer can have two rows (signup row + booking row).
 	const identifier = String(req.params.customerId || '').trim();
-	const conditions = [];
-	if (UUID_RE.test(identifier)) conditions.push(`customer_id.eq.${identifier}`);
-	const digits = identifier.replace(/\D/g, '').slice(-10);
-	if (digits.length === 10) {
-		conditions.push(`customer_phone.eq.${encodeURIComponent(digits)}`);
-		conditions.push(`customer_phone.eq.${encodeURIComponent(`+91 ${digits}`)}`);
+	const isUuid = UUID_RE.test(identifier);
+	const conditions = new Set();
+	let digits = isUuid ? '' : identifier.replace(/\D/g, '').slice(-10);
+
+	if (isUuid) {
+		conditions.add(`customer_id.eq.${identifier}`);
+		const [customer] = await supabaseRequest(`customers?select=phone&id=eq.${identifier}&limit=1`);
+		if (customer?.phone) digits = String(customer.phone).replace(/\D/g, '').slice(-10);
 	}
-	if (conditions.length === 0) return res.json([]);
+
+	if (digits.length === 10) {
+		conditions.add(`customer_phone.eq.${encodeURIComponent(digits)}`);
+		conditions.add(`customer_phone.eq.${encodeURIComponent(`+91 ${digits}`)}`);
+	}
+
+	if (conditions.size === 0) return res.json([]);
+
 	const query = new URLSearchParams({
 		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',
 		order: 'created_at.desc',
 	});
-	query.set('or', `(${conditions.join(',')})`);
+	query.set('or', `(${Array.from(conditions).join(',')})`);
 	return res.json(await supabaseRequest(`bookings?${query.toString()}`));
 };
 
