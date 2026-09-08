@@ -965,10 +965,12 @@ export const AppProvider = ({ children }) => {
         newBooking.startCode = savedBooking.start_code || null;
         newBooking.serverBacked = true;
       } catch (error) {
-        // Backend unreachable â€” keep the locally generated booking so the
-        // demo flow continues uninterrupted (same graceful degradation as
-        // shramik registration/sync).
-        console.warn('Booking fell back to local demo store:', error.message || error);
+        // A live deployment must not pretend a booking was routed when the
+        // server did not persist it. Offline mode remains available only when
+        // VITE_API_URL is intentionally omitted.
+        console.error('Booking was not saved on the server:', error.message || error);
+        showToast(t('bookingSendFailed', 'Booking could not be sent: {reason}', { reason: error.message || 'server error' }), 'error');
+        return;
       }
     }
 
