@@ -15,6 +15,8 @@ alter table public.admins enable row level security;
 revoke all on table public.admins from anon;
 revoke all on table public.admins from public;
 
+drop function if exists public.authenticate_admin(text, text);
+
 create or replace function public.authenticate_admin(identifier text, password text)
 returns table (id uuid, name text, phone text, employee_id text, city text)
 language sql
@@ -33,6 +35,8 @@ grant execute on function public.authenticate_admin(text, text) to anon;
 -- Create a new admin account (city-tagged). City drives the pending-approval
 -- queue: every admin whose login city matches the shramik's city sees the
 -- registration. Passwords are bcrypt-hashed with pgcrypto.
+drop function if exists public.create_admin(text, text, text, text, text);
+
 create or replace function public.create_admin(
   admin_name text,
   admin_phone text,
@@ -58,6 +62,8 @@ $$;
 
 revoke all on function public.create_admin(text, text, text, text, text) from public;
 grant execute on function public.create_admin(text, text, text, text, text) to anon;
+
+drop function if exists public.approve_shramik(uuid);
 
 create or replace function public.approve_shramik(shramik_uuid uuid)
 returns table (id uuid, verified boolean, shramik_id text)
@@ -133,6 +139,8 @@ create policy "Public can submit shramiks"
 alter table public.shramiks add column if not exists password_hash text;
 alter table public.customers add column if not exists password_hash text;
 
+drop function if exists public.authenticate_shramik(text, text);
+
 create or replace function public.authenticate_shramik(identifier text, password text)
 returns table (id uuid, name text, phone text, skill text, verified boolean, shramik_id text, city text)
 language sql
@@ -149,6 +157,8 @@ $$;
 revoke all on function public.authenticate_shramik(text, text) from public;
 grant execute on function public.authenticate_shramik(text, text) to anon;
 
+drop function if exists public.authenticate_customer(text, text);
+
 create or replace function public.authenticate_customer(identifier text, password text)
 returns table (id uuid, name text, phone text, address text)
 language sql
@@ -164,6 +174,8 @@ $$;
 
 revoke all on function public.authenticate_customer(text, text) from public;
 grant execute on function public.authenticate_customer(text, text) to anon;
+
+drop function if exists public.create_customer(text, text, text, text);
 
 create or replace function public.create_customer(
   cust_name text,
@@ -192,6 +204,8 @@ $$;
 
 revoke all on function public.create_customer(text, text, text, text) from public;
 grant execute on function public.create_customer(text, text, text, text) to anon;
+
+drop function if exists public.register_shramik(text, text, text, text, text, text, text[], text, text, text);
 
 create or replace function public.register_shramik(
   s_name text,
