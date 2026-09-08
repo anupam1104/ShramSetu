@@ -31,6 +31,7 @@ $$;
 
 revoke all on function public.authenticate_admin(text, text) from public;
 grant execute on function public.authenticate_admin(text, text) to anon;
+grant execute on function public.authenticate_admin(text, text) to service_role;
 
 -- Create a new admin account (city-tagged). City drives the pending-approval
 -- queue: every admin whose login city matches the shramik's city sees the
@@ -62,6 +63,7 @@ $$;
 
 revoke all on function public.create_admin(text, text, text, text, text) from public;
 grant execute on function public.create_admin(text, text, text, text, text) to anon;
+grant execute on function public.create_admin(text, text, text, text, text) to service_role;
 
 drop function if exists public.approve_shramik(uuid);
 
@@ -87,6 +89,7 @@ $$;
 -- browser clients through the public anon role.
 revoke all on function public.approve_shramik(uuid) from public;
 revoke execute on function public.approve_shramik(uuid) from anon;
+grant execute on function public.approve_shramik(uuid) to service_role;
 
 create table if not exists public.shramiks (
   id uuid primary key default gen_random_uuid(),
@@ -156,6 +159,7 @@ $$;
 
 revoke all on function public.authenticate_shramik(text, text) from public;
 grant execute on function public.authenticate_shramik(text, text) to anon;
+grant execute on function public.authenticate_shramik(text, text) to service_role;
 
 drop function if exists public.authenticate_customer(text, text);
 
@@ -174,6 +178,7 @@ $$;
 
 revoke all on function public.authenticate_customer(text, text) from public;
 grant execute on function public.authenticate_customer(text, text) to anon;
+grant execute on function public.authenticate_customer(text, text) to service_role;
 
 drop function if exists public.create_customer(text, text, text, text);
 
@@ -204,6 +209,7 @@ $$;
 
 revoke all on function public.create_customer(text, text, text, text) from public;
 grant execute on function public.create_customer(text, text, text, text) to anon;
+grant execute on function public.create_customer(text, text, text, text) to service_role;
 
 drop function if exists public.register_shramik(text, text, text, text, text, text, text[], text, text, text);
 
@@ -239,6 +245,7 @@ $$;
 
 revoke all on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text) from public;
 grant execute on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text) to anon;
+grant execute on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text) to service_role;
 
 create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),
