@@ -13,11 +13,24 @@ import {
   ArrowRight,
   ShieldCheck,
   Briefcase,
-  XCircle
+  XCircle,
+  RefreshCw
 } from 'lucide-react';
 
 export const TrackBooking = () => {
-  const { bookings, activeBookingId, cancelBooking, setCurrentScreen, t, tStatus, tSkill, shramiks } = useApp();
+  const {
+    bookings,
+    activeBookingId,
+    cancelBooking,
+    setCurrentScreen,
+    refreshBookings,
+    isRefreshingBookings,
+    bookingSyncError,
+    t,
+    tStatus,
+    tSkill,
+    shramiks
+  } = useApp();
   const booking = bookings.find(b => b.id === activeBookingId) || bookings[0];
 
   // Anonymized label for the assigned shramik — customer never sees the real name.
@@ -155,6 +168,16 @@ export const TrackBooking = () => {
           <Clock className="w-8 h-8 text-amber-600 mx-auto" />
           <h3 className="font-bold text-amber-950">Request sent to {bookingLabel}</h3>
           <p className="text-xs text-amber-800">The start code will appear here as soon as the Shramik accepts your booking.</p>
+          <button
+            type="button"
+            onClick={refreshBookings}
+            disabled={isRefreshingBookings}
+            className="inline-flex items-center gap-1.5 mt-2 px-3 py-2 rounded-lg text-xs font-bold text-amber-900 border border-amber-300 hover:bg-amber-100 disabled:opacity-60"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingBookings ? 'animate-spin' : ''}`} />
+            {isRefreshingBookings ? 'Checking acceptance…' : 'Refresh booking status'}
+          </button>
+          {bookingSyncError && <p className="text-[11px] text-red-700">{bookingSyncError}</p>}
         </div>
       )}
 

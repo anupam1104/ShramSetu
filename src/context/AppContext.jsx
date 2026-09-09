@@ -460,9 +460,27 @@ export const AppProvider = ({ children }) => {
 
   // Authentication State (rehydrated from the persisted session)
   const [currentUser, setCurrentUser] = useState(boot.currentUser || null);
+  const [isRefreshingBookings, setIsRefreshingBookings] = useState(false);
+  const [bookingSyncError, setBookingSyncError] = useState('');
+  const bookingRefreshInFlight = useRef(false);
 
   const refreshBookings = useCallback(async () => {
     if (!isSupabaseConfigured) return;
+
+    // A customer and Shramik normally use different devices, so accepting a
+    // request cannot update the customer's in-memory React state. Always read
+    // the authoritative booking row, but avoid overlapping interval/focus
+    // requests which can otherwise apply responses out of order.
+    if (bookingRefreshInFlight.current) return;
+    const hasTarget = role === 'shramik'
+      ? Boolean(currentUser?.id || activeShramikId || currentUser?.phone)
+      : role === 'customer'
+        ? Boolean(currentUser?.id || currentUser?.phone)
+        : role === 'admin';
+    if (!hasTarget) return;
+
+    bookingRefreshInFlight.current = true;
+    setIsRefreshingBookings(true);
 
     try {
       if (role === 'shramik' && (currentUser?.id || activeShramikId || currentUser?.phone)) {
@@ -552,15 +570,35 @@ export const AppProvider = ({ children }) => {
           setBookings((current) => [...mappedAll, ...current.filter((booking) => !mappedAll.some((remote) => remote.id === booking.id))]);
         }
       }
+      setBookingSyncError('');
     } catch (err) {
       console.warn('Booking sync warning:', err.message || err);
+      setBookingSyncError('Could not refresh booking status. Check your connection and try again.');
+    } finally {
+      bookingRefreshInFlight.current = false;
+      setIsRefreshingBookings(false);
     }
   }, [currentUser?.id, currentUser?.phone, activeShramikId, role]);
 
   useEffect(() => {
     refreshBookings();
-    const interval = setInterval(refreshBookings, 8000);
+    const interval = setInterval(refreshBookings, 5000);
     return () => clearInterval(interval);
+  }, [refreshBookings]);
+
+  // Refresh immediately when the customer returns to the tab instead of
+  // making them wait for the next polling interval after a worker accepts.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') refreshBookings();
+    };
+    window.addEventListener('focus', refreshBookings);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    return () => {
+      window.removeEventListener('focus', refreshBookings);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
   }, [refreshBookings]);
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(boot.isLoggedIn));
 
@@ -1213,6 +1251,9 @@ export const AppProvider = ({ children }) => {
       setCurrentScreen,
       shramiks,
       bookings,
+      refreshBookings,
+      isRefreshingBookings,
+      bookingSyncError,
       selectedWorkerId,
       setSelectedWorkerId,
       activeBookingId,
