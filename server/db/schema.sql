@@ -110,6 +110,7 @@ create table if not exists public.shramiks (
   services text[] not null default '{}',
   photo text,
   bio text,
+  last_assigned_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -117,6 +118,7 @@ create table if not exists public.shramiks (
 -- stays untouched; location_key is the canonical routing key used by the
 -- server to match a shramik with admins from the same city.
 alter table public.shramiks add column if not exists location_key text;
+alter table public.shramiks add column if not exists last_assigned_at timestamptz;
 update public.shramiks
 set location_key = lower(trim(split_part(city, '|', 1)))
 where location_key is null or location_key = '';
@@ -335,6 +337,12 @@ where b.customer_id is null
 
 create index if not exists bookings_customer_idx on public.bookings (customer_id);
 create index if not exists bookings_shramik_idx on public.bookings (shramik_id);
+-- A cancelled request must release its slot. This index also protects the
+-- assignment retry loop from assigning one shramik twice at the same time.
+alter table public.bookings drop constraint if exists bookings_shramik_id_scheduled_date_scheduled_time_key;
+create unique index if not exists bookings_active_shramik_slot_unique
+  on public.bookings (shramik_id, scheduled_date, scheduled_time)
+  where status in ('Pending', 'Confirmed', 'In Progress');
 alter table public.bookings drop constraint if exists bookings_status_check;
 alter table public.bookings add constraint bookings_status_check
   check (status in ('Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'Paid'));

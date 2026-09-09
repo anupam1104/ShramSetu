@@ -1098,30 +1098,8 @@ export const AppProvider = ({ children }) => {
   }, [role, currentUser, syncPendingApprovals]);
 
   // Booking Flow Actions
-  // Local/demo preview of the same fair policy used by the server. It is only
-  // a preview: the API makes the final assignment atomically when booking.
-  const selectWorkerForBooking = ({ service, date, time }) => {
-    const city = String(currentUser?.city || '').split('|')[0].trim().toLowerCase();
-    const busyIds = new Set(bookings
-      .filter((booking) => booking.date === date && booking.time === time && ['Pending', 'Confirmed', 'In Progress'].includes(booking.status))
-      .map((booking) => booking.shramikId));
-    const candidates = shramiks
-      .filter((worker) => worker.verified && (!city || String(worker.city || '').split('|')[0].trim().toLowerCase() === city))
-      .filter((worker) => worker.skill === service || worker.services?.some((item) => item === service))
-      .filter((worker) => !busyIds.has(worker.id))
-      .sort((a, b) => String(a.lastAssignedAt || '').localeCompare(String(b.lastAssignedAt || '')) || String(a.id).localeCompare(String(b.id)));
-    const preferred = candidates.find((worker) => worker.id === selectedWorkerId);
-    const selected = preferred || candidates[0];
-    if (!selected) {
-      showToast('No verified Shramik is free for this service and time slot.', 'error');
-      return false;
-    }
-    setSelectedWorkerId(selected.id);
-    return true;
-  };
-
   const createBooking = async () => {
-    const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
+    const worker = shramiks.find(s => s.id === selectedWorkerId);
     if (!worker || !bookingDraft.service || !bookingDraft.date || !bookingDraft.time) {
       showToast('Choose a service, date and time before confirming the booking.', 'error');
       setCurrentScreen('slot');
@@ -1156,7 +1134,6 @@ export const AppProvider = ({ children }) => {
     if (isSupabaseConfigured) {
       try {
         const savedBooking = await createBookingApi({
-          shramikId: worker.id,
           requestedShramikId: worker.id,
           serviceName: newBooking.serviceName,
           date: newBooking.date,
@@ -1447,7 +1424,6 @@ export const AppProvider = ({ children }) => {
       setActiveShramikId,
       bookingDraft,
       setBookingDraft,
-      selectWorkerForBooking,
       registerShramik,
       approveShramik,
       rejectShramik,

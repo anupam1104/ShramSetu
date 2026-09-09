@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const WorkerProfile = () => {
-  const { shramiks, selectedWorkerId, setCurrentScreen, t, tSkill } = useApp();
+  const { shramiks, selectedWorkerId, searchCategory, setBookingDraft, setCurrentScreen, t, tSkill } = useApp();
   const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
 
   // Anonymized display label — customer never sees the shramik's real name.
@@ -42,6 +42,11 @@ export const WorkerProfile = () => {
   }
 
   const handleBookNow = () => {
+    if (searchCategory && searchCategory !== 'All') {
+      setBookingDraft((draft) => ({ ...draft, service: searchCategory }));
+    } else if (worker.skill) {
+      setBookingDraft((draft) => ({ ...draft, service: worker.skill }));
+    }
     setCurrentScreen('slot');
   };
 

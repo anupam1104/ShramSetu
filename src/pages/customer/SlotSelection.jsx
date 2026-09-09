@@ -3,169 +3,30 @@ import { useApp } from '../../context/AppContext';
 import { Calendar, Clock, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const SlotSelection = () => {
-  const { shramiks, selectedWorkerId, setBookingDraft, setCurrentScreen, t } = useApp();
-  const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0] || null;
-
-  const workerLabel = worker
-    ? (worker.verified && worker.shramikId
-        ? `${t('verifiedShramikLabel', 'Verified Shramik')} ${worker.shramikId}`
-        : t('newShramikLabel', 'New Shramik'))
-    : '';
-
+  const { bookingDraft, setBookingDraft, setCurrentScreen, t, tSkill } = useApp();
   const dates = [
-    { day: 'Mon', date: '10', full: '10 September 2026' },
-    { day: 'Tue', date: '11', full: '11 September 2026' },
-    { day: 'Wed', date: '12', full: '12 September 2026' },
-    { day: 'Thu', date: '13', full: '13 September 2026' },
-    { day: 'Fri', date: '14', full: '14 September 2026' }
+    { day: 'Mon', date: '10', full: '10 September 2026' }, { day: 'Tue', date: '11', full: '11 September 2026' },
+    { day: 'Wed', date: '12', full: '12 September 2026' }, { day: 'Thu', date: '13', full: '13 September 2026' }, { day: 'Fri', date: '14', full: '14 September 2026' },
   ];
+  const timeSlots = ['09:00 AM', '11:00 AM', '01:00 PM', '03:00 PM', '05:00 PM', '07:00 PM'];
+  const [selectedDate, setSelectedDate] = useState(bookingDraft.date || dates[1].full);
+  const [selectedTime, setSelectedTime] = useState(bookingDraft.time || '03:00 PM');
 
-  const timeSlots = [
-    { time: '09:00 AM', available: true },
-    { time: '11:00 AM', available: true },
-    { time: '01:00 PM', available: false }, // Booked slot example
-    { time: '03:00 PM', available: true },
-    { time: '05:00 PM', available: true },
-    { time: '07:00 PM', available: true }
-  ];
-
-  const [selectedDate, setSelectedDate] = useState(dates[1].full);
-  const [selectedTime, setSelectedTime] = useState('03:00 PM');
-  const [selectedService, setSelectedService] = useState(worker?.services?.[0] || 'Electrical Repair');
-
-  if (!worker) {
-    return (
-      <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center space-y-3">
-          <p className="font-bold text-slate-900">{t('noWorkerSlot', 'No verified worker selected')}</p>
-          <p className="text-xs text-slate-500">{t('workerSlotEmpty', 'Pick a worker from search to book a slot.')}</p>
-          <button
-            onClick={() => setCurrentScreen('search')}
-            className="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all"
-          >
-            {t('backToSearch', 'Back to Search Results')}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const handleConfirmSlot = () => {
-    setBookingDraft({
-      date: selectedDate,
-      time: selectedTime,
-      service: selectedService
-    });
+  const continueToAssignment = () => {
+    const draft = { service: bookingDraft.service, date: selectedDate, time: selectedTime };
+    setBookingDraft(draft);
     setCurrentScreen('booking_confirm');
   };
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-xl mx-auto space-y-6">
-      
-      <button
-        onClick={() => setCurrentScreen('profile')}
-        className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1"
-      >
-        <ArrowLeft className="w-4 h-4" /> {t('backToProfile', 'Back to Profile')}
-      </button>
-
+      <button onClick={() => setCurrentScreen('search')} className="text-slate-600 hover:text-slate-900 text-sm font-semibold flex items-center gap-1"><ArrowLeft className="w-4 h-4" /> {t('backToSearch', 'Back to services')}</button>
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xl space-y-6">
-        
-        <div className="space-y-1">
-          <span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">
-            {t('step2of3', 'Step 2 of 3 • Select Slot')}
-          </span>
-          <h1 className="text-2xl font-bold font-heading text-slate-900 pt-2">
-            {t('scheduleWith', { name: workerLabel })}
-          </h1>
-          <p className="text-xs text-slate-500">
-            {t('choosePrefSlot', 'Choose your preferred date and available time slot.')}
-          </p>
-        </div>
-
-        {/* Service Type Selection */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-            {t('selectRequiredService', 'Select Required Service')}
-          </label>
-          <select
-            value={selectedService}
-            onChange={(e) => setSelectedService(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none"
-          >
-            {worker.services.map((srv, idx) => (
-              <option key={idx} value={srv}>{srv}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Date Selector */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
-            <Calendar className="w-4 h-4 text-emerald-600" />
-            {t('selectDate', 'Select Date')}
-          </label>
-
-          <div className="grid grid-cols-5 gap-2">
-            {dates.map((d) => (
-              <button
-                key={d.date}
-                type="button"
-                onClick={() => setSelectedDate(d.full)}
-                className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center ${
-                  selectedDate === d.full
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-md ring-4 ring-emerald-100'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                }`}
-              >
-                <span className="text-xs font-medium uppercase opacity-80">{d.day}</span>
-                <span className="text-lg font-bold font-mono">{d.date}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Time Slots Selector */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
-            <Clock className="w-4 h-4 text-emerald-600" />
-            {t('availableTimeSlots', 'Available Time Slots')}
-          </label>
-
-          <div className="grid grid-cols-2 gap-3">
-            {timeSlots.map((slot) => (
-              <button
-                key={slot.time}
-                type="button"
-                disabled={!slot.available}
-                onClick={() => setSelectedTime(slot.time)}
-                className={`py-3.5 px-4 rounded-xl border text-sm font-bold font-mono transition-all flex items-center justify-between ${
-                  !slot.available
-                    ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed line-through'
-                    : selectedTime === slot.time
-                    ? 'bg-emerald-50 border-emerald-600 text-emerald-900 ring-2 ring-emerald-500 shadow-xs'
-                    : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200'
-                }`}
-              >
-                <span>{slot.time}</span>
-                {!slot.available ? (
-                  <span className="text-[10px] font-sans text-red-500 font-semibold no-underline">{t('bookedslot', 'Booked')}</span>
-                ) : selectedTime === slot.time ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                ) : null}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <button
-          onClick={handleConfirmSlot}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center space-x-2 mt-4"
-        >
-          <span>{t('proceedToSummary', 'Proceed to Summary')}</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-
+        <div className="space-y-1"><span className="text-emerald-700 bg-emerald-100 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">Step 2 of 3 • Pick a slot</span><h1 className="text-2xl font-bold font-heading text-slate-900 pt-2">Schedule {tSkill(bookingDraft.service)}</h1><p className="text-xs text-slate-500">Choose a date and time, then review your selected Shramik.</p></div>
+        <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-bold text-slate-800">Service: {tSkill(bookingDraft.service)}</div>
+        <div className="space-y-2"><label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-4 h-4 text-emerald-600" /> {t('selectDate', 'Select Date')}</label><div className="grid grid-cols-5 gap-2">{dates.map((d) => <button key={d.date} onClick={() => setSelectedDate(d.full)} className={`p-3 rounded-2xl border text-center ${selectedDate === d.full ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-700 border-slate-200'}`}><span className="text-xs block uppercase opacity-80">{d.day}</span><span className="text-lg font-bold font-mono">{d.date}</span></button>)}</div></div>
+        <div className="space-y-2"><label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1"><Clock className="w-4 h-4 text-emerald-600" /> {t('availableTimeSlots', 'Available Time Slots')}</label><div className="grid grid-cols-2 gap-3">{timeSlots.map((time) => <button key={time} onClick={() => setSelectedTime(time)} className={`py-3.5 px-4 rounded-xl border text-sm font-bold font-mono flex items-center justify-between ${selectedTime === time ? 'bg-emerald-50 border-emerald-600 text-emerald-900' : 'bg-white text-slate-800 border-slate-200'}`}><span>{time}</span>{selectedTime === time && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}</button>)}</div></div>
+        <button onClick={continueToAssignment} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center space-x-2"><span>Continue to booking</span><ArrowRight className="w-4 h-4" /></button>
       </div>
     </div>
   );
