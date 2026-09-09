@@ -465,6 +465,21 @@ const en = {
   proceedToPayment: 'Proceed to Payment',
   paymentReceived: '✓ Payment Received',
   paymentReceivedDesc: 'Thank you! Service is complete and paid.',
+  viewStartCodePage: 'Open Start Code Page',
+
+  /* ─── Start Code Show Page ─── */
+  startCodeTitle: 'Start Code',
+  startCodeSubtitleShare: 'Share this code with the Shramik on arrival to begin your service.',
+  startCodeWaiting: 'Awaiting acceptance',
+  startCodeWaitingDesc: 'The 4-digit start code will appear here as soon as the Shramik accepts your booking request.',
+  revealCode: 'Reveal code',
+  hideCode: 'Hide code',
+  copyCode: 'Copy code',
+  copied: 'Copied!',
+  startCodeUsedNote: 'This code has already been verified and the job is now in progress. Keep it private.',
+  startCodeStatusHint: 'Only active while the job has not started.',
+  bookingSummary: 'Booking Summary',
+  startCodeSecurityTip: 'This code is one-time and should only be shared with the assigned verified Shramik when they arrive. Never share it over a call or message with anyone else.',
 
   /* ─── Payment Page ─── */
   backToTracking: 'Back to Booking Tracking',

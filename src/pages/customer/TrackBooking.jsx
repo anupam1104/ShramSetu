@@ -182,6 +182,14 @@ export const TrackBooking = () => {
           <p className="text-xs text-emerald-100/80 max-w-sm mx-auto font-light">
             {t('shareCodeDesc', { shramik: bookingLabel })}
           </p>
+
+          <button
+            onClick={() => setCurrentScreen('start_code')}
+            className="inline-flex items-center gap-1.5 bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs py-2.5 px-5 rounded-xl shadow-md transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+            {t('viewStartCodePage', 'Open Start Code Page')}
+          </button>
         </div>
       )}
 

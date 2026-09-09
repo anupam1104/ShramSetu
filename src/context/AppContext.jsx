@@ -1141,10 +1141,10 @@ export const AppProvider = ({ children }) => {
       switchRole('customer');
       setSelectedWorkerId('shr-1');
       setCurrentScreen('slot');
-    } else if (stepNumber === 6) { // Track Booking & 4-Digit Code
+    } else if (stepNumber === 6) { // Start Code Show Page
       switchRole('customer');
       setActiveBookingId('BK-8891');
-      setCurrentScreen('track_booking');
+      setCurrentScreen('start_code');
     } else if (stepNumber === 7) { // Shramik Enters 4-Digit Code
       switchRole('shramik');
       setActiveShramikId('shr-1');

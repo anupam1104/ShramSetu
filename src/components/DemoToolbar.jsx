@@ -12,7 +12,7 @@ export const DemoToolbar = () => {
     { num: 3, label: 'Admin Approval' },
     { num: 4, label: 'Worker Profile' },
     { num: 5, label: 'Slot Selection' },
-    { num: 6, label: 'Start Code (1472)' },
+    { num: 6, label: 'Start Code Page' },
     { num: 7, label: 'Job Code Entry' },
     { num: 8, label: 'Work Done' },
     { num: 9, label: 'Payment' }
@@ -37,7 +37,7 @@ export const DemoToolbar = () => {
                 (step.num === 3 && currentScreen === 'admin_approvals') ||
                 (step.num === 4 && currentScreen === 'profile') ||
                 (step.num === 5 && currentScreen === 'slot') ||
-                (step.num === 6 && currentScreen === 'track_booking') ||
+                (step.num === 6 && currentScreen === 'start_code') ||
                 (step.num === 7 && currentScreen === 'shramik_job') ||
                 (step.num === 8 && currentScreen === 'track_booking') ||
                 (step.num === 9 && currentScreen === 'payment')
