@@ -3,7 +3,12 @@ import { supabaseRequest } from '../db/connection.js';
 const locationKeyOf = (city) => String(city || '').split('|')[0].trim().toLocaleLowerCase('en-IN');
 
 export const listShramiks = async (req, res) => {
-	const rows = await supabaseRequest('shramiks?select=*&verified=eq.true&order=created_at.desc');
+	const publicFields = [
+		'id', 'name', 'skill', 'verified', 'shramik_id', 'rating', 'jobs_count',
+		'distance', 'hourly_rate', 'phone', 'city', 'area', 'experience',
+		'services', 'photo', 'bio', 'created_at', 'location_key', 'last_assigned_at',
+	].join(',');
+	const rows = await supabaseRequest(`shramiks?select=${publicFields}&verified=eq.true&order=created_at.desc`);
 	res.json(rows);
 };
 

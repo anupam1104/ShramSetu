@@ -23,6 +23,7 @@ export const TrackBooking = () => {
     startWork,
     setCurrentScreen,
     refreshBookings,
+    refreshBookingStatus,
     isRefreshingBookings,
     bookingSyncError,
     t,
@@ -31,6 +32,13 @@ export const TrackBooking = () => {
     shramiks
   } = useApp();
   const booking = bookings.find(b => b.id === activeBookingId) || bookings[0];
+
+  React.useEffect(() => {
+    if (!booking?.id || booking.status !== 'Pending') return undefined;
+    refreshBookingStatus(booking.id);
+    const interval = setInterval(() => refreshBookingStatus(booking.id), 3000);
+    return () => clearInterval(interval);
+  }, [booking?.id, booking?.status, refreshBookingStatus]);
 
   // Anonymized label for the assigned shramik — customer never sees the real name.
   const bookingWorker = booking ? shramiks.find(s => s.id === booking.shramikId) || null : null;

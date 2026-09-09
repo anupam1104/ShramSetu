@@ -5,23 +5,18 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export const createBooking = async (req, res) => {
 	const {
-		shramikId,
 		serviceName,
 		date,
 		time,
 		customerName,
 		customerPhone,
 		customerAddress = '',
-		serviceFee,
+		customerCity = '',
 		platformFee = 50,
 	} = req.body;
 
-	if (!shramikId || !serviceName || !date || !time || !customerName || !customerPhone || !serviceFee) {
-		return res.status(400).json({ error: 'shramikId, serviceName, date, time, customerName, customerPhone, and serviceFee are required.' });
-	}
-
-	if (!UUID_RE.test(String(shramikId))) {
-		return res.status(400).json({ error: 'That worker is not saved on the server yet. Book a verified worker from the directory.' });
+	if (!serviceName || !date || !time || !customerName || !customerPhone) {
+		return res.status(400).json({ error: 'serviceName, date, time, customerName, and customerPhone are required.' });
 	}
 
 	const [customer] = await supabaseRequest('customers?on_conflict=phone', {
@@ -31,27 +26,65 @@ export const createBooking = async (req, res) => {
 	});
 	if (!customer?.id) return res.status(502).json({ error: 'Customer could not be saved.' });
 
-	const [booking] = await supabaseRequest('bookings', {
-		method: 'POST',
-		headers: { Prefer: 'return=representation' },
-		body: JSON.stringify({
-			id: `BK-${crypto.randomUUID()}`,
-			shramik_id: shramikId,
-			customer_id: customer.id,
-			service_name: serviceName,
-			scheduled_date: date,
-			scheduled_time: time,
-			customer_name: customerName,
-			customer_phone: customerPhone,
-			customer_address: customerAddress,
-			service_fee: serviceFee,
-			platform_fee: platformFee,
-			total_amount: Number(serviceFee) + Number(platformFee),
-			status: 'Pending',
-		}),
-	});
+	// Assignment is deliberately server-owned. A browser can never select or
+	// forge a shramik ID: it only supplies the requested service and slot.
+	const [workers, slotBookings] = await Promise.all([
+		supabaseRequest('shramiks?select=id,skill,services,verified,location_key,rating,hourly_rate,experience,shramik_id,last_assigned_at&verified=eq.true'),
+		supabaseRequest(`bookings?${new URLSearchParams({
+			select: 'shramik_id', scheduled_date: `eq.${date}`, scheduled_time: `eq.${time}`,
+			status: 'in.(Pending,Confirmed,In Progress)',
+		}).toString()}`),
+	]);
 
-	return res.status(201).json(booking);
+	const normalizedService = String(serviceName).trim().toLowerCase();
+	const cityKey = String(customerCity).split('|')[0].trim().toLowerCase();
+	const busyIds = new Set((slotBookings || []).map((booking) => booking.shramik_id));
+	const candidates = (workers || [])
+		.filter((worker) => !cityKey || worker.location_key === cityKey)
+		.filter((worker) => worker.skill?.trim().toLowerCase() === normalizedService
+			|| (worker.services || []).some((service) => String(service).trim().toLowerCase() === normalizedService))
+		.filter((worker) => !busyIds.has(worker.id))
+		// Least-recently assigned first is round-robin across equally eligible workers.
+		.sort((a, b) => String(a.last_assigned_at || '').localeCompare(String(b.last_assigned_at || '')) || String(a.id).localeCompare(String(b.id)));
+
+	if (candidates.length === 0) {
+		return res.status(409).json({ error: 'No verified shramik is free for this service and time slot.' });
+	}
+
+	// A competing booking can reserve the first candidate between the read and
+	// insert. Try the next fairly ranked worker on a slot-conflict response.
+	for (const shramik of candidates) {
+		try {
+			const assignedServiceFee = Number(shramik.hourly_rate) * 2;
+			const [booking] = await supabaseRequest('bookings', {
+				method: 'POST',
+				headers: { Prefer: 'return=representation' },
+				body: JSON.stringify({
+					id: `BK-${crypto.randomUUID()}`,
+					shramik_id: shramik.id,
+					customer_id: customer.id,
+					service_name: serviceName,
+					scheduled_date: date,
+					scheduled_time: time,
+					customer_name: customerName,
+					customer_phone: customerPhone,
+					customer_address: customerAddress,
+					service_fee: assignedServiceFee,
+					platform_fee: platformFee,
+					total_amount: assignedServiceFee + Number(platformFee),
+					status: 'Pending',
+				}),
+			});
+			await supabaseRequest(`shramiks?id=eq.${shramik.id}`, {
+				method: 'PATCH', body: JSON.stringify({ last_assigned_at: new Date().toISOString() }),
+			});
+			return res.status(201).json({ ...booking, assigned_shramik: shramik });
+		} catch (error) {
+			if (error.status !== 409) throw error;
+		}
+	}
+
+	return res.status(409).json({ error: 'That time slot was just taken. Please choose another time.' });
 };
 
 // A customer can start work only after the assigned Shramik accepts the request.
@@ -70,6 +103,17 @@ export const listAllBookings = async (req, res) => {
 	});
 	const rows = await supabaseRequest(`bookings?${query.toString()}`);
 	return res.json(rows || []);
+};
+
+export const getBooking = async (req, res) => {
+	const query = new URLSearchParams({
+		id: `eq.${req.params.id}`,
+		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',
+		limit: '1',
+	});
+	const [booking] = await supabaseRequest(`bookings?${query.toString()}`);
+	if (!booking) return res.status(404).json({ error: 'Booking not found.' });
+	return res.json(booking);
 };
 
 export const listShramikBookings = async (req, res) => {

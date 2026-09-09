@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getCustomerBookings, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
+import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getBooking as getBookingApi, getCustomerBookings, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -596,6 +596,42 @@ export const AppProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [refreshBookings]);
 
+  const refreshBookingStatus = useCallback(async (bookingId) => {
+    if (!isSupabaseConfigured || !bookingId) return null;
+    try {
+      const remote = await getBookingApi(bookingId);
+      const mapped = {
+        id: remote.id,
+        shramikId: remote.shramik_id,
+        shramikName: remote.shramiks?.name || 'Assigned Worker',
+        shramikPhone: remote.shramiks?.phone || '',
+        skill: remote.shramiks?.skill || '',
+        serviceName: remote.service_name,
+        date: remote.scheduled_date,
+        time: remote.scheduled_time,
+        customerId: remote.customer_id,
+        customerName: remote.customers?.name || remote.customer_name || 'Customer',
+        customerPhone: remote.customers?.phone || remote.customer_phone || '',
+        customerAddress: remote.customers?.address || remote.customer_address || '',
+        serviceFee: remote.service_fee,
+        platformFee: remote.platform_fee,
+        totalAmount: remote.total_amount,
+        status: remote.status,
+        startedAt: remote.started_at,
+        completedAt: remote.completed_at,
+        durationMinutes: remote.duration_minutes,
+        serverBacked: true,
+      };
+      setBookings((current) => [mapped, ...current.filter((booking) => booking.id !== mapped.id)]);
+      setBookingSyncError('');
+      return mapped;
+    } catch (error) {
+      console.warn('Booking status sync warning:', error.message || error);
+      setBookingSyncError('Could not refresh booking status. Check your connection and try again.');
+      return null;
+    }
+  }, []);
+
   // Refresh immediately when the customer returns to the tab instead of
   // making them wait for the next polling interval after a worker accepts.
   useEffect(() => {
@@ -642,6 +678,23 @@ export const AppProvider = ({ children }) => {
     });
   }, [bookings, role, isLoggedIn]);
 
+  // Shramik-side: detect when the customer starts the job (Confirmed → In Progress)
+  // and notify the Shramik with a toast — mirrors the customer notification above.
+  const seenBookingStatusForShramik = useRef({});
+  useEffect(() => {
+    if (role !== 'shramik' || !isLoggedIn) return;
+    bookings.forEach((booking) => {
+      const previous = seenBookingStatusForShramik.current[booking.id];
+      const next = booking.status;
+      const justStarted = previous === 'Confirmed' && next === 'In Progress';
+      if (justStarted) {
+        const customerName = booking.customerName || 'Customer';
+        showToast(tRef.current('jobStartedByCustomerToast', 'The customer has started the job — you can begin work!', { customer: customerName }), 'success');
+      }
+      seenBookingStatusForShramik.current[booking.id] = next;
+    });
+  }, [bookings, role, isLoggedIn]);
+
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
@@ -651,6 +704,7 @@ export const AppProvider = ({ children }) => {
         shramikId: row.shramik_id,
         jobsCount: row.jobs_count,
         hourlyRate: row.hourly_rate,
+        lastAssignedAt: row.last_assigned_at,
       }))))
       .catch((error) => {
         // Backend unreachable â€” keep the persisted demo workers instead of
@@ -1028,6 +1082,27 @@ export const AppProvider = ({ children }) => {
   }, [role, currentUser, syncPendingApprovals]);
 
   // Booking Flow Actions
+  // Local/demo preview of the same fair policy used by the server. It is only
+  // a preview: the API makes the final assignment atomically when booking.
+  const selectWorkerForBooking = ({ service, date, time }) => {
+    const city = String(currentUser?.city || '').split('|')[0].trim().toLowerCase();
+    const busyIds = new Set(bookings
+      .filter((booking) => booking.date === date && booking.time === time && ['Pending', 'Confirmed', 'In Progress'].includes(booking.status))
+      .map((booking) => booking.shramikId));
+    const candidates = shramiks
+      .filter((worker) => worker.verified && (!city || String(worker.city || '').split('|')[0].trim().toLowerCase() === city))
+      .filter((worker) => worker.skill === service || worker.services?.some((item) => item === service))
+      .filter((worker) => !busyIds.has(worker.id))
+      .sort((a, b) => String(a.lastAssignedAt || '').localeCompare(String(b.lastAssignedAt || '')) || String(a.id).localeCompare(String(b.id)));
+    const selected = candidates[0];
+    if (!selected) {
+      showToast('No verified Shramik is free for this service and time slot.', 'error');
+      return false;
+    }
+    setSelectedWorkerId(selected.id);
+    return true;
+  };
+
   const createBooking = async () => {
     const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
     const newBookingId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -1066,11 +1141,28 @@ export const AppProvider = ({ children }) => {
           customerName: newBooking.customerName,
           customerPhone: newBooking.customerPhone,
           customerAddress: newBooking.customerAddress,
-          serviceFee: newBooking.serviceFee,
+          customerCity: currentUser?.city || '',
           platformFee: newBooking.platformFee,
         });
         newBooking.id = savedBooking.id;
         newBooking.serverBacked = true;
+        const assigned = savedBooking.assigned_shramik;
+        if (assigned?.id) {
+          const assignedWorker = {
+            ...assigned,
+            shramikId: assigned.shramik_id,
+            hourlyRate: Number(assigned.hourly_rate) || worker.hourlyRate,
+            lastAssignedAt: assigned.last_assigned_at,
+          };
+          newBooking.shramikId = assignedWorker.id;
+          newBooking.skill = assignedWorker.skill;
+          newBooking.serviceFee = assignedWorker.hourlyRate * 2;
+          newBooking.totalAmount = newBooking.serviceFee + newBooking.platformFee;
+          setSelectedWorkerId(assignedWorker.id);
+          setShramiks((current) => current.some((item) => item.id === assignedWorker.id)
+            ? current.map((item) => item.id === assignedWorker.id ? { ...item, ...assignedWorker } : item)
+            : [...current, assignedWorker]);
+        }
       } catch (error) {
         // A live deployment must not pretend a booking was routed when the
         // server did not persist it. Offline mode remains available only when
@@ -1082,6 +1174,9 @@ export const AppProvider = ({ children }) => {
     }
 
     setBookings(prev => [newBooking, ...prev]);
+    setShramiks(prev => prev.map((item) => item.id === newBooking.shramikId
+      ? { ...item, lastAssignedAt: new Date().toISOString() }
+      : item));
     setActiveBookingId(newBooking.id);
     setCurrentScreen('track_booking');
     showToast('Booking request sent. The Shramik will review and accept it.', 'success');
@@ -1137,6 +1232,10 @@ export const AppProvider = ({ children }) => {
       showToast(error.message || 'Could not start this job.', 'error');
       return false;
     }
+    // Always update local state — works offline and triggers cross-tab sync.
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'In Progress' } : b));
+    showToast('Job started! The Shramik has been notified and can begin work.', 'success');
+    return true;
   };
 
   // Customer Confirms Work Completion
@@ -1302,6 +1401,7 @@ export const AppProvider = ({ children }) => {
       setActiveShramikId,
       bookingDraft,
       setBookingDraft,
+      selectWorkerForBooking,
       registerShramik,
       approveShramik,
       rejectShramik,
