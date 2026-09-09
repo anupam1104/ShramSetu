@@ -137,7 +137,6 @@ const INITIAL_BOOKINGS = [
     serviceFee: 500,
     platformFee: 50,
     totalAmount: 550,
-    startCode: '4821',
     status: 'Confirmed',
   },
   {
@@ -156,7 +155,6 @@ const INITIAL_BOOKINGS = [
     serviceFee: 600,
     platformFee: 50,
     totalAmount: 650,
-    startCode: '7395',
     status: 'In Progress',
   },
   {
@@ -175,7 +173,6 @@ const INITIAL_BOOKINGS = [
     serviceFee: 440,
     platformFee: 50,
     totalAmount: 490,
-    startCode: '6102',
     status: 'Completed',
   },
   {
@@ -212,7 +209,6 @@ const INITIAL_BOOKINGS = [
     serviceFee: 840,
     platformFee: 50,
     totalAmount: 890,
-    startCode: '2537',
     status: 'Confirmed',
   },
   {
@@ -249,7 +245,6 @@ const INITIAL_BOOKINGS = [
     serviceFee: 400,
     platformFee: 50,
     totalAmount: 450,
-    startCode: '9241',
     status: 'Completed',
   },
   {
@@ -388,7 +383,7 @@ export const AppProvider = ({ children }) => {
     'booking.id': 'thBookingId', 'booking.status': 'thStatus',
     'booking.amount': 'thAmount', 'booking.customer': 'customerName',
     'booking.service': 'jobTitle', 'booking.dateTime': 'scheduledDateTime',
-    'booking.fourDigitCode': 'digitStartCode', 'booking.totalPayable': 'totalPayableAmount',
+    'booking.totalPayable': 'totalPayableAmount',
     // common.* keys
     'common.skill': 'thSkill', 'common.experience': 'thExperience',
     'common.action': 'thActions', 'common.view': 'viewDetails',
@@ -467,7 +462,13 @@ export const AppProvider = ({ children }) => {
   const bookingRefreshInFlight = useRef(false);
 
   const refreshBookings = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+    // Vite embeds VITE_* values at build time. Without a configured API, each
+    // device has isolated browser state, so a customer cannot receive a
+    // Shramik's acceptance from another device.
+    if (!isSupabaseConfigured) {
+      setBookingSyncError('Live booking sync is not configured. Set VITE_API_URL for this deployment and redeploy the frontend.');
+      return;
+    }
 
     // A customer and Shramik normally use different devices, so accepting a
     // request cannot update the customer's in-memory React state. Always read
@@ -505,7 +506,6 @@ export const AppProvider = ({ children }) => {
             serviceFee: b.service_fee,
             platformFee: b.platform_fee,
             totalAmount: b.total_amount,
-            startCode: b.start_code,
             status: b.status,
             startedAt: b.started_at,
             completedAt: b.completed_at,
@@ -534,7 +534,6 @@ export const AppProvider = ({ children }) => {
             serviceFee: b.service_fee,
             platformFee: b.platform_fee,
             totalAmount: b.total_amount,
-            startCode: b.start_code,
             status: b.status,
             startedAt: b.started_at,
             completedAt: b.completed_at,
@@ -562,7 +561,6 @@ export const AppProvider = ({ children }) => {
             serviceFee: b.service_fee,
             platformFee: b.platform_fee,
             totalAmount: b.total_amount,
-            startCode: b.start_code,
             status: b.status,
             startedAt: b.started_at,
             completedAt: b.completed_at,
@@ -625,10 +623,10 @@ export const AppProvider = ({ children }) => {
     bookings.forEach((booking) => {
       const previous = seenBookingStatus.current[booking.id];
       const next = booking.status;
-      const justAccepted = previous === 'Pending' && (next === 'Confirmed' || next === 'In Progress') && booking.startCode;
+      const justAccepted = previous === 'Pending' && (next === 'Confirmed' || next === 'In Progress');
       if (justAccepted) {
         const shramikName = booking.shramikName || 'Shramik';
-        showToast(tRef.current('bookingAcceptedToast', 'Your Shramik has accepted your booking! View the start code.', { shramik: shramikName }), 'success');
+        showToast(tRef.current('bookingAcceptedToast', 'Your Shramik has accepted your booking. You can start work after they arrive.', { shramik: shramikName }), 'success');
       }
       seenBookingStatus.current[booking.id] = next;
     });
@@ -1044,7 +1042,6 @@ export const AppProvider = ({ children }) => {
       serviceFee: worker.hourlyRate * 2,
       platformFee: 50,
       totalAmount: (worker.hourlyRate * 2) + 50,
-      startCode: null,
       status: 'Pending',
       createdAt: new Date().toISOString()
     };
@@ -1063,7 +1060,6 @@ export const AppProvider = ({ children }) => {
           platformFee: newBooking.platformFee,
         });
         newBooking.id = savedBooking.id;
-        newBooking.startCode = savedBooking.start_code || null;
         newBooking.serverBacked = true;
       } catch (error) {
         // A live deployment must not pretend a booking was routed when the
@@ -1081,32 +1077,29 @@ export const AppProvider = ({ children }) => {
     showToast('Booking request sent. The Shramik will review and accept it.', 'success');
   };
 
-  // The Shramik accepts the request. Only then is the one-time start code made
-  // visible to the customer for the arrival verification step.
+  // The Shramik accepts the request. The customer starts work after arrival.
   const acceptBooking = async (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
     if (!booking || booking.status !== 'Pending') return false;
+    if (!isSupabaseConfigured) {
+      showToast('Live booking acceptance is unavailable. Configure VITE_API_URL and redeploy this frontend.', 'error');
+      return false;
+    }
     // On a live deployment a local-only (non-server) booking can never reach the
     // customer. Refuse loudly instead of showing a fake success.
     if (isSupabaseConfigured && !booking.serverBacked) {
       showToast('This request is not connected to the server. Refresh your bookings and try again.', 'error');
       return false;
     }
-    let accepted = null;
-    if (booking.serverBacked) {
-      try {
-        accepted = await acceptBookingApi(bookingId);
-      } catch (error) {
-        showToast(error.message || 'Could not accept this request.', 'error');
-        return false;
-      }
+    try {
+      await acceptBookingApi(bookingId);
+    } catch (error) {
+      showToast(error.message || 'Could not accept this request.', 'error');
+      return false;
     }
-    const startCode = accepted?.start_code || Math.floor(1000 + Math.random() * 9000).toString();
-    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Confirmed', startCode } : b));
-    if (booking.serverBacked) {
-      await refreshBookings();
-    }
-    showToast('Booking accepted. The customer can now share the start code on arrival.', 'success');
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Confirmed' } : b));
+    await refreshBookings();
+    showToast('Booking accepted. The customer can start work after you arrive.', 'success');
     return true;
   };
 
@@ -1116,25 +1109,21 @@ export const AppProvider = ({ children }) => {
     showToast('Booking cancelled successfully.', 'info');
   };
 
-  // 4-Digit Code Verification by Shramik
-  const verifyStartCode = async (code) => {
-    const currentBooking = bookings.find(b => b.id === activeBookingId);
-    if (!currentBooking) return false;
-
-    if (currentBooking.startCode === code) {
-      if (currentBooking.serverBacked) {
-        try {
-          await startBookingApi(currentBooking.id, code);
-        } catch (error) {
-          showToast(error.message || 'Could not start this job.', 'error');
-          return false;
-        }
-      }
-      setBookings(prev => prev.map(b => b.id === activeBookingId ? { ...b, status: 'In Progress' } : b));
-      showToast('âœ“ Code verified! Job started successfully.', 'success');
+  // The customer starts the job after the accepted Shramik arrives.
+  const startWork = async (bookingId) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking || booking.status !== 'Confirmed') return false;
+    if (!booking.serverBacked) {
+      showToast('This booking is not connected to the server. Refresh and try again.', 'error');
+      return false;
+    }
+    try {
+      await startBookingApi(bookingId);
+      setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'In Progress' } : b));
+      showToast('Work started successfully.', 'success');
       return true;
-    } else {
-      showToast('Invalid Start Code! Please check with customer.', 'error');
+    } catch (error) {
+      showToast(error.message || 'Could not start this job.', 'error');
       return false;
     }
   };
@@ -1209,11 +1198,11 @@ export const AppProvider = ({ children }) => {
       switchRole('customer');
       setSelectedWorkerId('shr-1');
       setCurrentScreen('slot');
-    } else if (stepNumber === 6) { // Start Code Show Page
+    } else if (stepNumber === 6) { // Customer starts an accepted booking
       switchRole('customer');
       setActiveBookingId('BK-8891');
-      setCurrentScreen('start_code');
-    } else if (stepNumber === 7) { // Shramik Enters 4-Digit Code
+      setCurrentScreen('track_booking');
+    } else if (stepNumber === 7) { // Shramik waits for customer to start work
       switchRole('shramik');
       setActiveShramikId('shr-1');
       setCurrentScreen('shramik_job');
@@ -1271,7 +1260,7 @@ export const AppProvider = ({ children }) => {
       syncPendingApprovals,
       createBooking,
       acceptBooking,
-      verifyStartCode,
+      startWork,
       confirmWorkDone,
       processPayment,
       cancelBooking,

@@ -267,9 +267,9 @@ export const LandingPage = () => {
             <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">
               2
             </div>
-            <h3 className="text-lg font-bold text-slate-900">{t('startCodeSafety', '4-Digit Start Code Safety')}</h3>
+            <h3 className="text-lg font-bold text-slate-900">Customer-Controlled Job Start</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              {t('startCodeSafetyDesc', 'A unique 4-digit code is generated upon booking. The Shramik can only begin the job after entering your code, ensuring work identity verification.')}
+              Start work only after your assigned, verified Shramik arrives at the service address.
             </p>
           </div>
 

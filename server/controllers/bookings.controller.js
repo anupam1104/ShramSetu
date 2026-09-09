@@ -54,12 +54,10 @@ export const createBooking = async (req, res) => {
 	return res.status(201).json(booking);
 };
 
-// A start code is deliberately created only after the assigned Shramik accepts
-// the customer's request. It is never available for an unaccepted request.
+// A customer can start work only after the assigned Shramik accepts the request.
 export const acceptBooking = async (req, res) => {
 	const booking = await bookingUpdate(req.params.id, {
 		status: 'Confirmed',
-		start_code: String(Math.floor(1000 + Math.random() * 9000)),
 	}, 'Pending');
 	if (!booking) return res.status(409).json({ error: 'This booking request is no longer pending.' });
 	return res.json(booking);
@@ -164,12 +162,7 @@ const bookingUpdate = async (id, updates, expectedStatus) => {
 };
 
 export const startBooking = async (req, res) => {
-	const { code } = req.body || {};
-	if (!/^\d{4}$/.test(String(code || ''))) {
-		return res.status(400).json({ error: 'A 4-digit start code is required.' });
-	}
-
-	const query = new URLSearchParams({ id: `eq.${req.params.id}`, status: 'eq.Confirmed', start_code: `eq.${code}` });
+	const query = new URLSearchParams({ id: `eq.${req.params.id}`, status: 'eq.Confirmed' });
 	const [booking] = await supabaseRequest(`bookings?${query.toString()}`, {
 		method: 'PATCH',
 		headers: { Prefer: 'return=representation' },
@@ -178,7 +171,7 @@ export const startBooking = async (req, res) => {
 		started_at: new Date().toISOString(),
 		}),
 	});
-	if (!booking) return res.status(401).json({ error: 'Invalid start code or booking is no longer available.' });
+	if (!booking) return res.status(409).json({ error: 'Booking must be accepted before work can start.' });
 	return res.json(booking);
 };
 

@@ -3,13 +3,11 @@ import { useApp } from '../../context/AppContext';
 import { 
   CheckCircle2, 
   Clock, 
-  Key, 
   User, 
   Calendar, 
   Phone, 
   MapPin, 
   CreditCard, 
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   Briefcase,
@@ -22,6 +20,7 @@ export const TrackBooking = () => {
     bookings,
     activeBookingId,
     cancelBooking,
+    startWork,
     setCurrentScreen,
     refreshBookings,
     isRefreshingBookings,
@@ -162,12 +161,12 @@ export const TrackBooking = () => {
       </div>
       )}
 
-      {/* PROMINENT START-CODE CARD (Key SIH UX Requirement) */}
+      {/* Accepted booking: the customer starts work once the Shramik arrives. */}
       {booking.status === 'Pending' && (
         <div className="bg-amber-50 border-2 border-amber-200 p-6 rounded-3xl text-center space-y-2">
           <Clock className="w-8 h-8 text-amber-600 mx-auto" />
           <h3 className="font-bold text-amber-950">Request sent to {bookingLabel}</h3>
-          <p className="text-xs text-amber-800">The start code will appear here as soon as the Shramik accepts your booking.</p>
+          <p className="text-xs text-amber-800">You will be notified when the Shramik accepts your booking.</p>
           <button
             type="button"
             onClick={refreshBookings}
@@ -181,37 +180,24 @@ export const TrackBooking = () => {
         </div>
       )}
 
-      {['Confirmed', 'In Progress'].includes(booking.status) && booking.startCode && (
+      {booking.status === 'Confirmed' && (
         <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl text-center space-y-4 relative overflow-hidden border-2 border-emerald-500">
           <div className="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-emerald-200 text-xs font-bold border border-emerald-400/30">
-            <Key className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{t('verificationSecurityCode', 'Verification Security Code')}</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Booking Accepted</span>
           </div>
 
-          <p className="text-xs text-emerald-100/90 font-medium">{t('yourStartCode', 'Your Start Code')}</p>
-
-          {/* 4-Digit Code Big Display */}
-          <div className="flex justify-center items-center space-x-3 my-3">
-            {booking.startCode.split('').map((char, i) => (
-              <div 
-                key={i} 
-                className="w-14 h-16 bg-white/10 backdrop-blur-xl border border-white/30 rounded-2xl flex items-center justify-center text-3xl font-extrabold font-mono text-emerald-300 shadow-inner"
-              >
-                {char}
-              </div>
-            ))}
-          </div>
-
+          <h3 className="text-xl font-extrabold">Your booking has been accepted</h3>
           <p className="text-xs text-emerald-100/80 max-w-sm mx-auto font-light">
-            {t('shareCodeDesc', { shramik: bookingLabel })}
+            Start work only after {bookingLabel} arrives at your service address.
           </p>
 
           <button
-            onClick={() => setCurrentScreen('start_code')}
-            className="inline-flex items-center gap-1.5 bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs py-2.5 px-5 rounded-xl shadow-md transition-all"
+            onClick={() => startWork(booking.id)}
+            className="inline-flex items-center gap-1.5 bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-sm py-3 px-6 rounded-xl shadow-md transition-all"
           >
-            <Sparkles className="w-4 h-4" />
-            {t('viewStartCodePage', 'Open Start Code Page')}
+            <CheckCircle2 className="w-4 h-4" />
+            Start Job
           </button>
         </div>
       )}
