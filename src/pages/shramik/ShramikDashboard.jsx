@@ -13,7 +13,8 @@ import {
   LifeBuoy,
   Star,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  XCircle
 } from 'lucide-react';
 import { formatINR, computeShramikFinance } from '../../utils/shramikFinance';
 
@@ -25,7 +26,7 @@ const getGreetingKey = () => {
 };
 
 export const ShramikDashboard = () => {
-  const { shramiks, activeShramikId, bookings, setCurrentScreen, setActiveBookingId, currentUser, t, tStatus, tSkill } = useApp();
+  const { shramiks, activeShramikId, bookings, setCurrentScreen, setActiveBookingId, currentUser, t, tStatus, tSkill, cancelBooking } = useApp();
 
   const [greetingKey, setGreetingKey] = useState(getGreetingKey());
 
@@ -62,6 +63,12 @@ export const ShramikDashboard = () => {
   const handleOpenJob = (bookingId) => {
     setActiveBookingId(bookingId);
     setCurrentScreen('shramik_job');
+  };
+
+  const handleCancelRequest = (bookingId) => {
+    if (window.confirm(t('cancelBookingConfirm', 'Are you sure you want to cancel this booking?'))) {
+      cancelBooking(bookingId);
+    }
   };
 
   // Fallbacks cover both `serviceName`, `jobTitle`, and `skill` field patterns
@@ -278,14 +285,33 @@ export const ShramikDashboard = () => {
                   </div>
                 </div>
 
-                <div className="pt-2">
-                  <button
-                    onClick={() => handleOpenJob(booking.id)}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
-                  >
-                    <span>{booking.status === 'Pending' ? 'Review & Accept Request' : t('viewJobEnterCode', 'View Job & Enter Start Code')}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                <div className="pt-2 space-y-2">
+                  {booking.status === 'Pending' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        onClick={() => handleOpenJob(booking.id)}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
+                      >
+                        <span>Review & Accept Request</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleCancelRequest(booking.id)}
+                        className="w-full bg-white hover:bg-red-50 text-red-600 border border-red-300 hover:border-red-500 font-bold py-3.5 rounded-xl shadow-sm transition-all flex items-center justify-center space-x-2 text-sm"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>{t('cancelRequest', 'Cancel Request')}</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleOpenJob(booking.id)}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
+                    >
+                      <span>{t('viewJobEnterCode', 'View Job & Enter Start Code')}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
