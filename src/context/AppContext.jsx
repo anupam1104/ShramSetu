@@ -1434,6 +1434,7 @@ export const AppProvider = ({ children }) => {
       deleteShramik,
       bookings,
       refreshBookings,
+      refreshBookingStatus,
       isRefreshingBookings,
       bookingSyncError,
       selectedWorkerId,
