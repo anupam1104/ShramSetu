@@ -1,18 +1,12 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
-  CheckCircle2, 
-  Clock, 
-  Key, 
-  User, 
-  Calendar, 
-  Phone, 
-  MapPin, 
-  CreditCard, 
-  Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  Briefcase,
+import {
+  CheckCircle2,
+  Clock,
+  Key,
+  User,
+  Calendar,
+  CreditCard,
   XCircle
 } from 'lucide-react';
 
@@ -165,11 +159,15 @@ export const TrackBooking = () => {
             <span>{t('verificationSecurityCode', 'Verification Security Code')}</span>
           </div>
 
-          <p className="text-xs text-emerald-100/90 font-medium">{t('yourStartCode', 'Your Start Code')}</p>
+          <p className="text-xs text-emerald-100/90 font-medium">
+            {booking.status === 'In Progress'
+              ? 'Start code used to begin this job'
+              : t('yourStartCode', 'Your Start Code')}
+          </p>
 
           {/* 4-Digit Code Big Display */}
           <div className="flex justify-center items-center space-x-3 my-3">
-            {booking.startCode.split('').map((char, i) => (
+            {booking.start_Code.split('').map((char, i) => (
               <div 
                 key={i} 
                 className="w-14 h-16 bg-white/10 backdrop-blur-xl border border-white/30 rounded-2xl flex items-center justify-center text-3xl font-extrabold font-mono text-emerald-300 shadow-inner"
@@ -180,16 +178,10 @@ export const TrackBooking = () => {
           </div>
 
           <p className="text-xs text-emerald-100/80 max-w-sm mx-auto font-light">
-            {t('shareCodeDesc', { shramik: bookingLabel })}
+            {booking.status === 'In Progress'
+              ? 'Keep this code private. It has already been verified and the job is now in progress.'
+              : t('shareCodeDesc', { shramik: bookingLabel })}
           </p>
-
-          <button
-            onClick={() => setCurrentScreen('start_code')}
-            className="inline-flex items-center gap-1.5 bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs py-2.5 px-5 rounded-xl shadow-md transition-all"
-          >
-            <Sparkles className="w-4 h-4" />
-            {t('viewStartCodePage', 'Open Start Code Page')}
-          </button>
         </div>
       )}
 
