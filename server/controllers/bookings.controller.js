@@ -3,6 +3,26 @@ import { supabaseRequest } from '../db/connection.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const SERVICE_ALIASES = {
+	electrician: ['electrician', 'electrical', 'wiring', 'light', 'fan', 'doorbell', 'mcb', 'inverter', 'switch', 'socket', 'tv', 'speaker'],
+	plumber: ['plumber', 'plumbing', 'pipe', 'leak', 'tap', 'sanitary', 'bathroom'],
+	carpenter: ['carpenter', 'carpentry', 'furniture', 'door', 'cabinet', 'wood'],
+	painter: ['painter', 'painting', 'paint', 'wall', 'texture', 'putty'],
+	mason: ['mason', 'masonry', 'construction', 'plaster', 'flooring', 'waterproof'],
+	'ac repair': ['ac repair', 'air conditioner', 'ac servicing', 'ac service', 'cooling'],
+};
+
+const serviceMatchesWorker = (requestedService, worker) => {
+	const requested = String(requestedService || '').trim().toLowerCase();
+	const workerSkill = String(worker.skill || '').trim().toLowerCase();
+	const workerServices = (worker.services || []).map((service) => String(service).trim().toLowerCase());
+	if (workerSkill === requested || workerServices.includes(requested)) return true;
+
+	const aliases = SERVICE_ALIASES[workerSkill] || [];
+	return aliases.some((alias) => requested.includes(alias))
+		|| workerServices.some((service) => service && requested.includes(service));
+};
+
 export const createBooking = async (req, res) => {
 	const {
 		serviceName: rawServiceName,
@@ -52,8 +72,7 @@ export const createBooking = async (req, res) => {
 	const busyIds = new Set((slotBookings || []).map((booking) => booking.shramik_id));
 	const candidates = (workers || [])
 		.filter((worker) => !cityKey || worker.location_key === cityKey)
-		.filter((worker) => worker.skill?.trim().toLowerCase() === normalizedService
-			|| (worker.services || []).some((service) => String(service).trim().toLowerCase() === normalizedService))
+		.filter((worker) => serviceMatchesWorker(normalizedService, worker))
 		.filter((worker) => !busyIds.has(worker.id))
 		// Stable ordering keeps assignment deterministic across retries.
 		.sort((a, b) => String(a.id).localeCompare(String(b.id)));
