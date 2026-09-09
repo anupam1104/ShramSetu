@@ -138,7 +138,9 @@ export const ShramikSignup = () => {
     Electrician: ['Wiring', 'Repair', 'Installation', 'Maintenance', 'Lighting'],
     Plumber: ['Pipe Fitting', 'Leakage Repair', 'Sanitary Installation', 'Water Tank Cleaning'],
     Carpenter: ['Furniture Assembly', 'Door Repair', 'Custom Woodwork', 'Lock Repair'],
-    Painter: ['Wall Painting', 'Texture Design', 'Waterproofing', 'Primer Coating']
+    Painter: ['Furnished Full Home Painting', 'Unfurnished Full Home Painting', 'Texture Painting', 'False Ceiling', 'Waterproofing and Grouting', 'Wood Polish', 'Room Combos'],
+    'AC Repair': ['AC Servicing', 'AC Installation', 'AC Repair', 'Gas Refilling'],
+    Mason: ['Wall Construction', 'Plastering', 'Tile Fitting', 'Wall Waterproofing', 'Roof Repair']
   };
 
   const handleServiceToggle = (service) => {
@@ -310,6 +312,7 @@ export const ShramikSignup = () => {
                     <option value="Plumber">{tSkill('Plumber')}</option>
                     <option value="Carpenter">{tSkill('Carpenter')}</option>
                     <option value="Painter">{tSkill('Painter')}</option>
+                    <option value="AC Repair">{tSkill('AC Repair')}</option>
                   </select>
                 </div>
               </div>
