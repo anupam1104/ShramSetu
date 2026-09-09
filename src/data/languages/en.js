@@ -480,6 +480,16 @@ const en = {
   startCodeStatusHint: 'Only active while the job has not started.',
   bookingSummary: 'Booking Summary',
   startCodeSecurityTip: 'This code is one-time and should only be shared with the assigned verified Shramik when they arrive. Never share it over a call or message with anyone else.',
+  startCodeNav: 'Start Code',
+  startCodePageTitle: 'Your Start Codes',
+  startCodePageSubtitle: 'Each booking gets a unique 4-digit code generated when the Shramik accepts it. Share the code on arrival to begin the job.',
+  startCodeEmpty: 'No bookings yet',
+  startCodeEmptyDesc: 'Book a service and once the Shramik accepts, the start code for your job will appear here.',
+  startCodePaidNote: 'This job is complete and paid.',
+  startCodeCancelledNote: 'This booking was cancelled — no start code.',
+  startCodeArchived: 'Historical code was {code}',
+  viewBookingTracking: 'View booking tracking',
+  bookingAcceptedToast: 'Your Shramik ({shramik}) has accepted your booking! View the start code.',
 
   /* ─── Payment Page ─── */
   backToTracking: 'Back to Booking Tracking',

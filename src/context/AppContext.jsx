@@ -572,6 +572,28 @@ export const AppProvider = ({ children }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
+  // Remember the last seen status of each booking so the customer only gets
+  // the "accepted" notification once, when a request actually flips from
+  // Pending to Confirmed/In Progress (via polling or local actions).
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  });
+  const seenBookingStatus = useRef({});
+  useEffect(() => {
+    if (role !== 'customer' || !isLoggedIn) return;
+    bookings.forEach((booking) => {
+      const previous = seenBookingStatus.current[booking.id];
+      const next = booking.status;
+      const justAccepted = previous === 'Pending' && (next === 'Confirmed' || next === 'In Progress') && booking.startCode;
+      if (justAccepted) {
+        const shramikName = booking.shramikName || 'Shramik';
+        showToast(tRef.current('bookingAcceptedToast', 'Your Shramik has accepted your booking! View the start code.', { shramik: shramikName }), 'success');
+      }
+      seenBookingStatus.current[booking.id] = next;
+    });
+  }, [bookings, role, isLoggedIn]);
+
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
