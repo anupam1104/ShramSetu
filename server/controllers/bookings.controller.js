@@ -40,7 +40,7 @@ export const createBooking = async (req, res) => {
 	// Assignment is deliberately server-owned. A browser can never select or
 	// forge a shramik ID: it only supplies the requested service and slot.
 	const [workers, slotBookings] = await Promise.all([
-		supabaseRequest('shramiks?select=id,skill,services,verified,location_key,rating,hourly_rate,experience,shramik_id,last_assigned_at&verified=eq.true'),
+		supabaseRequest('shramiks?select=id,skill,services,verified,location_key,rating,hourly_rate,experience,shramik_id&verified=eq.true'),
 		supabaseRequest(`bookings?${new URLSearchParams({
 			select: 'shramik_id', scheduled_date: `eq.${date}`, scheduled_time: `eq.${time}`,
 			status: 'in.(Pending,Confirmed,In Progress)',
@@ -55,8 +55,8 @@ export const createBooking = async (req, res) => {
 		.filter((worker) => worker.skill?.trim().toLowerCase() === normalizedService
 			|| (worker.services || []).some((service) => String(service).trim().toLowerCase() === normalizedService))
 		.filter((worker) => !busyIds.has(worker.id))
-		// Least-recently assigned first is round-robin across equally eligible workers.
-		.sort((a, b) => String(a.last_assigned_at || '').localeCompare(String(b.last_assigned_at || '')) || String(a.id).localeCompare(String(b.id)));
+		// Stable ordering keeps assignment deterministic across retries.
+		.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
 	if (candidates.length === 0) {
 		return res.status(409).json({ error: 'No verified shramik is free for this service and time slot.' });
@@ -85,9 +85,6 @@ export const createBooking = async (req, res) => {
 					total_amount: assignedServiceFee + Number(platformFee),
 					status: 'Pending',
 				}),
-			});
-			await supabaseRequest(`shramiks?id=eq.${shramik.id}`, {
-				method: 'PATCH', body: JSON.stringify({ last_assigned_at: new Date().toISOString() }),
 			});
 			return res.status(201).json({ ...booking, assigned_shramik: shramik });
 		} catch (error) {
