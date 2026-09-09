@@ -267,20 +267,6 @@ const INITIAL_BOOKINGS = [
   },
 ];
 
-// Merge fresh remote bookings with the current local list. A locally-cancelled
-// booking always wins over its remote copy so a once-cancelled request never
-// resurfaces on the dashboard (and its Pending remote twin is never duplicated).
-const mergeBookingsWithRemote = (mapped, current, extrasFilter) => {
-  const localById = new Map((current || []).map((b) => [b.id, b]));
-  const merged = mapped.map((remote) => {
-    const local = localById.get(remote.id);
-    return local && local.status === 'Cancelled' ? local : remote;
-  });
-  const mergedIds = new Set(merged.map((b) => b.id));
-  const extras = (current || []).filter((b) => extrasFilter(b) && !mergedIds.has(b.id));
-  return [...merged, ...extras];
-};
-
 // Only show the "offline mode" notice once per session, so a down backend
 // doesn't spam a toast on every page load.
 let offlineNoticeShown = false;
@@ -526,7 +512,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => mergeBookingsWithRemote(mapped, current, (b) => (!mapped.some((r) => r.id === b.id) && (b.serverBacked || !isSupabaseConfigured)) || (b.status === 'Cancelled')));
+          setBookings((current) => [...mapped, ...current.filter((booking) => (!mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured)) || booking.status === 'Cancelled')]);
         }
       } else if (role === 'customer' && (currentUser?.id || currentUser?.phone)) {
         const targetId = currentUser?.id || currentUser?.phone;
@@ -554,7 +540,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => mergeBookingsWithRemote(mapped, current, (b) => (!mapped.some((r) => r.id === b.id) && (b.serverBacked || !isSupabaseConfigured)) || (b.status === 'Cancelled')));
+          setBookings((current) => [...mapped, ...current.filter((booking) => (!mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured)) || booking.status === 'Cancelled')]);
         }
       } else if (role === 'admin') {
         const allRemote = await getAllBookings();
@@ -581,7 +567,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => mergeBookingsWithRemote(mappedAll, current, (b) => !mappedAll.some((r) => r.id === b.id) || b.status === 'Cancelled'));
+          setBookings((current) => [...mappedAll, ...current.filter((booking) => !mappedAll.some((remote) => remote.id === booking.id) || booking.status === 'Cancelled')]);
         }
       }
       setBookingSyncError('');
@@ -1117,12 +1103,10 @@ export const AppProvider = ({ children }) => {
     return true;
   };
 
-  // Customer / Shramik Cancels Booking — marks as Cancelled so it leaves the
-  // Shramik dashboard, survives reload, and never resurfaces from a remote sync.
+  // Customer / Shramik Cancels Booking — fully removes from list
   const cancelBooking = (bookingId) => {
-    const updated = (rows) => rows.map((b) => b.id === bookingId ? { ...b, status: 'Cancelled' } : b);
-    setBookings((prev) => updated(prev));
-    saveAppliedData({ shramiks, bookings: updated(bookings) });
+    setBookings(prev => prev.filter(b => b.id !== bookingId));
+    saveAppliedData({ shramiks, bookings: bookings.filter(b => b.id !== bookingId) });
     showToast('Booking cancelled successfully.', 'info');
   };
 
