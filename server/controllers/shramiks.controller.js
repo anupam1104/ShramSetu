@@ -6,7 +6,7 @@ export const listShramiks = async (req, res) => {
 	const publicFields = [
 		'id', 'name', 'skill', 'verified', 'shramik_id', 'rating', 'jobs_count',
 		'distance', 'hourly_rate', 'phone', 'city', 'area', 'experience',
-		'services', 'photo', 'bio', 'created_at', 'location_key', 'last_assigned_at',
+		'services', 'photo', 'bio', 'created_at', 'location_key',
 	].join(',');
 	const rows = await supabaseRequest(`shramiks?select=${publicFields}&verified=eq.true&order=created_at.desc`);
 	res.json(rows);
