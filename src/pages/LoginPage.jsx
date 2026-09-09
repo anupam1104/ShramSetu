@@ -477,7 +477,7 @@ export const LoginPage = () => {
       } catch (err) {
         // On a live deployment a failed server sign-in must never drop into the
         // offline demo accounts: that would make the Shramik portal act on local
-        // data only, so accepts/start codes would never reach the customer.
+        // data only, so acceptance and work-start updates would never reach the customer.
         return showToast(err.message || t('auth.serverSignInErr', 'Server sign-in failed. Please try again later.'), 'error');
       }
     }
@@ -659,7 +659,7 @@ export const LoginPage = () => {
               {[
                 t('auth.feature1', 'Verified local skilled workers'),
                 t('auth.feature2', 'Transparent pricing and booking'),
-                t('auth.feature3', 'Secure 4-digit job start code'),
+                'Customer-controlled job start',
                 t('auth.feature4', 'Pay only after work is done')
               ].map(f => (
                 <li key={f} className="flex items-center gap-2 text-xs text-emerald-100/90">

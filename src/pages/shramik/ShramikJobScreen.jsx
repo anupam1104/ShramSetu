@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   CheckCircle2, 
-  Key, 
   MapPin, 
   User, 
   Calendar, 
@@ -14,11 +13,10 @@ import {
 } from 'lucide-react';
 
 export const ShramikJobScreen = () => {
-  const { bookings, activeBookingId, acceptBooking, confirmWorkDone, verifyStartCode, setCurrentScreen, t, tStatus, tSkill } = useApp();
+  const { bookings, activeBookingId, acceptBooking, confirmWorkDone, setCurrentScreen, t, tStatus, tSkill } = useApp();
   // Only the actual selected booking is shown. No mock fallback job.
   const currentBooking = bookings.find(b => b.id === activeBookingId) || null;
 
-  const [pinDigits, setPinDigits] = useState(['', '', '', '']);
   const [finalAmount, setFinalAmount] = useState('');
 
   if (!currentBooking) {
@@ -37,37 +35,6 @@ export const ShramikJobScreen = () => {
       </div>
     );
   }
-
-  const handleDigitChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
-    const newPin = [...pinDigits];
-    newPin[index] = value.slice(-1);
-    setPinDigits(newPin);
-
-    // Auto focus next input box
-    if (value && index < 3) {
-      const nextInput = document.getElementById(`pin-digit-${index + 1}`);
-      if (nextInput) nextInput.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !pinDigits[index] && index > 0) {
-      const prevInput = document.getElementById(`pin-digit-${index - 1}`);
-      if (prevInput) prevInput.focus();
-    }
-  };
-
-  const handleVerifyCodeSubmit = async (e) => {
-    e.preventDefault();
-    const enteredCode = pinDigits.join('');
-    if (enteredCode.length !== 4) return;
-    
-    const success = await verifyStartCode(enteredCode);
-    if (success) {
-      setPinDigits(['', '', '', '']);
-    }
-  };
 
   const handleFinishJob = async () => {
     await confirmWorkDone(currentBooking.id, finalAmount);
@@ -126,55 +93,30 @@ export const ShramikJobScreen = () => {
           </div>
         </div>
 
-        {/* Incoming customer request: the Shramik must accept before a code exists. */}
+        {/* The customer starts work after the Shramik has arrived. */}
         {currentBooking.status === 'Pending' ? (
           <div className="bg-amber-50 border-2 border-amber-200 p-6 rounded-3xl text-center space-y-4">
             <h3 className="text-lg font-bold text-slate-900">New booking request</h3>
-            <p className="text-xs text-slate-600">Review the customer, address and schedule above. Accepting creates a secure start code for the customer.</p>
+            <p className="text-xs text-slate-600">Review the customer, address and schedule above before accepting this request.</p>
             <button onClick={() => acceptBooking(currentBooking.id)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm">
               Accept Request
             </button>
           </div>
         ) : currentBooking.status === 'Confirmed' ? (
-          <form onSubmit={handleVerifyCodeSubmit} className="bg-emerald-50/70 border-2 border-emerald-200 p-6 rounded-3xl text-center space-y-5">
+          <div className="bg-emerald-50/70 border-2 border-emerald-200 p-6 rounded-3xl text-center space-y-5">
             <div className="space-y-1">
               <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-                <Key className="w-6 h-6 stroke-[2.2]" />
+                <CheckCircle2 className="w-6 h-6 stroke-[2.2]" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 font-heading pt-2">
-                {t('shramik.enterStartCode', "Enter Customer's 4-digit Start Code")}
+                Booking accepted
               </h3>
               <p className="text-xs text-slate-600">
-                {t('shramik.askStartCodeNotice', "Ask the customer for the verification code displayed on their screen.")}
+                Travel to the customer’s service address. The customer will start the job after you arrive.
               </p>
             </div>
 
-            {/* 4 Pin Boxes */}
-            <div className="flex justify-center space-x-3 my-2">
-              {pinDigits.map((digit, idx) => (
-                <input
-                  key={idx}
-                  id={`pin-digit-${idx}`}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleDigitChange(idx, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="w-12 h-14 bg-white border-2 border-emerald-300 rounded-2xl text-center text-2xl font-bold font-mono text-slate-900 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-200 outline-none shadow-sm transition-all"
-                />
-              ))}
-            </div>
-
-            <div className="space-y-2">
-              <button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center space-x-2"
-              >
-                <CheckCircle2 className="w-5 h-5" />
-                <span>{t('shramik.startJob', 'Start Job')}</span>
-              </button>
-            </div>
-          </form>
+          </div>
         ) : (
           /* WORK IN PROGRESS / COMPLETED / PAID STATE */
           <div className="space-y-4">
@@ -185,7 +127,7 @@ export const ShramikJobScreen = () => {
 
               <div className="space-y-1">
                 <h3 className="text-xl font-bold text-emerald-950 font-heading">
-                  {currentBooking.status === 'In Progress' && t('shramik.codeVerifiedInProgress', '✓ Code Verified! Job In Progress')}
+                  {currentBooking.status === 'In Progress' && '✓ Customer started the job — work in progress'}
                   {currentBooking.status === 'Completed' && t('shramik.workDoneConfirmed', '✓ Work Done Confirmed by Customer')}
                   {currentBooking.status === 'Paid' && t('shramik.jobPaid', '✓ Job Completed & Paid')}
                 </h3>

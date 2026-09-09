@@ -196,7 +196,6 @@ export const AdminBookings = () => {
       customerName: newBookingForm.customerName || 'Walk-in Customer',
       customerPhone: newBookingForm.customerPhone || '+91 98000 00000',
       customerAddress: newBookingForm.customerAddress || newBookingForm.jobLocation,
-      startCode: Math.floor(1000 + Math.random() * 9000).toString()
     };
 
     if (addAdminBooking) {
@@ -878,12 +877,6 @@ export const AdminBookings = () => {
                 <span className="text-slate-500">{t('auth.phone', 'Customer Phone')}</span>
                 <span className="font-bold font-mono text-slate-900">{viewBooking.customerPhone || '+91 98311 02938'}</span>
               </div>
-              {viewBooking.startCode && (
-                <div className="flex justify-between py-1.5 border-b border-slate-100">
-                  <span className="text-slate-500">{t('booking.fourDigitCode', '4-Digit Start Code')}</span>
-                  <span className="font-extrabold font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">{viewBooking.startCode}</span>
-                </div>
-              )}
               <div className="flex justify-between py-2 bg-slate-50 px-3 rounded-xl">
                 <span className="font-bold text-slate-800">{t('booking.totalPayable', 'Total Payable Amount')}</span>
                 <span className="font-extrabold font-mono text-emerald-700 text-sm">₹{(viewBooking.amount || viewBooking.totalAmount || 1200).toLocaleString('en-IN')}</span>

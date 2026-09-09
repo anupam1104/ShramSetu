@@ -292,7 +292,6 @@ create table if not exists public.bookings (
   service_fee integer not null,
   platform_fee integer not null default 50,
   total_amount integer not null,
-  start_code text,
   status text not null default 'Confirmed' check (status in ('Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'Paid')),
   started_at timestamptz,
   completed_at timestamptz,
@@ -307,7 +306,9 @@ alter table public.bookings add column if not exists started_at timestamptz;
 alter table public.bookings add column if not exists completed_at timestamptz;
 alter table public.bookings add column if not exists duration_minutes integer;
 alter table public.bookings add column if not exists customer_id uuid references public.customers(id);
-alter table public.bookings alter column start_code drop not null;
+-- Start codes are no longer part of the workflow: customers explicitly start
+-- an accepted booking after the assigned Shramik arrives.
+alter table public.bookings drop column if exists start_code;
 alter table public.bookings add column if not exists payment_method text check (payment_method in ('cash', 'online'));
 alter table public.bookings add column if not exists paid_at timestamptz;
 

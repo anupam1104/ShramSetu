@@ -155,7 +155,7 @@ export const WorkerProfile = () => {
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-4 shadow-2xl flex items-center justify-between">
         <div>
           <p className="text-[10px] text-slate-500 font-bold uppercase">{t('rate', 'Rate')}</p>
-          <p className="text-xl font-bold font-mono text-slate-900">₹{worker.hourlyRate}{t('perHr', '/hr')}</p>
+          <p className="text-xl font-bold font-mono text-slate-900">₹{worker.hourlyRate}</p>
         </div>
 
         <button

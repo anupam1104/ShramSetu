@@ -13,7 +13,6 @@ import { SlotSelection } from './pages/customer/SlotSelection';
 import { BookingConfirmation } from './pages/customer/BookingConfirmation';
 import { TrackBooking } from './pages/customer/TrackBooking';
 import { PaymentPage } from './pages/customer/PaymentPage';
-import { StartCode } from './pages/customer/StartCode';
 
 import { ShramikSignup } from './pages/shramik/ShramikSignup';
 import { ShramikPending } from './pages/shramik/ShramikPending';
@@ -37,7 +36,7 @@ const MainContent = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentScreen]);
 
-  const isCustomerServiceScreen = ['search', 'profile', 'slot', 'booking_confirm', 'track_booking', 'start_code', 'payment'].includes(currentScreen);
+  const isCustomerServiceScreen = ['search', 'profile', 'slot', 'booking_confirm', 'track_booking', 'payment'].includes(currentScreen);
   const isShramikPrivateScreen = ['shramik_dashboard', 'shramik_job', 'shramik_earnings', 'shramik_cut_ratio', 'shramik_payment_history', 'shramik_grievance'].includes(currentScreen);
   const isAdminPrivateScreen = currentScreen.startsWith('admin_');
 
@@ -60,7 +59,6 @@ const MainContent = () => {
       if (currentScreen === 'slot') return <SlotSelection />;
       if (currentScreen === 'booking_confirm') return <BookingConfirmation />;
       if (currentScreen === 'track_booking') return <TrackBooking />;
-      if (currentScreen === 'start_code') return <StartCode />;
       if (currentScreen === 'payment') return <PaymentPage />;
       return <CustomerSearch />;
     }
