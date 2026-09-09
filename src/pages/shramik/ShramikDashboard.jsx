@@ -308,7 +308,7 @@ export const ShramikDashboard = () => {
                       onClick={() => handleOpenJob(booking.id)}
                       className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
                     >
-                      <span>{t('viewJobEnterCode', 'View Job & Enter Start Code')}</span>
+                      <span>View Job Status</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   )}

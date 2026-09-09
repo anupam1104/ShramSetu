@@ -489,7 +489,7 @@ const en = {
   startCodeCancelledNote: 'This booking was cancelled — no start code.',
   startCodeArchived: 'Historical code was {code}',
   viewBookingTracking: 'View booking tracking',
-  bookingAcceptedToast: 'Your Shramik ({shramik}) has accepted your booking! View the start code.',
+  bookingAcceptedToast: 'Your Shramik ({shramik}) has accepted your booking. You can start work after they arrive.',
 
   /* ─── Payment Page ─── */
   backToTracking: 'Back to Booking Tracking',

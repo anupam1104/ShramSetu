@@ -7,7 +7,6 @@ import {
   UserCheck, 
   Home, 
   Calendar, 
-  Key,
   User, 
   ArrowRight,
   LogOut,
@@ -107,12 +106,6 @@ export const Navbar = () => {
       icon: Calendar,
       active: ['track_booking', 'payment'].includes(currentScreen),
       onClick: () => navigate('track_booking')
-    });
-    mobileItems.push({
-      label: t('startCodeNav', 'Start Code'),
-      icon: Key,
-      active: currentScreen === 'start_code',
-      onClick: () => navigate('start_code')
     });
     mobileItems.push({
       label: t('settings', 'Settings'),
@@ -253,13 +246,6 @@ export const Navbar = () => {
                   onClick={() => setCurrentScreen('track_booking')}
                 >
                   {t('myBookings', 'My Bookings')}
-                </NavBtn>
-                <NavBtn
-                  icon={Key}
-                  active={currentScreen === 'start_code'}
-                  onClick={() => setCurrentScreen('start_code')}
-                >
-                  {t('startCodeNav', 'Start Code')}
                 </NavBtn>
               </>
             )}

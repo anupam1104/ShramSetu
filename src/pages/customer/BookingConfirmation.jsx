@@ -106,7 +106,7 @@ export const BookingConfirmation = () => {
         <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-900 flex items-start space-x-2">
           <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
           <p>
-            {t('startCodeNote', 'A 4-Digit Start Code will be generated upon confirmation. Provide this code to the Shramik upon arrival.')}
+            Your Shramik will review the request. Start work from your booking page after the Shramik arrives.
           </p>
         </div>
 
