@@ -33,7 +33,22 @@ import {
   Box,
   Bed,
   TreePine,
-  Archive
+  Archive,
+  Wind,
+  Cog,
+  Layers,
+  LayoutGrid,
+  CloudRain,
+  Umbrella,
+  Building2,
+  SquareStack,
+  PaintBucket,
+  House,
+  Brush,
+  Utensils,
+  WashingMachine,
+  HeartHandshake,
+  Baby
 } from 'lucide-react';
 
 const SERVICE_JOBS = {
@@ -73,6 +88,47 @@ const SERVICE_JOBS = {
       { name: 'Wardrobe Installation', icon: Archive, keywords: ['wardrobe', 'almirah', 'closet', 'installation'] },
     ],
   },
+  'AC Repair': {
+    color: 'bg-teal-500/10 text-teal-600',
+    jobs: [
+      { name: 'AC Servicing', icon: Fan, keywords: ['ac', 'servicing', 'maintenance', 'cleaning', 'filter'] },
+      { name: 'AC Installation', icon: Plug, keywords: ['ac', 'installation', 'mounting', 'split ac', 'window ac'] },
+      { name: 'AC Repair', icon: Cog, keywords: ['ac', 'repair', 'cooling', 'not working', 'compressor'] },
+      { name: 'Gas Refilling', icon: Wind, keywords: ['gas', 'refilling', 'refill', 'coolant', 'gas charging'] },
+    ],
+  },
+  'Mason': {
+    color: 'bg-emerald-500/10 text-emerald-600',
+    jobs: [
+      { name: 'Wall Construction', icon: Building2, keywords: ['wall', 'construction', 'brick', 'building'] },
+      { name: 'Plastering', icon: Layers, keywords: ['plastering', 'plaster', 'smoothing', 'finish'] },
+      { name: 'Tile Fitting', icon: LayoutGrid, keywords: ['tile', 'fitting', 'flooring', 'wall tile'] },
+      { name: 'Wall Waterproofing', icon: CloudRain, keywords: ['waterproofing', 'waterproof', 'damp', 'seepage'] },
+      { name: 'Roof Repair', icon: Umbrella, keywords: ['roof', 'repair', 'leak', 'terrace', 'ceiling'] },
+    ],
+  },
+  'Painter': {
+    color: 'bg-purple-500/10 text-purple-600',
+    jobs: [
+      { name: 'Furnished Full Home Painting', icon: Armchair, keywords: ['furnished', 'home', 'painting', 'interior', 'full'] },
+      { name: 'Unfurnished Full Home Painting', icon: Building2, keywords: ['unfurnished', 'home', 'painting', 'empty', 'full'] },
+      { name: 'Texture Painting', icon: Layers, keywords: ['texture', 'painting', 'design', 'pattern'] },
+      { name: 'False Ceiling', icon: SquareStack, keywords: ['false ceiling', 'ceiling', 'gypsum', 'installation'] },
+      { name: 'Waterproofing and Grouting', icon: Droplets, keywords: ['waterproofing', 'grouting', 'waterproof', 'sealant'] },
+      { name: 'Wood Polish', icon: PaintBucket, keywords: ['wood', 'polish', 'varnish', 'lamination', 'finish'] },
+      { name: 'Room Combos', icon: Archive, keywords: ['room', 'combo', 'combo', 'painting', 'package'] },
+    ],
+  },
+  'Househelp': {
+    color: 'bg-rose-500/10 text-rose-600',
+    jobs: [
+      { name: 'House Cleaning', icon: Brush, keywords: ['cleaning', 'housekeeping', 'dusting', 'mopping', 'home'] },
+      { name: 'Dish Washing', icon: Utensils, keywords: ['dish', 'dishes', 'kitchen', 'washing', 'cleaning'] },
+      { name: 'Laundry and Ironing', icon: WashingMachine, keywords: ['laundry', 'washing', 'ironing', 'clothes', 'iron'] },
+      { name: 'Elderly Care', icon: HeartHandshake, keywords: ['elderly', 'senior', 'care', 'assistance', 'help'] },
+      { name: 'Full-time Nanny', icon: Baby, keywords: ['nanny', 'babysitter', 'child', 'kids', 'daycare'] },
+    ],
+  },
 };
 
 export const CustomerSearch = () => {
@@ -103,6 +159,7 @@ export const CustomerSearch = () => {
     { rawSkill: 'Painter', icon: Paintbrush, desc: t('servicePainterDesc', 'Wall & texture painting, putty work'), color: 'bg-purple-500/10 text-purple-600' },
     { rawSkill: 'Mason', icon: Truck, desc: t('serviceMasonDesc', 'Construction, plastering & flooring'), color: 'bg-emerald-500/10 text-emerald-600' },
     { rawSkill: 'AC Repair', icon: ShieldCheck, desc: t('serviceAcRepairDesc', 'AC servicing, installation & repair'), color: 'bg-teal-500/10 text-teal-600' },
+    { rawSkill: 'Househelp', icon: House, desc: t('serviceHousehelpDesc', 'Cleaning, laundry, dish washing & daily care'), color: 'bg-rose-500/10 text-rose-600' },
   ];
 
   const workersForService = (rawSkill) =>
@@ -195,7 +252,7 @@ export const CustomerSearch = () => {
 
   // ─── Step 2: Choose Job ───
   const renderChooseJob = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 pt-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 pt-2">
       {jobsForService.map((job) => (
         <button
           key={job.name}
@@ -203,13 +260,13 @@ export const CustomerSearch = () => {
             setSelectedJob(job.name);
             setSearchQuery('');
           }}
-          className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all py-5 px-4 text-left flex items-center gap-4"
+          className="bg-white rounded-xl md:rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 active:scale-[0.98] transition-all py-3.5 px-3.5 md:py-5 md:px-4 text-left flex items-center gap-3 md:gap-4 w-full"
         >
-          <div className={`w-11 h-11 shrink-0 rounded-xl ${jobIconsColor} flex items-center justify-center`}>
+          <div className={`w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-lg md:rounded-xl ${jobIconsColor} flex items-center justify-center`}>
             <job.icon className="w-5 h-5 stroke-[2.2]" />
           </div>
-          <span className="font-bold text-slate-900 text-sm md:text-base">{job.name}</span>
-          <ChevronRight className="w-4 h-4 text-slate-400 ml-auto shrink-0" />
+          <span className="font-bold text-slate-900 text-sm md:text-base leading-snug min-w-0 flex-1">{job.name}</span>
+          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
         </button>
       ))}
     </div>
