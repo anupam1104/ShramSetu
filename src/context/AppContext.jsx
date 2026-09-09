@@ -1110,7 +1110,8 @@ export const AppProvider = ({ children }) => {
       .filter((worker) => worker.skill === service || worker.services?.some((item) => item === service))
       .filter((worker) => !busyIds.has(worker.id))
       .sort((a, b) => String(a.lastAssignedAt || '').localeCompare(String(b.lastAssignedAt || '')) || String(a.id).localeCompare(String(b.id)));
-    const selected = candidates[0];
+    const preferred = candidates.find((worker) => worker.id === selectedWorkerId);
+    const selected = preferred || candidates[0];
     if (!selected) {
       showToast('No verified Shramik is free for this service and time slot.', 'error');
       return false;
@@ -1156,6 +1157,7 @@ export const AppProvider = ({ children }) => {
       try {
         const savedBooking = await createBookingApi({
           shramikId: worker.id,
+          requestedShramikId: worker.id,
           serviceName: newBooking.serviceName,
           date: newBooking.date,
           time: newBooking.time,

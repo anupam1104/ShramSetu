@@ -36,6 +36,8 @@ export const createBooking = async (req, res) => {
 		name,
 		customerPhone: rawCustomerPhone,
 		phone,
+		shramikId: requestedShramikId,
+		requestedShramikId: requestedShramikIdAlias,
 		customerAddress = '',
 		customerCity = '',
 		platformFee = 50,
@@ -45,6 +47,7 @@ export const createBooking = async (req, res) => {
 	const time = String(rawTime || bookingTime || '').trim();
 	const customerName = String(rawCustomerName || name || '').trim();
 	const customerPhone = String(rawCustomerPhone || phone || '').trim();
+	const requestedWorkerId = String(requestedShramikId || requestedShramikIdAlias || '').trim();
 
 	if (!serviceName || !date || !time || !customerName || !customerPhone) {
 		return res.status(400).json({ error: 'serviceName, date, time, customerName, and customerPhone are required.' });
@@ -57,8 +60,8 @@ export const createBooking = async (req, res) => {
 	});
 	if (!customer?.id) return res.status(502).json({ error: 'Customer could not be saved.' });
 
-	// Assignment is deliberately server-owned. A browser can never select or
-	// forge a shramik ID: it only supplies the requested service and slot.
+	// The server validates a customer's selected worker instead of trusting the
+	// browser. If no worker was selected, automatic matching remains available.
 	const [workers, slotBookings] = await Promise.all([
 		supabaseRequest('shramiks?select=id,skill,services,verified,location_key,rating,hourly_rate,experience,shramik_id&verified=eq.true'),
 		supabaseRequest(`bookings?${new URLSearchParams({
@@ -70,15 +73,21 @@ export const createBooking = async (req, res) => {
 	const normalizedService = String(serviceName).trim().toLowerCase();
 	const cityKey = String(customerCity).split('|')[0].trim().toLowerCase();
 	const busyIds = new Set((slotBookings || []).map((booking) => booking.shramik_id));
-	const candidates = (workers || [])
+	const eligibleWorkers = (workers || [])
 		.filter((worker) => !cityKey || worker.location_key === cityKey)
 		.filter((worker) => serviceMatchesWorker(normalizedService, worker))
-		.filter((worker) => !busyIds.has(worker.id))
+		.filter((worker) => !busyIds.has(worker.id));
+	const candidates = eligibleWorkers
+		.filter((worker) => !requestedWorkerId || worker.id === requestedWorkerId)
 		// Stable ordering keeps assignment deterministic across retries.
 		.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
 	if (candidates.length === 0) {
-		return res.status(409).json({ error: 'No verified shramik is free for this service and time slot.' });
+		return res.status(409).json({
+			error: requestedWorkerId
+				? 'The selected Shramik is not available for this service and time slot.'
+				: 'No verified shramik is free for this service and time slot.',
+		});
 	}
 
 	// A competing booking can reserve the first candidate between the read and
