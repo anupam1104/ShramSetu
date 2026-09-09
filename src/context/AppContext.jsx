@@ -492,7 +492,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
+          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured))]);
         }
       } else if (role === 'customer' && (currentUser?.id || currentUser?.phone)) {
         const targetId = currentUser?.id || currentUser?.phone;
@@ -521,7 +521,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
+          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured))]);
         }
       } else if (role === 'admin') {
         const allRemote = await getAllBookings();
@@ -1046,6 +1046,12 @@ export const AppProvider = ({ children }) => {
   const acceptBooking = async (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
     if (!booking || booking.status !== 'Pending') return false;
+    // On a live deployment a local-only (non-server) booking can never reach the
+    // customer. Refuse loudly instead of showing a fake success.
+    if (isSupabaseConfigured && !booking.serverBacked) {
+      showToast('This request is not connected to the server. Refresh your bookings and try again.', 'error');
+      return false;
+    }
     let accepted = null;
     if (booking.serverBacked) {
       try {

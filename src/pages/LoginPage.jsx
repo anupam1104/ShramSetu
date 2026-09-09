@@ -475,10 +475,13 @@ export const LoginPage = () => {
       try {
         found = await loginShramik({ identifier: ssiPhone, password: ssiPw });
       } catch (err) {
-        console.warn('Shramik login API warning:', err.message);
+        // On a live deployment a failed server sign-in must never drop into the
+        // offline demo accounts: that would make the Shramik portal act on local
+        // data only, so accepts/start codes would never reach the customer.
+        return showToast(err.message || t('auth.serverSignInErr', 'Server sign-in failed. Please try again later.'), 'error');
       }
     }
-    if (!found) {
+    if (!found && !isSupabaseConfigured) {
       found = findAccount('shramik', ssiPhone);
       if (found && found.password !== ssiPw) found = null;
     }
