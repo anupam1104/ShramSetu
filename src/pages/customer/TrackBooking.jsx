@@ -1,4 +1,4 @@
-import React from '../react';
+import React from 'react';
 import { useApp } from 'context/AppContext';
 import { 
   CheckCircle2, 
@@ -158,7 +158,7 @@ export const TrackBooking = () => {
         </div>
       )}
 
-      {booking.status === 'Confirmed' && booking.startCode && (
+      {booking.status === 'Confirmed' && booking.start_Code && (
         <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl text-center space-y-4 relative overflow-hidden border-2 border-emerald-500">
           <div className="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-emerald-200 text-xs font-bold border border-emerald-400/30">
             <Key className="w-3.5 h-3.5 text-emerald-400" />
