@@ -8,7 +8,7 @@ import {
   Calendar,
   CreditCard,
   XCircle
-} from '../lucide-react';
+} from 'lucide-react';
 
 export const TrackBooking = () => {
   const { bookings, activeBookingId, cancelBooking, setCurrentScreen, t, tStatus, tSkill, shramiks } = useApp();
