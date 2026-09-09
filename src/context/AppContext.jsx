@@ -460,7 +460,13 @@ export const AppProvider = ({ children }) => {
   const bookingRefreshInFlight = useRef(false);
 
   const refreshBookings = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+    // Vite embeds VITE_* values at build time. Without a configured API, each
+    // device has isolated browser state, so a customer cannot receive a
+    // Shramik's acceptance from another device.
+    if (!isSupabaseConfigured) {
+      setBookingSyncError('Live booking sync is not configured. Set VITE_API_URL for this deployment and redeploy the frontend.');
+      return;
+    }
 
     // A customer and Shramik normally use different devices, so accepting a
     // request cannot update the customer's in-memory React state. Always read
@@ -1073,6 +1079,10 @@ export const AppProvider = ({ children }) => {
   const acceptBooking = async (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
     if (!booking || booking.status !== 'Pending') return false;
+    if (!isSupabaseConfigured) {
+      showToast('Live booking acceptance is unavailable. Configure VITE_API_URL and redeploy this frontend.', 'error');
+      return false;
+    }
     // On a live deployment a local-only (non-server) booking can never reach the
     // customer. Refuse loudly instead of showing a fake success.
     if (isSupabaseConfigured && !booking.serverBacked) {
