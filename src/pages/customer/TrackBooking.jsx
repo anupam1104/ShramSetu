@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   Briefcase,
   XCircle
-} from 'lucide-react';
+} from '../nodemodule/lucide-react';
 
 export const TrackBooking = () => {
   const { bookings, activeBookingId, cancelBooking, setCurrentScreen, t, tStatus, tSkill, shramiks } = useApp();
@@ -169,7 +169,7 @@ export const TrackBooking = () => {
 
           {/* 4-Digit Code Big Display */}
           <div className="flex justify-center items-center space-x-3 my-3">
-            {booking.startCode.split('').map((char, i) => (
+            {booking.start_Code.split('').map((char, i) => (
               <div 
                 key={i} 
                 className="w-14 h-16 bg-white/10 backdrop-blur-xl border border-white/30 rounded-2xl flex items-center justify-center text-3xl font-extrabold font-mono text-emerald-300 shadow-inner"

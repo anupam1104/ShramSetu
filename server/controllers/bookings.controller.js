@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { supabaseRequest } from '../db/connection.js';
+import { supabaseRequest } from '..connection.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
