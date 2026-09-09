@@ -5,15 +5,26 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export const createBooking = async (req, res) => {
 	const {
-		serviceName,
-		date,
-		time,
-		customerName,
-		customerPhone,
+		serviceName: rawServiceName,
+		service,
+		skill,
+		date: rawDate,
+		bookingDate,
+		time: rawTime,
+		bookingTime,
+		customerName: rawCustomerName,
+		name,
+		customerPhone: rawCustomerPhone,
+		phone,
 		customerAddress = '',
 		customerCity = '',
 		platformFee = 50,
 	} = req.body;
+	const serviceName = String(rawServiceName || service || skill || '').trim();
+	const date = String(rawDate || bookingDate || '').trim();
+	const time = String(rawTime || bookingTime || '').trim();
+	const customerName = String(rawCustomerName || name || '').trim();
+	const customerPhone = String(rawCustomerPhone || phone || '').trim();
 
 	if (!serviceName || !date || !time || !customerName || !customerPhone) {
 		return res.status(400).json({ error: 'serviceName, date, time, customerName, and customerPhone are required.' });
