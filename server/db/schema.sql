@@ -213,7 +213,7 @@ revoke all on function public.create_customer(text, text, text, text) from publi
 grant execute on function public.create_customer(text, text, text, text) to anon;
 grant execute on function public.create_customer(text, text, text, text) to service_role;
 
-drop function if exists public.register_shramik(text, text, text, text, text, text, text[], text, text, text);
+drop function if exists public.register_shramik(text, text, text, text, text, text, text[], text, text, text, integer);
 
 create or replace function public.register_shramik(
   s_name text,
@@ -225,7 +225,8 @@ create or replace function public.register_shramik(
   s_services text[],
   s_photo text,
   s_bio text,
-  s_password text
+  s_password text,
+  s_hourly_rate integer default 250
 )
 returns table (id uuid, name text, skill text, phone text, city text, verified boolean)
 language plpgsql
@@ -235,19 +236,20 @@ as $$
 begin
   return query
   insert into public.shramiks (
-    name, skill, phone, city, location_key, area, experience, services, photo, bio, verified, password_hash
+    name, skill, phone, city, location_key, area, experience, services, photo, bio, verified, hourly_rate, password_hash
   )
   values (
     s_name, s_skill, s_phone, s_city, lower(trim(split_part(s_city, '|', 1))), s_area, s_experience, s_services, s_photo, s_bio, false,
+    coalesce(s_hourly_rate, 250),
     case when s_password is not null and s_password <> '' then crypt(s_password, gen_salt('bf')) else null end
   )
   returning shramiks.id, shramiks.name, shramiks.skill, shramiks.phone, shramiks.city, shramiks.verified;
 end;
 $$;
 
-revoke all on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text) from public;
-grant execute on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text) to anon;
-grant execute on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text) to service_role;
+revoke all on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text, integer) from public;
+grant execute on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text, integer) to anon;
+grant execute on function public.register_shramik(text, text, text, text, text, text, text[], text, text, text, integer) to service_role;
 
 create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),

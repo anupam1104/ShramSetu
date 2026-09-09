@@ -128,6 +128,7 @@ export const ShramikSignup = () => {
   const [password, setPassword] = useState('');
   const [primarySkill, setPrimarySkill] = useState('Electrician');
   const [experience, setExperience] = useState('5 years');
+  const [expectedHourlyRate, setExpectedHourlyRate] = useState('250');
   const [city, setCity] = useState('Kolkata');
   const [serviceArea, setServiceArea] = useState('Salt Lake & Sector V');
   const [selectedServices, setSelectedServices] = useState(['Wiring', 'Repair']);
@@ -156,6 +157,7 @@ export const ShramikSignup = () => {
       password,
       primarySkill,
       experience,
+      expectedHourlyRate: Number(expectedHourlyRate) || 250,
       city,
       serviceArea,
       selectedServices,
@@ -326,6 +328,25 @@ export const ShramikSignup = () => {
                   <option value="5-8 years">5-8 years</option>
                   <option value="8+ years">8+ years</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  {t('shramik.expectedHourlyRate', 'Expected Hourly Rate')}
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
+                  <input
+                    type="number"
+                    min="50"
+                    step="10"
+                    required
+                    placeholder="250"
+                    value={expectedHourlyRate}
+                    onChange={(e) => setExpectedHourlyRate(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none font-semibold text-slate-800"
+                  />
+                </div>
               </div>
 
               <div>

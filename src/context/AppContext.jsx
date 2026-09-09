@@ -700,6 +700,7 @@ export const AppProvider = ({ children }) => {
   // the profile (see the `approve_shramik` RPC).
   const registerShramik = async (formData) => {
     const newId = `shr-${Date.now()}`;
+    const expectedRate = Number(formData.expectedHourlyRate ?? formData.hourlyRate ?? 250) || 250;
     const newShramik = {
       id: newId,
       name: formData.fullName || 'New Shramik',
@@ -709,7 +710,7 @@ export const AppProvider = ({ children }) => {
       rating: 0,
       jobsCount: 0,
       distance: '1.8 km away',
-      hourlyRate: 250,
+      hourlyRate: expectedRate,
       phone: formData.phone || '+91 98000 00000',
       city: formData.city || 'Kolkata',
       area: formData.serviceArea || 'Salt Lake',
@@ -732,6 +733,8 @@ export const AppProvider = ({ children }) => {
           services: newShramik.services,
           photo: newShramik.photo,
           bio: newShramik.bio,
+          hourly_rate: expectedRate,
+          password: formData.password,
         });
         if (savedShramik?.id) newShramik.id = savedShramik.id;
       } catch (error) {

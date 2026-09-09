@@ -24,10 +24,14 @@ export const getShramikStatus = async (req, res) => {
 };
 
 export const createShramik = async (req, res) => {
-	const { name, skill, phone, city, area, experience, services, photo, bio, password } = req.body;
+	const { name, skill, phone, city, area, experience, services, photo, bio, password, hourly_rate, expectedHourlyRate } = req.body;
 
 	if (!name || !skill || !phone || !city || !area || !experience) {
 		return res.status(400).json({ error: 'name, skill, phone, city, area, and experience are required.' });
+	}
+	const parsedHourlyRate = Number(hourly_rate ?? expectedHourlyRate ?? 250);
+	if (!Number.isFinite(parsedHourlyRate) || parsedHourlyRate < 0) {
+		return res.status(400).json({ error: 'Expected hourly rate must be a valid non-negative number.' });
 	}
 	const normalizedPhone = String(phone).trim();
 	const existing = await supabaseRequest(`shramiks?select=id&phone=eq.${encodeURIComponent(normalizedPhone)}&limit=1`);
@@ -49,6 +53,7 @@ export const createShramik = async (req, res) => {
 				s_photo: photo || '',
 				s_bio: bio || '',
 				s_password: String(password),
+				s_hourly_rate: parsedHourlyRate,
 			}),
 		});
 		const row = Array.isArray(rows) ? rows[0] : rows;
@@ -69,6 +74,7 @@ export const createShramik = async (req, res) => {
 			services: services || [],
 			photo,
 			bio,
+			hourly_rate: parsedHourlyRate,
 			verified: false,
 		}),
 	});
