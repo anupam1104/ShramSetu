@@ -298,7 +298,21 @@ export const AppProvider = ({ children }) => {
   // Data States (rehydrated from persisted applied data, seeded with mock data)
   const hasStoredShramiks = Array.isArray(bootData?.shramiks) && bootData.shramiks.length > 0;
   const hasStoredBookings = Array.isArray(bootData?.bookings) && bootData.bookings.length > 0;
-  const [shramiks, setShramiks] = useState(() => (hasStoredShramiks ? bootData.shramiks : INITIAL_SHRAMIKS));
+  const [shramiks, setShramiks] = useState(() => {
+    if (hasStoredShramiks) {
+      // Backfill registration dates for demo workers saved by older builds
+      // that lacked the field, so admin lists show each one's actual day.
+      const seedById = new Map(INITIAL_SHRAMIKS.map((s) => [s.id, s]));
+      return bootData.shramiks.map((s) => {
+        if (!s.registeredOn && !s.registeredAt && !s.createdAt && seedById.has(s.id)) {
+          const seed = seedById.get(s.id);
+          return { ...s, registeredOn: seed.registeredOn, registeredAt: seed.registeredAt };
+        }
+        return s;
+      });
+    }
+    return INITIAL_SHRAMIKS;
+  });
   const [bookings, setBookings] = useState(() => (hasStoredBookings ? bootData.bookings : INITIAL_BOOKINGS));
 
   const [selectedWorkerId, setSelectedWorkerId] = useState('shr-1');
@@ -853,6 +867,8 @@ export const AppProvider = ({ children }) => {
       services: formData.selectedServices || ['General Repair'],
       photo: formData.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=250&auto=format&fit=crop&q=80',
       bio: 'Skilled local technician dedicated to quality and safety.',
+      registeredOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      registeredAt: new Date().toISOString(),
       pendingSince: 'Just now'
     };
 

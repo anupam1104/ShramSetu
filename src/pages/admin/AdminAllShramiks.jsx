@@ -54,18 +54,17 @@ export const AdminAllShramiks = () => {
 
   // Helper to get formatted registration date
   const getRegisteredDate = (worker) => {
-    if (worker.registeredOn) return worker.registeredOn;
-    if (worker.createdAt) {
-      try {
-        const d = new Date(worker.createdAt);
-        if (!isNaN(d.getTime())) {
-          return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-        }
-      } catch {
-        // fallback
+    // Works with a ready-to-show string OR an ISO timestamp, from local seed
+    // data, a new registration, or a server row (created_at / registered_on).
+    const raw = worker.registeredOn || worker.registered_on || worker.createdAt || worker.created_at;
+    if (raw) {
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
       }
+      if (typeof raw === 'string') return raw;
     }
-    return '12 May 2025';
+    return '—';
   };
 
   // KPI Metric Calculations from real data
