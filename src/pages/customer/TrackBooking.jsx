@@ -158,7 +158,7 @@ export const TrackBooking = () => {
         </div>
       )}
 
-      {booking.status === 'Confirmed' && booking.start_Code && (
+      {['Confirmed', 'In Progress'].includes(booking.status) && booking.startCode && (
         <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl text-center space-y-4 relative overflow-hidden border-2 border-emerald-500">
           <div className="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-emerald-200 text-xs font-bold border border-emerald-400/30">
             <Key className="w-3.5 h-3.5 text-emerald-400" />
@@ -169,7 +169,7 @@ export const TrackBooking = () => {
 
           {/* 4-Digit Code Big Display */}
           <div className="flex justify-center items-center space-x-3 my-3">
-            {booking.start_Code.split('').map((char, i) => (
+            {booking.startCode.split('').map((char, i) => (
               <div 
                 key={i} 
                 className="w-14 h-16 bg-white/10 backdrop-blur-xl border border-white/30 rounded-2xl flex items-center justify-center text-3xl font-extrabold font-mono text-emerald-300 shadow-inner"
