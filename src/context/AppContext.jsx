@@ -450,107 +450,107 @@ export const AppProvider = ({ children }) => {
   // Authentication State (rehydrated from the persisted session)
   const [currentUser, setCurrentUser] = useState(boot.currentUser || null);
 
-  useEffect(() => {
+  const refreshBookings = useCallback(async () => {
     if (!isSupabaseConfigured) return;
 
-    const fetchBookings = async () => {
-      try {
-        if (role === 'shramik' && (currentUser?.id || activeShramikId || currentUser?.phone)) {
-          const targetId = currentUser?.id || activeShramikId || currentUser?.phone;
-          const remoteBookings = await getShramikBookings(targetId);
-          if (Array.isArray(remoteBookings)) {
-            const mapped = remoteBookings.map((b) => ({
-              id: b.id,
-              shramikId: b.shramik_id || targetId,
-              shramikName: b.shramiks?.name || 'Assigned Worker',
-              shramikPhone: b.shramiks?.phone || '',
-              skill: b.shramiks?.skill || '',
-              serviceName: b.service_name,
-              date: b.scheduled_date,
-              time: b.scheduled_time,
-              customerId: b.customer_id,
-              customerName: b.customers?.name || b.customer_name || 'Customer',
-              customerPhone: b.customers?.phone || b.customer_phone || '',
-              customerAddress: b.customers?.address || b.customer_address || '',
-              serviceFee: b.service_fee,
-              platformFee: b.platform_fee,
-              totalAmount: b.total_amount,
-              startCode: b.start_code,
-              status: b.status,
-              startedAt: b.started_at,
-              completedAt: b.completed_at,
-              durationMinutes: b.duration_minutes,
-              serverBacked: true,
-            }));
-            setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
-          }
-        } else if (role === 'customer' && (currentUser?.id || currentUser?.phone)) {
-          const targetId = currentUser?.id || currentUser?.phone;
-          const remoteCustomer = await getCustomerBookings(targetId);
-          if (Array.isArray(remoteCustomer)) {
-            const mapped = remoteCustomer.map((b) => ({
-              id: b.id,
-              shramikId: b.shramik_id,
-              shramikName: b.shramiks?.name || 'Assigned Worker',
-              shramikPhone: b.shramiks?.phone || '',
-              skill: b.shramiks?.skill || '',
-              serviceName: b.service_name,
-              date: b.scheduled_date,
-              time: b.scheduled_time,
-              customerId: b.customer_id,
-              customerName: b.customers?.name || b.customer_name || 'Customer',
-              customerPhone: b.customers?.phone || b.customer_phone || '',
-              customerAddress: b.customers?.address || b.customer_address || '',
-              serviceFee: b.service_fee,
-              platformFee: b.platform_fee,
-              totalAmount: b.total_amount,
-              startCode: b.start_code,
-              status: b.status,
-              startedAt: b.started_at,
-              completedAt: b.completed_at,
-              durationMinutes: b.duration_minutes,
-              serverBacked: true,
-            }));
-            setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
-          }
-        } else if (role === 'admin') {
-          const allRemote = await getAllBookings();
-          if (Array.isArray(allRemote)) {
-            const mappedAll = allRemote.map((b) => ({
-              id: b.id,
-              shramikId: b.shramik_id,
-              shramikName: b.shramiks?.name || b.shramik_name || 'Shramik',
-              shramikPhone: b.shramiks?.phone || '',
-              skill: b.shramiks?.skill || '',
-              serviceName: b.service_name,
-              date: b.scheduled_date,
-              time: b.scheduled_time,
-              customerId: b.customer_id,
-              customerName: b.customers?.name || b.customer_name || 'Customer',
-              customerPhone: b.customers?.phone || b.customer_phone || '',
-              customerAddress: b.customers?.address || b.customer_address || '',
-              serviceFee: b.service_fee,
-              platformFee: b.platform_fee,
-              totalAmount: b.total_amount,
-              startCode: b.start_code,
-              status: b.status,
-              startedAt: b.started_at,
-              completedAt: b.completed_at,
-              durationMinutes: b.duration_minutes,
-              serverBacked: true,
-            }));
-            setBookings((current) => [...mappedAll, ...current.filter((booking) => !mappedAll.some((remote) => remote.id === booking.id))]);
-          }
+    try {
+      if (role === 'shramik' && (currentUser?.id || activeShramikId || currentUser?.phone)) {
+        const targetId = currentUser?.id || activeShramikId || currentUser?.phone;
+        const remoteBookings = await getShramikBookings(targetId);
+        if (Array.isArray(remoteBookings)) {
+          const mapped = remoteBookings.map((b) => ({
+            id: b.id,
+            shramikId: b.shramik_id || targetId,
+            shramikName: b.shramiks?.name || 'Assigned Worker',
+            shramikPhone: b.shramiks?.phone || '',
+            skill: b.shramiks?.skill || '',
+            serviceName: b.service_name,
+            date: b.scheduled_date,
+            time: b.scheduled_time,
+            customerId: b.customer_id,
+            customerName: b.customers?.name || b.customer_name || 'Customer',
+            customerPhone: b.customers?.phone || b.customer_phone || '',
+            customerAddress: b.customers?.address || b.customer_address || '',
+            serviceFee: b.service_fee,
+            platformFee: b.platform_fee,
+            totalAmount: b.total_amount,
+            startCode: b.start_code,
+            status: b.status,
+            startedAt: b.started_at,
+            completedAt: b.completed_at,
+            durationMinutes: b.duration_minutes,
+            serverBacked: true,
+          }));
+          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
         }
-      } catch (err) {
-        console.warn('Booking sync warning:', err.message || err);
+      } else if (role === 'customer' && (currentUser?.id || currentUser?.phone)) {
+        const targetId = currentUser?.id || currentUser?.phone;
+        const remoteCustomer = await getCustomerBookings(targetId);
+        if (Array.isArray(remoteCustomer)) {
+          const mapped = remoteCustomer.map((b) => ({
+            id: b.id,
+            shramikId: b.shramik_id,
+            shramikName: b.shramiks?.name || 'Assigned Worker',
+            shramikPhone: b.shramiks?.phone || '',
+            skill: b.shramiks?.skill || '',
+            serviceName: b.service_name,
+            date: b.scheduled_date,
+            time: b.scheduled_time,
+            customerId: b.customer_id,
+            customerName: b.customers?.name || b.customer_name || 'Customer',
+            customerPhone: b.customers?.phone || b.customer_phone || '',
+            customerAddress: b.customers?.address || b.customer_address || '',
+            serviceFee: b.service_fee,
+            platformFee: b.platform_fee,
+            totalAmount: b.total_amount,
+            startCode: b.start_code,
+            status: b.status,
+            startedAt: b.started_at,
+            completedAt: b.completed_at,
+            durationMinutes: b.duration_minutes,
+            serverBacked: true,
+          }));
+          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id))]);
+        }
+      } else if (role === 'admin') {
+        const allRemote = await getAllBookings();
+        if (Array.isArray(allRemote)) {
+          const mappedAll = allRemote.map((b) => ({
+            id: b.id,
+            shramikId: b.shramik_id,
+            shramikName: b.shramiks?.name || b.shramik_name || 'Shramik',
+            shramikPhone: b.shramiks?.phone || '',
+            skill: b.shramiks?.skill || '',
+            serviceName: b.service_name,
+            date: b.scheduled_date,
+            time: b.scheduled_time,
+            customerId: b.customer_id,
+            customerName: b.customers?.name || b.customer_name || 'Customer',
+            customerPhone: b.customers?.phone || b.customer_phone || '',
+            customerAddress: b.customers?.address || b.customer_address || '',
+            serviceFee: b.service_fee,
+            platformFee: b.platform_fee,
+            totalAmount: b.total_amount,
+            startCode: b.start_code,
+            status: b.status,
+            startedAt: b.started_at,
+            completedAt: b.completed_at,
+            durationMinutes: b.duration_minutes,
+            serverBacked: true,
+          }));
+          setBookings((current) => [...mappedAll, ...current.filter((booking) => !mappedAll.some((remote) => remote.id === booking.id))]);
+        }
       }
-    };
-
-    fetchBookings();
-    const interval = setInterval(fetchBookings, 8000);
-    return () => clearInterval(interval);
+    } catch (err) {
+      console.warn('Booking sync warning:', err.message || err);
+    }
   }, [currentUser?.id, currentUser?.phone, activeShramikId, role]);
+
+  useEffect(() => {
+    refreshBookings();
+    const interval = setInterval(refreshBookings, 8000);
+    return () => clearInterval(interval);
+  }, [refreshBookings]);
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(boot.isLoggedIn));
 
   // Which login tab should be pre-selected (customer | shramik), set by landing CTAs
@@ -1024,6 +1024,9 @@ export const AppProvider = ({ children }) => {
     }
     const startCode = accepted?.start_code || Math.floor(1000 + Math.random() * 9000).toString();
     setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Confirmed', startCode } : b));
+    if (booking.serverBacked) {
+      await refreshBookings();
+    }
     showToast('Booking accepted. The customer can now share the start code on arrival.', 'success');
     return true;
   };
