@@ -66,8 +66,11 @@ export const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+          <div 
+            onClick={() => setCurrentScreen('admin_all_shramiks')}
+            className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center space-x-4 cursor-pointer hover:border-emerald-300 hover:shadow-md transition-all group"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
               <ShieldCheck className="w-7 h-7" />
             </div>
             <div>

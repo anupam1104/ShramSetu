@@ -136,7 +136,7 @@ export const WorkerProfile = () => {
           <div>
             <p className="text-xs text-slate-500 font-semibold uppercase">{t('pricingRate', 'Pricing Rate')}</p>
             <p className="text-2xl font-extrabold font-mono text-slate-900">
-              ₹{worker.hourlyRate} <span className="text-xs font-normal text-slate-500">{t('perHour', '/ hour')}</span>
+              ₹{worker.hourlyRate}
             </p>
           </div>
 

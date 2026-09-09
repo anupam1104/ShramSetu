@@ -27,6 +27,7 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminPendingApprovals } from './pages/admin/AdminPendingApprovals';
 import { AdminSettings } from './pages/admin/AdminSettings';
 import { AdminBookings } from './pages/admin/AdminBookings';
+import { AdminAllShramiks } from './pages/admin/AdminAllShramiks';
 
 const MainContent = () => {
   const { currentScreen, role, isLoggedIn, activeShramikId, shramiks, currentUser } = useApp();
@@ -91,6 +92,7 @@ const MainContent = () => {
       if (currentScreen === 'admin_approvals') return <AdminPendingApprovals />;
       if (currentScreen === 'admin_settings') return <AdminSettings />;
       if (currentScreen === 'admin_bookings') return <AdminBookings />;
+      if (currentScreen === 'admin_all_shramiks') return <AdminAllShramiks />;
       return <AdminDashboard />;
     }
 

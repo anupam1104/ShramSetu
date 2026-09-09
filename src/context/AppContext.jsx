@@ -44,6 +44,8 @@ const INITIAL_SHRAMIKS = [
     services: ['Wiring & Rewiring', 'Light Fitting', 'Switch & Socket', 'AC & Appliance'],
     photo: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=250&auto=format&fit=crop&q=80',
     bio: 'Licensed electrician with 8+ years of experience in residential and commercial wiring.',
+    registeredOn: '12 May 2025',
+    isActive: true,
   },
   {
     id: 'shr-2',
@@ -62,6 +64,8 @@ const INITIAL_SHRAMIKS = [
     services: ['Leak Repair', 'Pipe Installation', 'Tap Fitting', 'Bathroom Fitting'],
     photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80',
     bio: 'Certified plumber skilled in leak detection, pipeline installation and bathroom fittings.',
+    registeredOn: '10 May 2025',
+    isActive: true,
   },
   {
     id: 'shr-3',
@@ -81,6 +85,8 @@ const INITIAL_SHRAMIKS = [
     photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&auto=format&fit=crop&q=80',
     bio: 'Carpenter focused on furniture assembly, door repair and custom cabinet work.',
     pendingSince: '2 days ago',
+    registeredOn: '09 May 2025',
+    isActive: true,
   },
   {
     id: 'shr-4',
@@ -99,6 +105,8 @@ const INITIAL_SHRAMIKS = [
     services: ['Wall Construction', 'Plastering', 'Flooring', 'Waterproofing'],
     photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=250&auto=format&fit=crop&q=80',
     bio: 'Senior mason with over a decade of experience in construction and finishing work.',
+    registeredOn: '08 May 2025',
+    isActive: true,
   },
   {
     id: 'shr-5',
@@ -117,6 +125,8 @@ const INITIAL_SHRAMIKS = [
     services: ['Wall Painting', 'Texture Painting', 'False Ceiling', 'Putty Work'],
     photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=250&auto=format&fit=crop&q=80',
     bio: 'Interior painter delivering clean finishes for homes and commercial spaces.',
+    registeredOn: '07 May 2025',
+    isActive: true,
   },
 ];
 
@@ -1235,6 +1245,40 @@ export const AppProvider = ({ children }) => {
     showToast(`Booking ${bookingId} deleted.`, 'info');
   };
 
+  // Admin Add Shramik
+  const addAdminShramik = (shramikData) => {
+    setShramiks(prev => [shramikData, ...prev]);
+    upsertAccount({
+      ...shramikData,
+      role: 'shramik',
+    });
+  };
+
+  // Admin Toggle Shramik Active/Inactive Status
+  const toggleShramikStatus = (shramikId) => {
+    setShramiks(prev => prev.map(s => {
+      if (s.id === shramikId) {
+        const currentlyActive = s.isActive !== false && s.status !== 'Inactive';
+        const nextStatus = currentlyActive ? 'Inactive' : (s.verified ? 'Verified' : 'Pending');
+        return {
+          ...s,
+          isActive: !currentlyActive,
+          status: nextStatus
+        };
+      }
+      return s;
+    }));
+  };
+
+  // Admin Delete Shramik
+  const deleteShramik = (shramikId) => {
+    const worker = shramiks.find(s => s.id === shramikId);
+    setShramiks(prev => prev.filter(s => s.id !== shramikId));
+    if (worker?.phone) {
+      removeAccount('shramik', worker.phone);
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       role,
@@ -1242,6 +1286,10 @@ export const AppProvider = ({ children }) => {
       currentScreen,
       setCurrentScreen,
       shramiks,
+      setShramiks,
+      addAdminShramik,
+      toggleShramikStatus,
+      deleteShramik,
       bookings,
       refreshBookings,
       isRefreshingBookings,
