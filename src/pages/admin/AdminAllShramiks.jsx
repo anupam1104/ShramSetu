@@ -12,6 +12,7 @@ import {
   CheckCircle2, 
   X,
   Filter, 
+  ChevronLeft,
   ChevronRight,
   ChevronDown,
   Star,
@@ -575,16 +576,31 @@ export const AdminAllShramiks = () => {
           </div>
 
           {/* Table Footer with Pagination */}
-          <div className="p-4 sm:p-5 border-t border-slate-100 flex items-center justify-end gap-4 text-xs font-medium text-slate-500 bg-white">
+          <div className="p-4 sm:p-5 border-t border-slate-100 flex items-center justify-between gap-4 text-xs font-medium text-slate-500 bg-white">
             {totalPages > 1 && (
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={validCurrentPage === totalPages}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold"
-              >
-                <span>{t('admin.nextPage', 'Next')}</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
+              <>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={validCurrentPage === 1}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>{t('admin.prevPage', 'Previous')}</span>
+                </button>
+
+                <span className="font-semibold text-slate-500">
+                  {t('admin.pageOf', 'Page {current} of {total}', { current: validCurrentPage, total: totalPages })}
+                </span>
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={validCurrentPage === totalPages}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold"
+                >
+                  <span>{t('admin.nextPage', 'Next')}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
             )}
           </div>
 
