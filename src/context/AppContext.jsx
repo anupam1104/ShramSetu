@@ -395,18 +395,29 @@ export const AppProvider = ({ children }) => {
     'common.servicesOffered': 'servicesOffered',
   };
 
-  const t = (key, paramsOrFallback = '') => {
+  const t = (key, fallbackOrParams = '', params = null) => {
     const dict = TRANSLATIONS[language] || TRANSLATIONS.en || {};
     // Resolve dot-notation aliases to flat keys
     const flatKey = DOT_KEY_ALIASES[key] || key;
     let val = dict[flatKey] ?? TRANSLATIONS.en?.[flatKey];
-    if (val === undefined) {
-      if (typeof paramsOrFallback === 'string') return paramsOrFallback;
-      return key;
+
+    // Determine the params object and fallback string
+    let interpolateParams = null;
+    let fallback = '';
+    if (typeof fallbackOrParams === 'object' && fallbackOrParams !== null) {
+      interpolateParams = fallbackOrParams;
+    } else if (typeof fallbackOrParams === 'string') {
+      fallback = fallbackOrParams;
+      interpolateParams = params;
     }
-    if (typeof paramsOrFallback === 'object' && paramsOrFallback !== null) {
+
+    if (val === undefined) {
+      val = fallback || key;
+    }
+
+    if (interpolateParams && typeof interpolateParams === 'object') {
       return String(val).replace(/\{(\w+)\}/g, (match, paramKey) => {
-        return paramsOrFallback[paramKey] !== undefined ? paramsOrFallback[paramKey] : match;
+        return interpolateParams[paramKey] !== undefined ? interpolateParams[paramKey] : match;
       });
     }
     return val;

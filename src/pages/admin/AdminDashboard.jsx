@@ -58,7 +58,7 @@ export const AdminDashboard = () => {
                 {t('admin.pending', 'Pending')}
               </p>
               <p className="text-3xl font-extrabold font-mono text-slate-900 mt-1">
-                {pendingShramiks.length > 0 ? pendingShramiks.length : 12}
+                {pendingShramiks.length}
               </p>
               <p className="text-[11px] text-amber-700 font-semibold mt-0.5">
                 {t('admin.awaitingVerification', 'Awaiting Verification')}
@@ -75,7 +75,7 @@ export const AdminDashboard = () => {
                 {t('admin.verified', 'Verified')}
               </p>
               <p className="text-3xl font-extrabold font-mono text-slate-900 mt-1">
-                248
+                {verifiedShramiks.length}
               </p>
               <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">
                 {t('admin.activeShramiks', 'Active Shramiks')}
@@ -116,13 +116,6 @@ export const AdminDashboard = () => {
                 <h3 className="font-bold text-amber-950 text-base">
                   {t('admin.registrationsRequireReview', '{count} Shramik Registration(s) Require Review', { count: pendingShramiks.length })}
                 </h3>
-                <p className="text-xs text-amber-800">
-                  {t('admin.pendingExample', 'e.g., {name} ({skill}) registered from {area}.', { 
-                    name: pendingShramiks[0].name, 
-                    skill: tSkill(pendingShramiks[0].skill), 
-                    area: pendingShramiks[0].area 
-                  })}
-                </p>
               </div>
             </div>
 
