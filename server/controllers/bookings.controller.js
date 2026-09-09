@@ -123,6 +123,14 @@ export const acceptBooking = async (req, res) => {
 	return res.json(booking);
 };
 
+export const rejectBooking = async (req, res) => {
+	const booking = await bookingUpdate(req.params.id, {
+		status: 'Cancelled',
+	}, 'Pending');
+	if (!booking) return res.status(409).json({ error: 'This booking request is no longer pending.' });
+	return res.json(booking);
+};
+
 export const listAllBookings = async (req, res) => {
 	const query = new URLSearchParams({
 		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',

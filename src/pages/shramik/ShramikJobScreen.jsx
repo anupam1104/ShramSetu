@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export const ShramikJobScreen = () => {
-  const { bookings, activeBookingId, acceptBooking, confirmWorkDone, setCurrentScreen, t, tStatus, tSkill } = useApp();
+  const { bookings, activeBookingId, acceptBooking, rejectBooking, confirmWorkDone, setCurrentScreen, t, tStatus, tSkill } = useApp();
   // Only the actual selected booking is shown. No mock fallback job.
   const currentBooking = bookings.find(b => b.id === activeBookingId) || null;
 
@@ -98,9 +98,14 @@ export const ShramikJobScreen = () => {
           <div className="bg-amber-50 border-2 border-amber-200 p-6 rounded-3xl text-center space-y-4">
             <h3 className="text-lg font-bold text-slate-900">New booking request</h3>
             <p className="text-xs text-slate-600">Review the customer, address and schedule above before accepting this request.</p>
-            <button onClick={() => acceptBooking(currentBooking.id)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm">
-              Accept Request
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button onClick={() => acceptBooking(currentBooking.id)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm">
+                Accept Request
+              </button>
+              <button onClick={() => rejectBooking(currentBooking.id)} className="w-full bg-white hover:bg-red-50 text-red-700 font-bold py-3.5 rounded-xl border border-red-200 transition-all text-sm">
+                Decline Request
+              </button>
+            </div>
           </div>
         ) : currentBooking.status === 'Confirmed' ? (
           <div className="bg-emerald-50/70 border-2 border-emerald-200 p-6 rounded-3xl text-center space-y-5">
@@ -115,7 +120,6 @@ export const ShramikJobScreen = () => {
                 Travel to the customer’s service address. The customer will start the job after you arrive.
               </p>
             </div>
-
           </div>
         ) : (
           /* WORK IN PROGRESS / COMPLETED / PAID STATE */

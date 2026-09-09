@@ -110,6 +110,10 @@ export const acceptBooking = (bookingId) => request(`bookings/${encodeURICompone
   method: 'POST',
 });
 
+export const rejectBooking = (bookingId) => request(`bookings/${encodeURIComponent(bookingId)}/reject`, {
+  method: 'POST',
+});
+
 export const completeBooking = (bookingId, serviceFee) => request(`bookings/${encodeURIComponent(bookingId)}/complete`, {
   method: 'POST',
   body: JSON.stringify({ serviceFee }),

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getBooking as getBookingApi, getCustomerBookings, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
+import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getBooking as getBookingApi, getCustomerBookings, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectBooking as rejectBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -1121,6 +1121,11 @@ export const AppProvider = ({ children }) => {
 
   const createBooking = async () => {
     const worker = shramiks.find(s => s.id === selectedWorkerId) || shramiks[0];
+    if (!worker || !bookingDraft.service || !bookingDraft.date || !bookingDraft.time) {
+      showToast('Choose a service, date and time before confirming the booking.', 'error');
+      setCurrentScreen('slot');
+      return false;
+    }
     const newBookingId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const customerName = currentUser?.name || 'Customer';
@@ -1160,6 +1165,7 @@ export const AppProvider = ({ children }) => {
           customerCity: currentUser?.city || '',
           platformFee: newBooking.platformFee,
         });
+        if (!savedBooking?.id) throw new Error('The server returned an incomplete booking response.');
         newBooking.id = savedBooking.id;
         newBooking.serverBacked = true;
         const assigned = savedBooking.assigned_shramik;
@@ -1185,7 +1191,8 @@ export const AppProvider = ({ children }) => {
         // VITE_API_URL is intentionally omitted.
         console.error('Booking was not saved on the server:', error.message || error);
         showToast(`Booking could not be sent: ${error.message || 'server error'}`, 'error');
-        return;
+        setCurrentScreen('booking_confirm');
+        return false;
       }
     }
 
@@ -1196,6 +1203,7 @@ export const AppProvider = ({ children }) => {
     setActiveBookingId(newBooking.id);
     setCurrentScreen('track_booking');
     showToast('Booking request sent. The Shramik will review and accept it.', 'success');
+    return true;
   };
 
   // The Shramik accepts the request. The customer starts work after arrival.
@@ -1222,6 +1230,25 @@ export const AppProvider = ({ children }) => {
     await refreshBookings();
     showToast('Booking accepted. The customer can start work after you arrive.', 'success');
     return true;
+  };
+
+  const rejectBooking = async (bookingId) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking || booking.status !== 'Pending') return false;
+    if (isSupabaseConfigured && !booking.serverBacked) {
+      showToast('This request is not connected to the server. Refresh your bookings and try again.', 'error');
+      return false;
+    }
+    try {
+      if (isSupabaseConfigured) await rejectBookingApi(bookingId);
+      setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Cancelled' } : b));
+      if (isSupabaseConfigured) await refreshBookings();
+      showToast('Booking request declined.', 'info');
+      return true;
+    } catch (error) {
+      showToast(error.message || 'Could not decline this request.', 'error');
+      return false;
+    }
   };
 
   // Customer / Shramik Cancels Booking — fully removes from list
@@ -1425,6 +1452,7 @@ export const AppProvider = ({ children }) => {
       syncPendingApprovals,
       createBooking,
       acceptBooking,
+      rejectBooking,
       startWork,
       confirmWorkDone,
       processPayment,
