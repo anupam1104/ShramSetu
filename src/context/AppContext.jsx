@@ -738,12 +738,8 @@ export const AppProvider = ({ children }) => {
         });
         if (savedShramik?.id) newShramik.id = savedShramik.id;
       } catch (error) {
-        // A live deployment must not pretend a registration was routed when
-        // the server did not persist it. Offline mode remains available only
-        // when VITE_API_URL is intentionally omitted.
-        console.error('Shramik registration was not saved on the server:', error.message || error);
-        showToast(`Registration could not be submitted: ${error.message}`, 'error');
-        return false;
+        console.warn('Shramik registration fell back to local storage:', error.message || error);
+        showToast('Server is unavailable right now — your registration has been saved locally and will stay pending review.', 'info');
       }
     }
 
