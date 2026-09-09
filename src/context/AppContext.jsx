@@ -1103,9 +1103,10 @@ export const AppProvider = ({ children }) => {
     return true;
   };
 
-  // Customer Cancels Booking
+  // Customer / Shramik Cancels Booking — fully removes from list
   const cancelBooking = (bookingId) => {
-    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Cancelled' } : b));
+    setBookings(prev => prev.filter(b => b.id !== bookingId));
+    saveAppliedData({ shramiks, bookings: bookings.filter(b => b.id !== bookingId) });
     showToast('Booking cancelled successfully.', 'info');
   };
 
