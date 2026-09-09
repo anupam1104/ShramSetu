@@ -1,20 +1,14 @@
 import React from '../react';
-import { useApp } from 'context/AppContext';
-import { 
-  CheckCircle2, 
-  Clock, 
-  Key, 
-  User, 
-  Calendar, 
-  Phone, 
-  MapPin, 
-  CreditCard, 
-  Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  Briefcase,
+import { useApp } from '../../context/AppContext';
+import {
+  CheckCircle2,
+  Clock,
+  Key,
+  User,
+  Calendar,
+  CreditCard,
   XCircle
-} from '../nodemodule/lucide-react';
+} from '../lucide-react';
 
 export const TrackBooking = () => {
   const { bookings, activeBookingId, cancelBooking, setCurrentScreen, t, tStatus, tSkill, shramiks } = useApp();
@@ -158,14 +152,18 @@ export const TrackBooking = () => {
         </div>
       )}
 
-      {booking.status === 'Confirmed' && booking.startCode && (
+      {['Confirmed', 'In Progress'].includes(booking.status) && booking.startCode && (
         <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl text-center space-y-4 relative overflow-hidden border-2 border-emerald-500">
           <div className="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-emerald-200 text-xs font-bold border border-emerald-400/30">
             <Key className="w-3.5 h-3.5 text-emerald-400" />
             <span>{t('verificationSecurityCode', 'Verification Security Code')}</span>
           </div>
 
-          <p className="text-xs text-emerald-100/90 font-medium">{t('yourStartCode', 'Your Start Code')}</p>
+          <p className="text-xs text-emerald-100/90 font-medium">
+            {booking.status === 'In Progress'
+              ? 'Start code used to begin this job'
+              : t('yourStartCode', 'Your Start Code')}
+          </p>
 
           {/* 4-Digit Code Big Display */}
           <div className="flex justify-center items-center space-x-3 my-3">
@@ -180,7 +178,9 @@ export const TrackBooking = () => {
           </div>
 
           <p className="text-xs text-emerald-100/80 max-w-sm mx-auto font-light">
-            {t('shareCodeDesc', { shramik: bookingLabel })}
+            {booking.status === 'In Progress'
+              ? 'Keep this code private. It has already been verified and the job is now in progress.'
+              : t('shareCodeDesc', { shramik: bookingLabel })}
           </p>
         </div>
       )}
