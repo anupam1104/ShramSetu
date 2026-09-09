@@ -34,7 +34,7 @@ export const TrackBooking = () => {
   const booking = bookings.find(b => b.id === activeBookingId) || bookings[0];
 
   React.useEffect(() => {
-    if (!booking?.id || booking.status !== 'Pending') return undefined;
+    if (!booking?.id || !['Pending', 'In Progress'].includes(booking.status)) return undefined;
     refreshBookingStatus(booking.id);
     const interval = setInterval(() => refreshBookingStatus(booking.id), 3000);
     return () => clearInterval(interval);
@@ -256,16 +256,26 @@ export const TrackBooking = () => {
         )}
       </div>
 
-      {/* Shramik finishes the job and sets the final whole-job amount. */}
+      {/* Job in progress. The customer's screen auto-updates when the Shramik
+          finishes the job, so completion reflects on this side automatically. */}
       {booking.status === 'In Progress' && (
         <div className="bg-emerald-50 border-2 border-emerald-300 p-6 rounded-3xl text-center space-y-4 shadow-md">
           <h3 className="text-lg font-bold font-heading text-slate-900">
             {t('jobInProgress', 'Job in progress')}
           </h3>
           <p className="text-xs text-slate-600">
-            {bookingLabel} will record the final whole-job amount when the work is finished.
+            {bookingLabel} will record the final whole-job amount when the work is finished. This page updates automatically when the job is marked complete.
           </p>
-
+          {bookingSyncError && <p className="text-[11px] text-red-700">{bookingSyncError}</p>}
+          <button
+            type="button"
+            onClick={refreshBookings}
+            disabled={isRefreshingBookings}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-emerald-900 border border-emerald-300 hover:bg-emerald-100 disabled:opacity-60"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingBookings ? 'animate-spin' : ''}`} />
+            {isRefreshingBookings ? 'Checking status…' : 'Refresh status'}
+          </button>
         </div>
       )}
 

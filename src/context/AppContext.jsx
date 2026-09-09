@@ -688,6 +688,10 @@ export const AppProvider = ({ children }) => {
         const shramikName = booking.shramikName || 'Shramik';
         showToast(tRef.current('bookingAcceptedToast', 'Your Shramik has accepted your booking. You can start work after they arrive.', { shramik: shramikName }), 'success');
       }
+      const justCompleted = previous === 'In Progress' && next === 'Completed';
+      if (justCompleted) {
+        showToast(tRef.current('jobCompletedToast', '✓ Your job has been marked complete. Proceed to payment.', {}), 'success');
+      }
       seenBookingStatus.current[booking.id] = next;
     });
   }, [bookings, role, isLoggedIn]);
