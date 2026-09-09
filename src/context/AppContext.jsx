@@ -309,6 +309,8 @@ export const AppProvider = ({ children }) => {
 
   // Selected Category filter for CustomerSearch
   const [searchCategory, setSearchCategory] = useState('All');
+  // Selected Job sub-option within a service (e.g. "Fan Repair" under Electrician)
+  const [selectedJob, setSelectedJob] = useState(null);
 
   // Language & Settings Modal State
   const [language, setLanguageState] = useState(() => {
@@ -1283,6 +1285,8 @@ export const AppProvider = ({ children }) => {
       setIntendedLoginRole,
       searchCategory,
       setSearchCategory,
+      selectedJob,
+      setSelectedJob,
       currentUser,
       isLoggedIn,
       login,
