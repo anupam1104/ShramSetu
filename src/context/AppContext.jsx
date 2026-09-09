@@ -492,7 +492,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured))]);
+          setBookings((current) => [...mapped, ...current.filter((booking) => (!mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured)) || booking.status === 'Cancelled')]);
         }
       } else if (role === 'customer' && (currentUser?.id || currentUser?.phone)) {
         const targetId = currentUser?.id || currentUser?.phone;
@@ -521,7 +521,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => [...mapped, ...current.filter((booking) => !mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured))]);
+          setBookings((current) => [...mapped, ...current.filter((booking) => (!mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured)) || booking.status === 'Cancelled')]);
         }
       } else if (role === 'admin') {
         const allRemote = await getAllBookings();
@@ -549,7 +549,7 @@ export const AppProvider = ({ children }) => {
             durationMinutes: b.duration_minutes,
             serverBacked: true,
           }));
-          setBookings((current) => [...mappedAll, ...current.filter((booking) => !mappedAll.some((remote) => remote.id === booking.id))]);
+          setBookings((current) => [...mappedAll, ...current.filter((booking) => !mappedAll.some((remote) => remote.id === booking.id) || booking.status === 'Cancelled')]);
         }
       }
     } catch (err) {
