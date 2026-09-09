@@ -94,7 +94,9 @@ export const WorkerProfile = () => {
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-semibold text-slate-600 pt-1">
               <div className="flex items-center text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400 mr-1" />
-                {worker.rating > 0 ? worker.rating : t('ratingNew', 'New')} ({worker.jobsCount} {t('completedJobs', 'completed jobs')})
+                {worker.rating > 0
+                  ? `${worker.rating}${worker.ratingCount > 0 ? ` (${worker.ratingCount} ${t('reviewsLbl', 'reviews')})` : ''}`
+                  : t('ratingNew', 'New')} · {worker.jobsCount} {t('completedJobs', 'completed jobs')}
               </div>
 
               <div className="flex items-center text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">

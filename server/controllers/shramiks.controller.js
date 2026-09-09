@@ -4,7 +4,7 @@ const locationKeyOf = (city) => String(city || '').split('|')[0].trim().toLocale
 
 export const listShramiks = async (req, res) => {
 	const publicFields = [
-		'id', 'name', 'skill', 'verified', 'shramik_id', 'rating', 'jobs_count',
+		'id', 'name', 'skill', 'verified', 'shramik_id', 'rating', 'rating_count', 'jobs_count',
 		'distance', 'hourly_rate', 'phone', 'city', 'area', 'experience',
 		'services', 'photo', 'bio', 'created_at', 'location_key',
 	].join(',');

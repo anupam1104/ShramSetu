@@ -11,6 +11,7 @@ import {
   Banknote
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { ReviewSection } from '../../components/ReviewSection';
 
 export const PaymentPage = () => {
   const { bookings, activeBookingId, processPayment, setCurrentScreen, t, shramiks } = useApp();
@@ -178,6 +179,9 @@ export const PaymentPage = () => {
               <p>Payment method: <strong>{paymentMethod === 'cash' ? 'Cash' : 'Online'}</strong></p>
               <p>{t('shramik', 'Shramik:')} <strong>{bookingLabel}</strong> ({t('receivedAmount', { amount: booking.serviceFee })})</p>
             </div>
+
+            {/* Rate your Shramik — shown once payment is complete */}
+            <ReviewSection booking={booking} bookingLabel={bookingLabel} />
 
             <button
               onClick={() => setCurrentScreen('search')}

@@ -124,6 +124,11 @@ export const payBooking = (bookingId, paymentMethod) => request(`bookings/${enco
   body: JSON.stringify({ paymentMethod }),
 });
 
+export const submitReview = (bookingId, rating, comment = '') => request(`bookings/${encodeURIComponent(bookingId)}/review`, {
+  method: 'POST',
+  body: JSON.stringify({ rating, comment }),
+});
+
 export const loginAdmin = async (credentials) => {
   const result = await request('auth/admin/login', {
     method: 'POST',

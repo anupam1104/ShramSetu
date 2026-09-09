@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../data/translations';
-import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getBooking as getBookingApi, getCustomerBookings, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectBooking as rejectBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, getAllBookings, getAllCustomers } from '../lib/supabase';
+import { acceptBooking as acceptBookingApi, approveShramik as approveShramikApi, clearAdminToken, completeBooking as completeBookingApi, createBooking as createBookingApi, createShramik, getBooking as getBookingApi, getCustomerBookings, getPendingShramiks, getShramikBookings, getShramikStatus, getShramiks, isSupabaseConfigured, payBooking as payBookingApi, rejectBooking as rejectBookingApi, rejectShramik as rejectShramikApi, setAdminToken, startBooking as startBookingApi, submitReview as submitReviewApi, getAllBookings, getAllCustomers } from '../lib/supabase';
 import {
   STORAGE_KEYS,
   clearSession,
@@ -563,6 +563,9 @@ export const AppProvider = ({ children }) => {
             completedAt: b.completed_at,
             durationMinutes: b.duration_minutes,
             serverBacked: true,
+            userReview: b.reviews && b.reviews.length > 0
+              ? { rating: b.reviews[0].rating, comment: b.reviews[0].comment || '' }
+              : undefined,
           }));
           setBookings((current) => [...mapped, ...current.filter((booking) => (!mapped.some((remote) => remote.id === booking.id) && (booking.serverBacked || !isSupabaseConfigured)) || booking.status === 'Cancelled')]);
         }
@@ -723,6 +726,7 @@ export const AppProvider = ({ children }) => {
         jobsCount: row.jobs_count,
         hourlyRate: row.hourly_rate,
         lastAssignedAt: row.last_assigned_at,
+        ratingCount: Number(row.rating_count) || 0,
       }))))
       .catch((error) => {
         // Backend unreachable â€” keep the persisted demo workers instead of
@@ -1057,6 +1061,7 @@ export const AppProvider = ({ children }) => {
       shramikId: row.shramik_id || null,
       rating: Number(row.rating) || 0,
       jobsCount: Number(row.jobs_count) || 0,
+      ratingCount: Number(row.rating_count) || 0,
       distance: row.distance || 'New nearby worker',
       hourlyRate: Number(row.hourly_rate) || 250,
       phone: row.phone,
@@ -1314,6 +1319,37 @@ export const AppProvider = ({ children }) => {
     return true;
   };
 
+  // Customer rates their Shramik after payment is complete. In live mode the
+  // server recomputes the aggregate rating; offline we nudge the local worker.
+  const submitReview = async (bookingId, rating, comment = '') => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking || !Number.isInteger(rating) || rating < 1 || rating > 5) {
+      showToast('Please select a rating between 1 and 5 stars.', 'error');
+      return false;
+    }
+
+    if (booking?.serverBacked) {
+      try {
+        await submitReviewApi(bookingId, rating, comment);
+      } catch (error) {
+        showToast(error.message || 'Could not submit your review.', 'error');
+        return false;
+      }
+    }
+
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, userReview: { rating, comment: comment || '' } } : b));
+
+    setShramiks(prev => prev.map(s => {
+      if (s.id !== booking.shramikId) return s;
+      const current = Number(s.rating) || 0;
+      const next = current > 0 ? Number(((current + rating) / 2).toFixed(1)) : rating;
+      return { ...s, rating: next, ratingCount: (s.ratingCount || 0) + 1 };
+    }));
+
+    showToast('Thank you! Your rating helps other customers.', 'success');
+    return true;
+  };
+
   // Quick Demo Step Launcher (Backbone Flow Preset)
   const jumpToDemoStep = (stepNumber) => {
     if (stepNumber === 1) { // Shramik Signup
@@ -1439,6 +1475,7 @@ export const AppProvider = ({ children }) => {
       startWork,
       confirmWorkDone,
       processPayment,
+      submitReview,
       cancelBooking,
       addAdminBooking,
       updateBookingStatus,

@@ -155,7 +155,7 @@ export const listAllBookings = async (req, res) => {
 export const getBooking = async (req, res) => {
 	const query = new URLSearchParams({
 		id: `eq.${req.params.id}`,
-		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',
+		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city),reviews(id,rating,comment)',
 		limit: '1',
 	});
 	const [booking] = await supabaseRequest(`bookings?${query.toString()}`);
@@ -235,7 +235,7 @@ export const listCustomerBookings = async (req, res) => {
 	if (conditions.size === 0) return res.json([]);
 
 	const query = new URLSearchParams({
-		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city)',
+		select: '*,customers(id,name,phone,address),shramiks(id,name,skill,phone,city),reviews(id,rating,comment)',
 		order: 'created_at.desc',
 	});
 	query.set('or', `(${Array.from(conditions).join(',')})`);
@@ -299,4 +299,26 @@ export const payBooking = async (req, res) => {
 	const booking = await bookingUpdate(req.params.id, { status: 'Paid', payment_method: paymentMethod, paid_at: new Date().toISOString() }, 'Completed');
 	if (!booking) return res.status(409).json({ error: 'Booking must be completed before payment.' });
 	return res.json(booking);
+};
+
+// A customer rates their Shramik after paying. Uses the add_review RPC so the
+// aggregate rating and per-booking uniqueness are handled atomically in SQL.
+export const reviewBooking = async (req, res) => {
+	const rating = Number(req.body?.rating);
+	const comment = String(req.body?.comment || '').trim();
+	if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+		return res.status(400).json({ error: 'Please select a rating between 1 and 5 stars.' });
+	}
+	try {
+		const rows = await supabaseRequest('rpc/add_review', {
+			method: 'POST',
+			body: JSON.stringify({ p_booking_id: req.params.id, p_rating: rating, p_comment: comment }),
+		});
+		return res.status(201).json(rows || { ok: true });
+	} catch (error) {
+		if (error.status && error.status >= 400 && error.status < 500) {
+			return res.status(error.status).json({ error: error.message });
+		}
+		throw error;
+	}
 };

@@ -347,6 +347,99 @@ alter table public.bookings drop constraint if exists bookings_status_check;
 alter table public.bookings add constraint bookings_status_check
   check (status in ('Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'Paid'));
 
+-- Customer reviews for a completed (paid) job. Aggregated rating lives on the
+-- shramiks table; this keeps every individual review for transparency/safety.
+create table if not exists public.reviews (
+  id uuid primary key default gen_random_uuid(),
+  booking_id text not null unique references public.bookings(id),
+  shramik_id uuid not null references public.shramiks(id),
+  customer_id uuid references public.customers(id),
+  rating integer not null check (rating between 1 and 5),
+  comment text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.reviews enable row level security;
+grant select, insert on table public.reviews to anon;
+grant select, insert, update, delete on table public.reviews to service_role;
+
+drop policy if exists "Public can read reviews" on public.reviews;
+create policy "Public can read reviews"
+  on public.reviews for select
+  using (true);
+
+drop policy if exists "Public can submit reviews" on public.reviews;
+create policy "Public can submit reviews"
+  on public.reviews for insert
+  with check (true);
+
+-- A shramik keeps its aggregate rating up to date as reviews land. The count
+-- of completed jobs is tracked separately on the bookings lifecycle.
+alter table public.shramiks add column if not exists rating_count integer not null default 0;
+
+-- Atomically add a review for a paid booking and update the shramik's rating.
+-- Only the customer who booked (and a paid booking) can review once. Invoked by
+-- the API with the service role key after our server validates the request.
+drop function if exists public.add_review(text, integer, text);
+
+create or replace function public.add_review(
+  p_booking_id text,
+  p_rating integer,
+  p_comment text
+)
+returns table (id uuid, shramik_id uuid, rating numeric)
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  v_booking public.bookings%rowtype;
+  v_new_rating numeric;
+begin
+  select * into v_booking
+  from public.bookings
+  where id = p_booking_id
+    and status = 'Paid'
+  for update;
+
+  if v_booking is null then
+    raise exception 'Booked job is not paid.'
+      using errcode = '22000';
+  end if;
+
+  if p_rating < 1 or p_rating > 5 then
+    raise exception 'Rating must be between 1 and 5.'
+      using errcode = '22000';
+  end if;
+
+  insert into public.reviews (booking_id, shramik_id, customer_id, rating, comment)
+  values (v_booking.id, v_booking.shramik_id, v_booking.customer_id, p_rating, p_comment)
+  on conflict (booking_id) do update
+    set rating = excluded.rating, comment = coalesce(excluded.comment, public.reviews.comment);
+
+  select
+    round(avg(r.rating), 1)
+  from public.reviews r
+  where r.shramik_id = v_booking.shramik_id
+  into v_new_rating;
+
+  update public.shramiks s
+  set rating = v_new_rating,
+      rating_count = (
+        select count(*) from public.reviews r where r.shramik_id = v_booking.shramik_id
+      )
+  where s.id = v_booking.shramik_id;
+
+  return query
+    select rev.id, rev.shramik_id, v_new_rating
+    from public.reviews rev
+    where rev.booking_id = p_booking_id;
+end;
+$$;
+
+revoke all on function public.add_review(text, integer, text) from public;
+grant execute on function public.add_review(text, integer, text) to service_role;
+
 alter table public.bookings enable row level security;
 
 grant select, insert on table public.bookings to anon;

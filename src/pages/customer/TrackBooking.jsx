@@ -14,6 +14,7 @@ import {
   XCircle,
   RefreshCw
 } from 'lucide-react';
+import { ReviewSection } from '../../components/ReviewSection';
 
 export const TrackBooking = () => {
   const {
@@ -307,16 +308,22 @@ export const TrackBooking = () => {
 
       {/* Paid State */}
       {booking.status === 'Paid' && (
-        <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-3xl text-center space-y-4">
-          <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-          <h3 className="text-xl font-bold font-heading text-emerald-950">{t('paymentReceived', '✓ Payment Received')}</h3>
-          <p className="text-xs text-slate-600">
-            {t('paymentReceivedDesc', 'Thank you! Service is complete and paid.')}
-          </p>
-          <div className="pt-2">
+        <div className="space-y-4">
+          <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-3xl text-center space-y-4">
+            <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+            <h3 className="text-xl font-bold font-heading text-emerald-950">{t('paymentReceived', '✓ Payment Received')}</h3>
+            <p className="text-xs text-slate-600">
+              {t('paymentReceivedDesc', 'Thank you! Service is complete and paid.')}
+            </p>
+          </div>
+
+          {/* Rate the Shramik after the payment is complete */}
+          <ReviewSection booking={booking} bookingLabel={bookingLabel} />
+
+          <div className="pt-1">
             <button
               onClick={() => setCurrentScreen('search')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all text-xs"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all text-xs"
             >
               {t('bookAnotherService', 'Book Another Service')}
             </button>

@@ -687,7 +687,23 @@ const en = {
   tCodeVerified: '✓ Code verified! Job started successfully.',
   tInvalidCode: 'Invalid Start Code! Please check with customer.',
   tWorkCompleted: 'Work completed confirmed! Please proceed to payment.',
-  tPaidToast: '₹{amount} Paid Successfully! Thank you for using Shram Setu.'
+  tPaidToast: '₹{amount} Paid Successfully! Thank you for using Shram Setu.',
+
+  /* ─── Shramik Rating & Review ─── */
+  rateYourShramik: 'Rate Your Shramik',
+  howWasService: 'How was your service?',
+  rateHelpOthers: 'Tap a star to rate',
+  reviewHelpsOthers: ' Your review helps other customers.',
+  writeReviewPlaceholder: 'Write a short review about your experience (optional)…',
+  submitReview: 'Submit Rating & Review',
+  reviewSubmitted: 'Review submitted',
+  reviewThanks: 'Thank you for rating',
+  ratingExcellent: 'Excellent!',
+  ratingGreat: 'Great!',
+  ratingOkay: 'It was okay',
+  ratingPoor: 'Below expectations',
+  ratingBad: 'Poor service',
+  reviewsLbl: 'reviews'
 };
 
 export default en;

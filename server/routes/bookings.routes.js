@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { acceptBooking, completeBooking, createBooking, getBooking, listAllBookings, listCustomerBookings, listShramikBookings, payBooking, rejectBooking, startBooking } from '../controllers/bookings.controller.js';
+import { acceptBooking, completeBooking, createBooking, getBooking, listAllBookings, listCustomerBookings, listShramikBookings, payBooking, rejectBooking, reviewBooking, startBooking } from '../controllers/bookings.controller.js';
 
 const router = Router();
 
@@ -14,6 +14,7 @@ router.post('/:id/reject', rejectBooking);
 router.post('/:id/start', startBooking);
 router.post('/:id/complete', completeBooking);
 router.post('/:id/pay', payBooking);
+router.post('/:id/review', reviewBooking);
 
 export default router;
 
