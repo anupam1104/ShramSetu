@@ -1,112 +1,189 @@
 # Shram Setu — outline_v2
-### Final MVP for Round 2 (48-Hour Offline Build)
+### Future roadmap to align with the cooperative marketplace vision
 
-**Team:** RADIANS · **PS ID:** SIH26089 · **Status:** Build Target if Selected Past R1
+**Project:** Shram Setu  
+**Status:** Next-phase roadmap to match the SIH problem statement  
+**Updated:** 2026-09-10
 
 ---
 
 ## 1. Goal
 
-A stable, uninterrupted, real transaction loop a judge can watch end-to-end:
+Move from a strong MVP marketplace into a cooperative-owned digital service ecosystem that matches the problem statement more closely:
 
-**Customer → Search → Verified Shramik → Book → Pay → Invoice → Rate**
+**Cooperative Workers → Verified Service Marketplace → Trusted Household/Institution Services**
 
-Real integrations this time — not mocks. Reliability under live demo conditions matters as much as features.
+The next version should focus on making the platform more credible for real cooperative governance, verified workforce deployment, digital trust, and operational scale.
 
-## 2. Scope
+---
 
-### In scope (core levers)
-- [ ] **Lever 1 — Discovery + Booking + Geo-Matching:** live Google Maps API, real distance/ETA ranking
-- [ ] **Lever 2 — Shramik ID + Verification:** admin approval issues a real Shramik ID (`SHR-RAD-2026-000X`), badge tied to that action only
-- [ ] **Lever 3 — Payments + Auto-Invoicing:** Razorpay test-mode checkout, invoice shows platform fee % + worker payout, prominently
-- [ ] **Support — Minimal Admin Screen:** approve/reject Shramik, issue ID
-- [ ] **Add-on — Ratings:** 1–5 stars + comment, post-completion only
-- [ ] **Add-on — Emergency Booking:** boolean flag, reorders match priority
-- [ ] **Add-on — Demand-Surge Banner:** static/seeded text, no real model
-- [ ] Real OTP for signup/login
+## 2. What we are currently missing relative to the idea
 
-### Explicitly out of scope (roadmap only — say it, don't build it)
-- ❌ Community vouching
-- ❌ SID-linked insurance
-- ❌ Grievance/dispute escalation flow
-- ❌ Real AI demand forecasting / discovery ranking model
-- ❌ Regional language NLP / voice interface
-- ❌ Federation-level treasury, analytics, governance
-- ❌ In-app real-time chat
-- ❌ Shramik earnings/reputation dashboard
+The present product already covers the core booking loop, but the full problem statement expects more:
 
-## 3. Screens (build in this order)
+- real geo-location based service matching
+- worker welfare and insurance integration
+- emergency and on-demand booking flows
+- digital payment and invoicing at production level
+- cooperative federation management dashboard
+- multilingual mobile-first user experience
+- AI-based demand forecasting and workforce allocation
+- broader institutional and household service coverage
 
-1. **Auth** — real OTP signup/login, role selection (customer/Shramik/admin)
-2. **Shramik Onboarding** — trade, location, skill quiz + work sample upload
-3. **Search & Discovery** — live geo-matching, verified badge, rating, ETA
-4. **Booking** — slot selection, emergency toggle, confirm
-5. **Track** — `Pending → Confirmed → In Progress → Completed`
-6. **Admin** — approve/reject Shramik, issue Shramik ID
-7. **Payment** — Razorpay test checkout
-8. **Invoice** — total, platform fee %, worker payout, clearly visible
-9. **Rate** — post-completion only, 1–5 stars + comment
-10. **Surge Banner** — static seeded text on Shramik/admin view
+The future roadmap should bridge these gaps without losing the strong MVP foundation we already built.
 
-## 4. Data Model
+---
 
-```
-users            (id, name, phone, role, status)
-cooperatives     (id, name, region)
-shramiks         (id, user_id, cooperative_id, shramik_id, trade,
-                   latitude, longitude, rating, verified, verification_status)
-skill_verifications (id, shramik_id, quiz_score, work_sample_url, status)
-bookings         (id, customer_id, shramik_id, service, scheduled_at,
-                   status, is_emergency, distance_km, service_amount)
-payments         (id, booking_id, amount, platform_fee, worker_payout,
-                   payment_status, invoice_url)
-ratings          (id, booking_id, stars, comment)
-```
+## 3. Future roadmap to align with the problem statement
 
-## 5. Tech Stack (kept deliberately lean)
+### Phase 1: Cooperative foundation
+- [ ] Build a federation/cooperative layer for societies and worker groups
+- [ ] Add cooperative-level admin profiles and regional governance
+- [ ] Link each Shramik to a cooperative / society / ward / region
+- [ ] Maintain worker registry with ID, skill set, location, availability, and verification history
+- [ ] Add worker onboarding fields for certification, training, and experience history
 
-| Layer | Choice |
-|---|---|
-| Frontend | React |
-| Backend | Node.js + Express |
-| Database | One simple DB — Postgres or MongoDB, whichever the team knows best. No ORM/migration layer unless someone's already fluent in it. |
-| Geo | Google Maps API |
-| Payments | Razorpay (test mode) |
-| Auth | Real OTP provider |
-| AI/Python | Not required — surge banner is static, not a model |
+### Phase 2: Real service matching and demand visibility
+- [ ] Replace simple city/distance matching with real geospatial matching using latitude/longitude
+- [ ] Add service radius and nearest-worker ranking logic
+- [ ] Add ETA and travel-time estimation
+- [ ] Support household and institutional requests separately
+- [ ] Add emergency request flag and priority-based matching
+- [ ] Add demand-surge or service-load visibility for areas / categories
 
-## 6. Business Rules (enforce server-side, not just in the UI)
+### Phase 3: Trust, welfare, and compliance
+- [ ] Add worker welfare tracking such as insurance status, benefits, and support data
+- [ ] Add grievance and dispute handling workflow for worker and customer issues
+- [ ] Add worker payout tracking and transparent earnings visibility
+- [ ] Introduce formal verification process for certifications and skill proof
+- [ ] Add customer trust layer: verified worker badge, reviews, complaint resolution
 
-- [ ] Verified badge only set via admin approval — never client-side
-- [ ] Only completed bookings can be rated
-- [ ] `worker_payout + platform_fee == service_amount`, always
-- [ ] No double-booking a slot
-- [ ] Shramik IDs are unique
-- [ ] Platform fee disclosed before/at payment
+### Phase 4: Digital payments and service operation
+- [ ] Integrate a real payment gateway such as Razorpay / UPI / wallet flow in test and production mode
+- [ ] Generate invoices automatically with transparent breakdowns
+- [ ] Support cash, online, and partial-payment workflows as needed
+- [ ] Track payouts to the cooperative and individual workers
+- [ ] Add booking cancellation, refund, and dispute handling rules
 
-## 7. Build Order (48 hours)
+### Phase 5: Federation dashboard and planning tools
+- [ ] Add dashboard for cooperative-level worker utilization
+- [ ] Display service demand by category, area, and time slot
+- [ ] Monitor assignment success, delays, cancellations, and customer satisfaction
+- [ ] Add reporting for active workers, verified workers, completed jobs, and earnings
+- [ ] Add admin tools for workforce allocation and local demand balancing
 
-| Hours | Deliverable |
-|---|---|
-| 0–4 | Repo, stack, schema, seed data |
-| 4–14 | Booking + search + geo-matching |
-| 14–22 | Verification + admin approval |
-| 22–30 | Razorpay + auto-invoicing |
-| 30–34 | Full integration, one uninterrupted flow |
-| 34–38 | Ratings, emergency booking, surge banner |
-| 38–44 | UI polish, bug fixing |
-| 44–48 | Testing, demo rehearsal, backup video recorded |
+### Phase 6: AI and forecasting
+- [ ] Build demand forecasting by service type and region
+- [ ] Suggest workforce allocation and shift planning
+- [ ] Prioritize hot zones and categories with low worker availability
+- [ ] Recommend staffing for seasonal or event-driven service demand
+- [ ] Use forecasting as a decision-support feature, not just a marketing element
 
-## 8. Acceptance Criteria
+### Phase 7: Mobile-first multilingual experience
+- [ ] Build a mobile-first experience for customers and workers
+- [ ] Add multilingual support for major regional languages
+- [ ] Support voice or speech-friendly flows for low-digital-literacy users
+- [ ] Keep the app lightweight and D2C-friendly for field use
+- [ ] Ensure availability even in low-connectivity areas
 
-- [ ] Full flow (search → book → pay → invoice → rate) completes without a live failure
-- [ ] Verified badge appears only after admin approval, never by default
-- [ ] Invoice visibly shows fee % and worker payout — this is the proof of the pitch's core claim
-- [ ] App demoable on a mobile hotspot, not dependent on venue wifi alone
-- [ ] One screen-recorded backup run exists before presenting
+---
 
-## 9. Team Briefing Notes
+## 4. Target feature set after roadmap completion
 
-- This build should feel closer to production than `outline_v1` — real integrations, real error handling on the core paths.
-- Don't start Lever 2 or 3 until Lever 1 (search/booking) is solid — they depend on its data model.
-- Reserve the last 4–6 hours for rehearsal, not new features. A polished 6-feature demo beats a buggy 9-feature one.
+The final product should cover:
+
+- [ ] Service provider registration and verification
+- [ ] Worker skill profiling and certification
+- [ ] Customer booking and scheduling
+- [ ] Geo-location-based service matching
+- [ ] Digital payments and invoicing
+- [ ] Rating and feedback mechanism
+- [ ] Worker welfare and insurance integration
+- [ ] Emergency and on-demand bookings
+- [ ] Cooperative federation administration dashboard
+- [ ] Multilingual application experience
+- [ ] AI-based demand forecasting and workforce allocation
+
+This is the feature set most closely aligned to the original problem statement.
+
+---
+
+## 5. Recommended build priorities
+
+### Priority 1: Must have
+- real geospatial matching
+- live payment flow
+- verified worker and cooperative governance
+- booking lifecycle integrity
+- admin analytics and reporting
+
+### Priority 2: Should have
+- emergency booking support
+- grievance workflow
+- worker welfare module
+- multilingual UI support
+
+### Priority 3: Nice to have
+- AI forecasting
+- recommendation engine
+- deeper institutional service flows
+- mobile-first optimizations
+
+---
+
+## 6. Proposed next milestone plan
+
+### Milestone 1: Production-ready MVP alignment
+- finalizing live database connection
+- real mapping and nearest-worker logic
+- payment integration
+- admin reporting
+
+### Milestone 2: Cooperative operations layer
+- federation dashboard
+- regional/ward-level management
+- worker welfare and verification data
+
+### Milestone 3: Advanced intelligence layer
+- AI forecasting
+- workforce allocation
+- service demand prediction
+
+### Milestone 4: Mobile + multilingual rollout
+- mobile app / PWA delivery
+- regional language support
+- low-connectivity usability
+
+---
+
+## 7. Acceptance criteria for the future version
+
+- [ ] A customer can discover the nearest verified worker in real time
+- [ ] Booking, payment, and invoice generation work end-to-end without manual hacks
+- [ ] Cooperative admin can monitor workers, demand, and service activity
+- [ ] Worker welfare and verification records are tracked centrally
+- [ ] Users can access the system in multiple languages
+- [ ] AI-based demand insights are visible in the admin dashboard
+- [ ] The app feels like a cooperative marketplace rather than a basic booking demo
+
+---
+
+## 8. Should outline_v1 be modified?
+
+Short answer: not necessarily for history, but yes if we want it to stay honest about current status.
+
+### Best practice
+- Keep [outline_v1.md](outline_v1.md) as the original early-stage concept / demo plan
+- Use [outline_v2.md](outline_v2.md) as the future roadmap to align with the actual problem statement and upgraded vision
+
+This is the cleanest structure because:
+- [outline_v1.md](outline_v1.md) represents the initial MVP direction
+- [outline_v2.md](outline_v2.md) represents the next evolution toward the full cooperative marketplace idea
+
+If we want the project documentation to reflect reality, then [outline_v1.md](outline_v1.md) should either be renamed or updated with a note such as “initial prototype / early demo version,” rather than presented as the final target.
+
+---
+
+## 9. Summary
+
+The current app is already a strong MVP foundation. The next version should not just add cosmetic features; it should evolve toward the actual cooperative marketplace model described in the problem statement by adding real geospatial matching, production-grade payment, welfare support, federation management, and AI-based planning.
